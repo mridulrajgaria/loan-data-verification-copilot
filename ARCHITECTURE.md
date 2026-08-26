@@ -46,7 +46,11 @@ The system implements an end-to-end pipeline that transforms raw, unverified loa
 |      * Strictly READ-ONLY: Persists to AIRecommendation (Never mutates loan)       |
 |    - Reviewer inspects lineage, rules, and AI guidance                            |
 |    - Reviewer submits decision: POST /api/exceptions/:id/decision                 |
-|      * Decisions: OVERRIDE_APPROVE | REJECT | MANUAL_EDIT | ACCEPT_AI_FIX         |
+|      * Request body: { decision: 'approved' | 'rejected' | 'corrected', notes }   |
+|      * Internally mapped to an immutable ReviewAction.actionType of               |
+|        OVERRIDE_APPROVE | REJECT | MANUAL_EDIT | ACCEPT_AI_FIX (MANUAL_EDIT        |
+|        vs ACCEPT_AI_FIX distinguished by whether acceptedAiRecommendationId        |
+|        was supplied).                                                             |
 |      * Executes atomic transaction: updates loan & creates immutable ReviewAction |
 +-----------------------------------------------------------------------------------+
                                      |            |
