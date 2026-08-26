@@ -1,15 +1,33 @@
 /**
  * Central API Client for Loan Data Verification Copilot
- * Handles consistent error handling, credentials, and API endpoints.
+ * Handles consistent error handling, credentials, and mock RBAC headers.
  */
 
 const API_BASE = '/api';
+
+// Active Mock Authentication Context (Synchronized with Header Role Switcher)
+let currentAuth = {
+  userId: 'usr-operator-01',
+  userRole: 'OPERATOR',
+};
+
+export function setAuthUser(userId, userRole) {
+  currentAuth = {
+    userId: String(userId || 'system'),
+    userRole: String(userRole || 'REVIEWER').toUpperCase(),
+  };
+}
+
+export function getAuthUser() {
+  return currentAuth;
+}
 
 async function request(endpoint, options = {}) {
   const url = `${API_BASE}${endpoint}`;
   const headers = {
     'Accept': 'application/json',
-    'x-user-id': 'usr-dashboard-operator',
+    'x-user-id': currentAuth.userId,
+    'x-user-role': currentAuth.userRole,
     ...(options.headers || {}),
   };
 
@@ -46,6 +64,10 @@ async function request(endpoint, options = {}) {
 }
 
 export const api = {
+  // Mock Auth Configuration
+  setAuthUser,
+  getAuthUser,
+
   // Master Summary
   getSummary: () => request('/summary'),
 

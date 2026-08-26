@@ -16,6 +16,30 @@
 
 ---
 
+## 🎭 Role-Based Access Control & Mock Test Personas
+
+This system uses **header-based mock authentication** rather than username/password login, enabling evaluators to test role boundaries and permissions across the entire platform.
+
+### How Role Switching Works
+* **In the UI**: Use the **Persona / Role Switcher** dropdown in the top-right header. Switching a persona automatically updates the active view tab and injects the corresponding `x-user-id` and `x-user-role` headers into all subsequent API requests.
+* **In cURL / API Clients**: Provide the headers directly:
+  ```bash
+  curl -X GET http://localhost:4000/api/exceptions \
+    -H "x-user-id: usr-reviewer-01" \
+    -H "x-user-role: REVIEWER"
+  ```
+
+### Available Test Personas & Permissions Table
+
+| Persona Name | Header `x-user-id` | Header `x-user-role` | Accessible Views / Permissions |
+| :--- | :--- | :--- | :--- |
+| **Elena Rostova** | `usr-operator-01` | `OPERATOR` | **Operator (7a)**: Ingest CSV loan tapes (`POST /api/uploads`), inspect raw provenance & batch validation summary metrics. |
+| **David Chen** | `usr-reviewer-01` | `REVIEWER` | **Reviewer (7b)**: Adjudicate exceptions, trigger AI explanation / fix suggestions, record binding decisions (`POST /api/exceptions/:id/decision`), verify loans. |
+| **Sarah Vance** | `usr-auditor-01` | `AUDITOR` | **Consumer (7c)**: Inspect verified loan portfolio, independently recompute SHA-256 hashes (`GET /api/verified-loans/:id/verify-hash`), export data. *Adjudication & ingestion mutations return 403 Forbidden.* |
+| **Alex Mercer** | `usr-admin-01` | `ADMIN` | **Unrestricted Access**: Ingestion, reviewer adjudication, cryptographic tamper simulation (`POST /api/verified-loans/:id/simulate-tamper`), and verification. |
+
+---
+
 ## 🚀 Quick Start
 
 ### 1. Backend Setup
@@ -67,11 +91,16 @@ node backend/test-security.js
 ## 📁 Repository Structure
 ```
 Loan-Data-Verification-Copilot/
-├── AI_DEVELOPMENT_LOG.md         # Deliverable: 9. AI Development Log
+├── ARCHITECTURE.md               # Deliverable: Architecture Note (1-2 pages)
+├── AI_DEVELOPMENT_LOG.md         # Deliverable: AI Development Log
 ├── README.md                     # Project documentation & execution guide
+├── sample-output/                # Deliverable: Exported sample outputs
+│   ├── verified-loans-export.json # Full verified dataset with canonical JSON & SHA-256 hashes
+│   └── audit-trail-export.csv    # Complete chronological audit ledger export
 ├── data/                         # Synthetic datasets (loan_tape, servicer_update, manifest)
 ├── scripts/
-│   └── generate-loan-tape.js     # Deterministic synthetic portfolio generator
+│   ├── generate-loan-tape.js     # Deterministic synthetic portfolio generator
+│   └── run-e2e-pipeline-export.js # Full pipeline executor & sample export generator
 ├── backend/
 │   ├── prisma/
 │   │   └── schema.prisma         # 10-Entity relational SQLite schema
@@ -109,6 +138,6 @@ Loan-Data-Verification-Copilot/
         │   ├── LoanDetailModal.jsx   # Lineage & raw CSV comparison
         │   ├── OperatorDashboard.jsx # Module 7a: Ingestion & metrics
         │   └── ReviewerDashboard.jsx # Module 7b: AI panel & decisions
-        ├── api.js                # Unified fetch API client
-        └── App.jsx               # Role tab navigation container
+        ├── api.js                # Unified fetch API client with dynamic mock headers
+        └── App.jsx               # Role & persona switcher navigation container
 ```
