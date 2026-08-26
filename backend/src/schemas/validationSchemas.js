@@ -51,6 +51,7 @@ const batchSummaryBodySchema = z.object({
 // Export Query Schema
 const exportQuerySchema = z.object({
   format: z.enum(['json', 'csv']).default('json'),
+  target: z.enum(['verified', 'audit']).default('verified'),
 });
 
 // Verify Loan Body Schema

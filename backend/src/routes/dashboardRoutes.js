@@ -256,7 +256,7 @@ router.get(
   validateRequest({ query: exportQuerySchema }),
   async (req, res) => {
     try {
-      const { format = 'json' } = req.query;
+      const { format = 'json', target = 'verified' } = req.query;
 
       const verifiedRecords = await prisma.verifiedLoan.findMany({
         include: {
@@ -268,10 +268,40 @@ router.get(
 
       const auditLogs = await prisma.auditLog.findMany({
         orderBy: { timestamp: 'desc' },
-        take: 2000,
+        take: 5000,
       });
 
       if (format === 'csv') {
+        if (target === 'audit') {
+          const headers = [
+            'audit_id',
+            'timestamp',
+            'actor',
+            'action_type',
+            'entity_type',
+            'entity_id',
+            'details',
+          ];
+
+          const csvRows = [headers.join(',')];
+          auditLogs.forEach((log) => {
+            const row = [
+              log.id,
+              log.timestamp.toISOString(),
+              log.actor,
+              log.actionType,
+              log.entityType,
+              log.entityId,
+              log.details || '{}',
+            ];
+            csvRows.push(row.map((val) => `"${String(val || '').replace(/"/g, '""')}"`).join(','));
+          });
+
+          res.setHeader('Content-Type', 'text/csv');
+          res.setHeader('Content-Disposition', `attachment; filename="audit_trail_export_${Date.now()}.csv"`);
+          return res.status(200).send(csvRows.join('\n'));
+        }
+
         const headers = [
           'verified_loan_id',
           'loan_identifier',
