@@ -1,0 +1,161 @@
+{
+  "version": "1.0.0",
+  "referenceDate": "2026-02-26T00:00:00.000Z",
+  "stalenessThresholdDays": 180,
+  "interestRateBounds": {
+    "min": 0.5,
+    "max": 35.0
+  },
+  "validLoanTypes": [
+    "CONVENTIONAL",
+    "FHA",
+    "VA",
+    "JUMBO",
+    "USDA"
+  ],
+  "validPaymentStatuses": [
+    "CURRENT",
+    "LATE_30",
+    "LATE_60",
+    "LATE_90",
+    "DEFAULT",
+    "PAID_OFF"
+  ],
+  "paymentStatusDpdMatrix": {
+    "CURRENT": { "minDpd": 0, "maxDpd": 0 },
+    "LATE_30": { "minDpd": 30, "maxDpd": 59 },
+    "LATE_60": { "minDpd": 60, "maxDpd": 89 },
+    "LATE_90": { "minDpd": 90, "maxDpd": 119 },
+    "DEFAULT": { "minDpd": 120, "maxDpd": 9999 },
+    "PAID_OFF": { "minDpd": 0, "maxDpd": 0 }
+  },
+  "validStateCodes": [
+    "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
+    "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+    "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+    "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+    "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY", "DC"
+  ],
+  "rules": [
+    {
+      "ruleCode": "RULE_REQUIRED_FIELDS",
+      "name": "Missing Required Identifiers or Core Attributes",
+      "category": "DATA_INTEGRITY",
+      "severity": "CRITICAL",
+      "ruleType": "REQUIRED_FIELD",
+      "description": "Validates that essential loan metadata (loan_id, borrower_id, loan_type, principal, rate, term) are populated."
+    },
+    {
+      "ruleCode": "RULE_VALID_DATES",
+      "name": "Invalid Calendar Date Format",
+      "category": "DATA_INTEGRITY",
+      "severity": "CRITICAL",
+      "ruleType": "FORMAT",
+      "description": "Verifies that dates comply with ISO calendar bounds and do not contain impossible calendar values."
+    },
+    {
+      "ruleCode": "RULE_MATURITY_AFTER_ORIGINATION",
+      "name": "Maturity Date Prior to Origination Date",
+      "category": "DATA_INTEGRITY",
+      "severity": "CRITICAL",
+      "ruleType": "CROSS_FIELD",
+      "description": "Maturity date must strictly succeed origination date in the loan lifecycle."
+    },
+    {
+      "ruleCode": "RULE_NON_NEGATIVE_PRINCIPAL",
+      "name": "Negative Loan Principal or Balance",
+      "category": "UNDERWRITING",
+      "severity": "CRITICAL",
+      "ruleType": "RANGE",
+      "description": "Original loan principal and current balance cannot be less than zero."
+    },
+    {
+      "ruleCode": "RULE_BALANCE_LE_PRINCIPAL",
+      "name": "Current Balance Exceeds Original Principal",
+      "category": "UNDERWRITING",
+      "severity": "HIGH",
+      "ruleType": "COMPARISON",
+      "description": "Standard amortizing loans cannot carry a current balance higher than original disbursed principal."
+    },
+    {
+      "ruleCode": "RULE_INTEREST_RATE_RANGE",
+      "name": "Interest Rate Outside Acceptable Market Bounds",
+      "category": "UNDERWRITING",
+      "severity": "HIGH",
+      "ruleType": "RANGE",
+      "description": "Interest rate must fall within configured minimum and usury thresholds."
+    },
+    {
+      "ruleCode": "RULE_VALID_PAYMENT_STATUS",
+      "name": "Invalid Payment Status Enumeration",
+      "category": "COMPLIANCE",
+      "severity": "HIGH",
+      "ruleType": "FORMAT",
+      "description": "Payment status must strictly match standardized servicing status values."
+    },
+    {
+      "ruleCode": "RULE_PAYMENT_STATUS_DPD_CONSISTENCY",
+      "name": "Payment Status vs Days Past Due Inconsistency",
+      "category": "COMPLIANCE",
+      "severity": "HIGH",
+      "ruleType": "CROSS_FIELD",
+      "description": "Servicing payment status must align with the days past due bracket."
+    },
+    {
+      "ruleCode": "RULE_DUPLICATE_LOAN_ID",
+      "name": "Duplicate Primary Loan Identifier",
+      "category": "DATA_INTEGRITY",
+      "severity": "CRITICAL",
+      "ruleType": "LOGICAL",
+      "description": "Each loan identifier must be unique across the portfolio."
+    },
+    {
+      "ruleCode": "RULE_DUPLICATE_BORROWER_TRIPLET",
+      "name": "Duplicate Borrower Origination Triplet",
+      "category": "ELIGIBILITY",
+      "severity": "HIGH",
+      "ruleType": "LOGICAL",
+      "description": "Flags duplicate loans sharing identical borrower_id, original principal, and origination date."
+    },
+    {
+      "ruleCode": "RULE_REQUIRED_DOCUMENT_STATUS",
+      "name": "Missing or Incomplete Document Custody Status",
+      "category": "COMPLIANCE",
+      "severity": "MEDIUM",
+      "ruleType": "REQUIRED_FIELD",
+      "description": "Ensures document status is recorded and not unassigned."
+    },
+    {
+      "ruleCode": "RULE_STALE_RECORD",
+      "name": "Stale Tape Record Exceeding Update Window",
+      "category": "COMPLIANCE",
+      "severity": "WARNING",
+      "ruleType": "RANGE",
+      "description": "Last updated date exceeds the allowed freshness threshold (180 days)."
+    },
+    {
+      "ruleCode": "RULE_VALID_STATE_CODE",
+      "name": "Invalid US State Jurisdiction Code",
+      "category": "COMPLIANCE",
+      "severity": "HIGH",
+      "ruleType": "FORMAT",
+      "description": "Borrower state must be a valid 2-letter US jurisdiction code."
+    },
+    {
+      "ruleCode": "RULE_CLOSED_LOAN_POSITIVE_BALANCE",
+      "name": "Paid-Off Loan Carrying Positive Balance",
+      "category": "UNDERWRITING",
+      "severity": "CRITICAL",
+      "ruleType": "LOGICAL",
+      "description": "A loan marked PAID_OFF or CLOSED must have a zero current balance."
+    },
+    {
+      "ruleCode": "RULE_CROSS_SOURCE_CONFLICT",
+      "name": "Cross-Source Servicer Feed Discrepancy",
+      "category": "ELIGIBILITY",
+      "severity": "HIGH",
+      "ruleType": "CROSS_FIELD",
+      "description": "Flags discrepancies between primary tape data and external servicer update feeds."
+    }
+  ]
+}
