@@ -54,6 +54,8 @@ Every module underwent rigorous human validation and live CLI/integration testin
 [Module 8: Security]   --> Tested Zod query rejections (limit > 100), RBAC permission blocking (AUDITOR rejected with HTTP 403).
 ```
 
+> **Development Workflow & Commit Note**: The iterative build process, rapid refactoring, and modular verification took place directly within active Google Antigravity agentic pairing sessions rather than being committed incrementally to git at each micro-step. Comprehensive test suite runs (detailed below) served as the authoritative checkpoint mechanism across every modular milestone. Going forward, logical changes are committed incrementally using conventional commit standards.
+
 1. **Schema Review**: Inspected SQLite table constraints and verified that `NormalizedLoan` maintains non-nullable foreign keys (`rawLoanRecordId`, `rawUploadId`) to guarantee provenance.
 2. **Dataset Audit**: Ran `node scripts/generate-loan-tape.js` and cross-referenced the CLI summary table against injected counts.
 3. **Ingestion Testing (`test-ingestion.js`)**: Ingested `loan_tape.csv` through the streaming pipeline; verified that raw CSV text was preserved verbatim in `RawLoanRecord` while normalized records were created.
