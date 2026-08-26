@@ -1,0 +1,275 @@
+// Prisma Schema for Loan Data Verification Copilot
+// Database: SQLite
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// -----------------------------------------------------------------------------
+// 1. User & Authentication
+// -----------------------------------------------------------------------------
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         String   @default("REVIEWER") // ADMIN, REVIEWER, AUDITOR
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  uploads       RawUpload[]
+  reviewActions ReviewAction[]
+  verifiedLoans VerifiedLoan[]
+
+  @@map("users")
+}
+
+// -----------------------------------------------------------------------------
+// 2. Raw Upload (File-level provenance & lineage)
+// -----------------------------------------------------------------------------
+model RawUpload {
+  id           String   @id @default(uuid())
+  filename     String
+  fileSize     Int
+  rowCount     Int      @default(0)
+  fileHash     String   // SHA-256 of raw uploaded file
+  status       String   @default("PENDING") // PENDING, PROCESSING, COMPLETED, FAILED
+  uploadedById String?
+  uploadedBy   User?    @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+  createdAt    DateTime @default(now())
+
+  rawRecords      RawLoanRecord[]
+  normalizedLoans NormalizedLoan[]
+
+  @@index([uploadedById])
+  @@index([status])
+  @@index([createdAt])
+  @@map("raw_uploads")
+}
+
+// -----------------------------------------------------------------------------
+// 3. Raw Loan Record (Untransformed row-level provenance)
+// -----------------------------------------------------------------------------
+model RawLoanRecord {
+  id          String   @id @default(uuid())
+  rawUploadId String
+  rowNumber   Int
+  rawContent  String   // Exact raw CSV row JSON/text representation
+  createdAt   DateTime @default(now())
+
+  rawUpload      RawUpload       @relation(fields: [rawUploadId], references: [id], onDelete: Cascade)
+  normalizedLoan NormalizedLoan?
+
+  @@index([rawUploadId, rowNumber])
+  @@map("raw_loan_records")
+}
+
+// -----------------------------------------------------------------------------
+// 4. Normalized Loan (Typed domain entity with strict raw lineage)
+// -----------------------------------------------------------------------------
+model NormalizedLoan {
+  id                String    @id @default(uuid())
+  rawUploadId       String
+  rawLoanRecordId   String    @unique
+  loanIdentifier    String    // External loan ID from dataset
+  borrowerId        String?
+  borrowerName      String?
+  borrowerEmail     String?
+  borrowerSsnHash   String?
+  loanType          String?   // CONVENTIONAL, FHA, VA, JUMBO
+  originationDate   DateTime?
+  maturityDate      DateTime?
+  originalPrincipal Float?
+  currentBalance    Float?
+  interestRate      Float?
+  termMonths        Int?
+  borrowerState     String?
+  loanPurpose       String?   // PURCHASE, REFINANCE_RATE_TERM, REFINANCE_CASH_OUT
+  creditGrade       String?   // A, B, C, D, E, F
+  employmentLength  String?
+  incomeBand        String?
+  paymentStatus     String?   // CURRENT, LATE_30, LATE_60, LATE_90, DEFAULT, PAID_OFF
+  daysPastDue       Int?
+  servicerName      String?
+  lastPaymentDate   DateTime?
+  lastUpdatedAt     DateTime?
+  documentStatus    String?
+  sourceSystem      String?
+  propertyAddress   String?
+  propertyValue     Float?
+  ltvRatio          Float?
+  dtiRatio          Float?
+  creditScore       Int?
+  status            String    @default("UNVALIDATED") // UNVALIDATED, VALID, FLAGGED, IN_REVIEW, APPROVED, REJECTED, VERIFIED
+  currentVersion    Int       @default(1)
+  rawUnparsedValues String?   // JSON object storing any fields that failed type coercion
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  rawUpload         RawUpload          @relation(fields: [rawUploadId], references: [id], onDelete: Cascade)
+  rawLoanRecord     RawLoanRecord      @relation(fields: [rawLoanRecordId], references: [id], onDelete: Cascade)
+  exceptions        Exception[]
+  reviewActions     ReviewAction[]
+  aiRecommendations AIRecommendation[]
+  verifiedLoan      VerifiedLoan?
+
+  @@index([loanIdentifier])
+  @@index([rawUploadId])
+  @@index([status])
+  @@index([borrowerId])
+  @@index([createdAt])
+  @@map("normalized_loans")
+}
+
+// -----------------------------------------------------------------------------
+// 5. Validation Rule Definition
+// -----------------------------------------------------------------------------
+model ValidationRule {
+  id          String   @id @default(uuid())
+  ruleCode    String   @unique
+  name        String
+  description String
+  category    String   // UNDERWRITING, COMPLIANCE, DATA_INTEGRITY, ELIGIBILITY
+  severity    String   // CRITICAL, HIGH, MEDIUM, LOW / ERROR, WARNING, INFO
+  ruleType    String   // RANGE, COMPARISON, REQUIRED_FIELD, REGEX, CROSS_FIELD
+  ruleConfig  String   // JSON parameters for rule execution
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  exceptions Exception[]
+
+  @@index([category])
+  @@index([isActive])
+  @@map("validation_rules")
+}
+
+// -----------------------------------------------------------------------------
+// 6. Exception (Flagged validation violation)
+// -----------------------------------------------------------------------------
+model Exception {
+  id         String    @id @default(uuid())
+  loanId     String
+  ruleId     String
+  severity   String    // CRITICAL, HIGH, MEDIUM, LOW
+  status     String    @default("OPEN") // OPEN, IN_REVIEW, RESOLVED, DISMISSED
+  details    String?   // Contextual failure details/message JSON
+  resolution String?   // "approved", "rejected", "corrected" (null until resolved)
+  createdAt  DateTime  @default(now())
+  resolvedAt DateTime?
+
+  loan              NormalizedLoan     @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  rule              ValidationRule     @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  reviewActions     ReviewAction[]
+  aiRecommendations AIRecommendation[]
+
+  @@index([loanId])
+  @@index([ruleId])
+  @@index([status])
+  @@index([severity])
+  @@index([createdAt])
+  @@map("exceptions")
+}
+
+// -----------------------------------------------------------------------------
+// 7. AI Recommendation (Suggestion ONLY — Never mutates state directly)
+// -----------------------------------------------------------------------------
+model AIRecommendation {
+  id                 String    @id @default(uuid())
+  target             String    // "loan" or "exception"
+  loanId             String?
+  exceptionId        String?
+  promptSent         String    // Sanitized prompt submitted to LLM
+  modelName          String    // Model identifier (e.g. "gemini-1.5-pro")
+  response           String    // Raw response from LLM
+  suggestedPatch     String?   // JSON representation of suggested field-level patch
+  reasoning          String?   // Explanation from AI
+  acceptedByReviewer Boolean?  // Starts NULL; explicitly set true/false only upon human action
+  reviewedByUserId   String?
+  reviewedAt         DateTime?
+  createdAt          DateTime  @default(now())
+
+  loan          NormalizedLoan? @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  exception     Exception?      @relation(fields: [exceptionId], references: [id], onDelete: Cascade)
+  reviewActions ReviewAction[]
+
+  @@index([loanId])
+  @@index([exceptionId])
+  @@index([target])
+  @@index([acceptedByReviewer])
+  @@map("ai_recommendations")
+}
+
+// -----------------------------------------------------------------------------
+// 8. Review Action (Human Decision Record)
+// -----------------------------------------------------------------------------
+model ReviewAction {
+  id                 String   @id @default(uuid())
+  loanId             String
+  exceptionId        String?
+  userId             String
+  actionType         String   // "MANUAL_EDIT", "ACCEPT_AI_FIX", "OVERRIDE_APPROVE", "REJECT", "DISMISS"
+  resolution         String?  // "approved", "rejected", "corrected"
+  beforeState        String   // Snapshot of entity state before mutation (JSON)
+  afterState         String   // Snapshot of entity state after mutation (JSON)
+  notes              String?  // Human reviewer rationale/justification
+  aiRecommendationId String?  // Reference to AI suggestion if accepted/rejected
+  createdAt          DateTime @default(now())
+
+  loan             NormalizedLoan    @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  exception        Exception?        @relation(fields: [exceptionId], references: [id], onDelete: SetNull)
+  user             User              @relation(fields: [userId], references: [id])
+  aiRecommendation AIRecommendation? @relation(fields: [aiRecommendationId], references: [id], onDelete: SetNull)
+
+  @@index([loanId])
+  @@index([exceptionId])
+  @@index([userId])
+  @@index([actionType])
+  @@index([createdAt])
+  @@map("review_actions")
+}
+
+// -----------------------------------------------------------------------------
+// 9. Verified Loan (Cryptographically locked verified state)
+// -----------------------------------------------------------------------------
+model VerifiedLoan {
+  id               String   @id @default(uuid())
+  loanId           String   @unique
+  canonicalJson    String   // Exact canonical JSON payload hashed
+  recordHash       String   // SHA-256 hex digest of canonicalJson
+  verifiedByUserId String
+  verifiedAt       DateTime @default(now())
+  version          Int      @default(1)
+
+  loan           NormalizedLoan @relation(fields: [loanId], references: [id], onDelete: Restrict)
+  verifiedByUser User           @relation(fields: [verifiedByUserId], references: [id])
+
+  @@index([recordHash])
+  @@index([verifiedByUserId])
+  @@index([verifiedAt])
+  @@map("verified_loans")
+}
+
+// -----------------------------------------------------------------------------
+// 10. Audit Log (Immutable append-only ledger for all state changes)
+// -----------------------------------------------------------------------------
+model AuditLog {
+  id         String   @id @default(uuid())
+  actor      String   // User UUID or "system"
+  actionType String   // UPLOAD, IMPORT, VALIDATE, EXCEPTION_CREATED, AI_SUGGESTION_GENERATED, COMMENT_ADDED, FIELD_EDITED, APPROVED, REJECTED, VERIFIED, EXPORTED
+  entityType String   // RawUpload, NormalizedLoan, Exception, ReviewAction, AIRecommendation, VerifiedLoan, User
+  entityId   String   // Primary key of affected entity
+  details    String   // Structured JSON metadata (diff, reason, IP, timestamp)
+  timestamp  DateTime @default(now())
+
+  @@index([actor])
+  @@index([actionType])
+  @@index([entityType, entityId])
+  @@index([timestamp])
+  @@map("audit_logs")
+}
