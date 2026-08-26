@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+/* Custom glassmorphism and subtle animations */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(51, 65, 85, 0.5);
+}
+
+.ai-glow {
+  box-shadow: 0 0 25px -5px rgba(168, 85, 247, 0.25);
+}
+
+.badge-critical {
+  @apply bg-red-950/80 text-red-400 border border-red-800/60 px-2 py-0.5 rounded text-xs font-semibold uppercase tracking-wider;
+}
+.badge-high {
+  @apply bg-amber-950/80 text-amber-400 border border-amber-800/60 px-2 py-0.5 rounded text-xs font-semibold uppercase tracking-wider;
+}
+.badge-medium {
+  @apply bg-yellow-950/80 text-yellow-400 border border-yellow-800/60 px-2 py-0.5 rounded text-xs font-semibold uppercase tracking-wider;
+}
+.badge-warning {
+  @apply bg-blue-950/80 text-blue-400 border border-blue-800/60 px-2 py-0.5 rounded text-xs font-semibold uppercase tracking-wider;
+}
+.badge-verified {
+  @apply bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 px-2 py-0.5 rounded text-xs font-semibold uppercase tracking-wider;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #020617;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
