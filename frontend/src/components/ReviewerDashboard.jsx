@@ -278,12 +278,12 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
       </div>
 
       {/* Master / Detail Grid Layout (33% Queue / 67% Dossier) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         {/* ========================================================================= */}
         {/* LEFT COLUMN: Exception Queue (~33% width -> 4 cols)                        */}
         {/* ========================================================================= */}
-        <div className="lg:col-span-4 section-band p-4 space-y-3 bg-white">
-          <div className="flex items-center justify-between border-b border-[#CDD7CB] pb-2.5">
+        <div className="lg:col-span-4 section-band p-4 space-y-3 bg-white flex flex-col h-full">
+          <div className="flex items-center justify-between border-b border-[#CDD7CB] pb-2.5 flex-shrink-0">
             <div className="flex items-center space-x-2">
               <ShieldAlert className="w-4 h-4 text-[#A15C00]" />
               <h3 className="text-xs font-bold uppercase tracking-wider text-[#131D1B] font-mono">
@@ -299,7 +299,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
           </div>
 
           {/* Search & Filters */}
-          <div className="space-y-2">
+          <div className="space-y-2 flex-shrink-0">
             <div className="relative flex items-center">
               <Search className="w-4 h-4 absolute left-2.5 text-[#768883] pointer-events-none" />
               <input
@@ -342,9 +342,9 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
             </div>
           </div>
 
-          {/* Queue List Rows */}
+          {/* Queue List Rows (Scrollable, stretching to exact bottom of right dossier) */}
           {loadingList ? (
-            <div className="py-16 flex justify-center text-[#768883]">
+            <div className="py-16 flex justify-center text-[#768883] flex-1 items-center">
               <Loader2 className="w-5 h-5 animate-spin text-[#204E4C]" />
             </div>
           ) : listError ? (
@@ -352,11 +352,11 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
               {listError}
             </div>
           ) : exceptions.length === 0 ? (
-            <div className="text-center py-12 text-xs text-[#768883]">
+            <div className="text-center py-12 text-xs text-[#768883] flex-1 flex items-center justify-center">
               No open exceptions match filter criteria.
             </div>
           ) : (
-            <div className="space-y-2 max-h-[640px] overflow-y-auto pr-1">
+            <div className="space-y-2 overflow-y-auto pr-1 flex-1 min-h-[300px]">
               {exceptions.map((e) => {
                 const isSelected = e.id === selectedExceptionId;
                 return (
