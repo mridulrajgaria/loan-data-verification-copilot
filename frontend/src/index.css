@@ -4,8 +4,8 @@
 
 @layer base {
   html, body, #root {
-    background-color: #F6F8F6 !important;
-    color: #111827;
+    background-color: #F8FAFC !important;
+    color: #0F172A;
     font-family: "Figtree", -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'tnum';
     -webkit-font-smoothing: antialiased;
@@ -31,7 +31,7 @@
 
 /* Explicit, Guaranteed High-Contrast Color Classes */
 .bg-canvas-clean {
-  background-color: #F6F8F6 !important;
+  background-color: #F8FAFC !important;
 }
 
 .bg-teal-anchor {
@@ -196,7 +196,7 @@
   background-color: #FFFFFF !important;
   border: 1px solid #E2E8F0 !important;
   border-radius: 8px !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
 }
 
 /* Buttons */
@@ -270,25 +270,41 @@
   background-color: #E2E8F0 !important;
 }
 
+/* Forms & Inputs: Non-Overriding Search Padding */
 .input-institutional {
-  background-color: #FFFFFF !important;
-  color: #0F172A !important;
-  border: 1px solid #E2E8F0 !important;
-  border-radius: 6px !important;
-  padding: 0.45rem 0.75rem !important;
-  font-size: 0.75rem !important;
+  background-color: #FFFFFF;
+  color: #0F172A;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  padding-top: 0.45rem;
+  padding-bottom: 0.45rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  font-size: 0.75rem;
+  transition: all 150ms;
 }
 .input-institutional:focus {
   outline: none;
-  border-color: #204E4C !important;
-  box-shadow: 0 0 0 2px rgba(32, 78, 76, 0.15) !important;
+  border-color: #204E4C;
+  box-shadow: 0 0 0 2px rgba(32, 78, 76, 0.15);
+}
+
+.input-search-padded {
+  padding-left: 2.25rem !important;
+  padding-right: 0.75rem !important;
 }
 
 .select-institutional {
-  background-color: #FFFFFF !important;
-  color: #0F172A !important;
-  border: 1px solid #E2E8F0 !important;
-  border-radius: 6px !important;
-  padding: 0.45rem 0.6rem !important;
-  font-size: 0.75rem !important;
+  background-color: #FFFFFF;
+  color: #0F172A;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  padding: 0.45rem 0.6rem;
+  font-size: 0.75rem;
+  transition: all 150ms;
+}
+.select-institutional:focus {
+  outline: none;
+  border-color: #204E4C;
+  box-shadow: 0 0 0 2px rgba(32, 78, 76, 0.15);
 }

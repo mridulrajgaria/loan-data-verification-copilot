@@ -16,6 +16,7 @@ import {
   Sparkles,
   Lock,
   CheckCircle,
+  Check,
 } from 'lucide-react';
 
 export default function App() {
@@ -59,9 +60,9 @@ export default function App() {
   };
 
   const navItems = [
-    { id: 'operator', label: '01. DATA OPERATIONS', icon: Layers, descriptor: 'Ingestion & tape lineage' },
-    { id: 'reviewer', label: '02. UNDERWRITING REVIEW', icon: FileCheck2, descriptor: 'Exception adjudication' },
-    { id: 'consumer', label: '03. VERIFICATION PORTAL', icon: ShieldCheck, descriptor: 'Cryptographic attestation' },
+    { id: 'operator', label: '01. Data Operations', icon: Layers, descriptor: 'Tape ingestion & source lineage' },
+    { id: 'reviewer', label: '02. Underwriting Review', icon: FileCheck2, descriptor: 'Anomaly & exception adjudication' },
+    { id: 'consumer', label: '03. Verification Portal', icon: ShieldCheck, descriptor: 'Cryptographic data attestation' },
   ];
 
   const getPageTitle = () => {
@@ -80,37 +81,35 @@ export default function App() {
   const activeMeta = getPageTitle();
 
   return (
-    <div className="min-h-screen bg-[#F6F8F6] flex flex-col lg:flex-row text-[#0F172A] font-sans antialiased">
-      {/* 1. DESKTOP LEFT SIDEBAR */}
-      <aside className="hidden lg:flex lg:flex-col w-64 border-r border-[#E2E8F0] bg-white flex-shrink-0 justify-between">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col lg:flex-row text-[#0F172A] font-sans antialiased">
+      {/* 1. DESKTOP LEFT SIDEBAR (Expanded to w-72 so text never cuts off) */}
+      <aside className="hidden lg:flex lg:flex-col w-72 border-r border-[#E2E8F0] bg-white flex-shrink-0 justify-between">
         <div className="flex flex-col">
-          {/* Institutional Brand Header (Deep Teal with Cool Modern Logo) */}
-          <div className="h-16 border-b border-[#163B39] px-5 flex items-center bg-[#204E4C] text-white">
-            <div className="flex items-center space-x-3">
-              {/* Cool Modern Fintech Logo Icon */}
-              <div className="relative w-8 h-8 bg-gradient-to-br from-[#CDE78C] to-[#86C232] rounded-lg p-0.5 flex items-center justify-center shadow-sm">
-                <div className="w-full h-full bg-[#204E4C] rounded-[6px] flex items-center justify-center">
-                  <ShieldCheck className="w-4 h-4 text-[#CDE78C]" />
-                </div>
-                <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#CDE78C] rounded-full border-2 border-[#204E4C]"></div>
+          {/* Institutional Brand Header (FinFox Clean Style: White Background + Bold Green Logo) */}
+          <div className="h-18 border-b border-[#E2E8F0] px-6 flex items-center bg-white">
+            <div className="flex items-center space-x-3.5">
+              {/* FinFox-Inspired Hexagonal Fintech Icon */}
+              <div className="w-9 h-9 bg-[#16433F] rounded-xl flex items-center justify-center shadow-sm relative flex-shrink-0">
+                <ShieldCheck className="w-5 h-5 text-[#CDE78C]" />
+                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-[#CDE78C] rounded-full border-2 border-white"></div>
               </div>
 
               <div>
-                <div className="text-sm font-extrabold tracking-tight leading-none text-white font-mono flex items-center gap-1.5">
-                  <span>INTAIN</span>
-                  <span className="w-1 h-1 rounded-full bg-[#CDE78C]"></span>
+                <div className="text-xl font-black tracking-tight text-[#16433F] leading-none font-sans flex items-center gap-1">
+                  <span>Intain</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#86C232]"></span>
                 </div>
-                <div className="text-[10.5px] font-semibold text-[#CDE78C] tracking-wide mt-1 font-sans">
+                <div className="text-[11px] font-bold text-[#204E4C] tracking-wide mt-1 font-sans">
                   Loan Verification
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Navigation Links */}
-          <div className="p-3 space-y-2">
-            <div className="px-2 pt-3 pb-1 text-[10px] font-mono font-bold uppercase tracking-wider text-[#64748B]">
-              Workspaces
+          {/* Navigation Links (Matches FinFox Rounded Lime Pill Active State) */}
+          <div className="p-4 space-y-2">
+            <div className="px-2 pt-2 pb-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-[#64748B]">
+              Navigation & Workspaces
             </div>
 
             {navItems.map((item) => {
@@ -122,28 +121,28 @@ export default function App() {
                   onClick={() => handleTabChange(item.id)}
                   style={{
                     backgroundColor: isActive ? '#CDE78C' : 'transparent',
-                    color: isActive ? '#1C3806' : '#475569',
+                    color: isActive ? '#143834' : '#475569',
                     borderColor: isActive ? '#B3D463' : 'transparent',
                   }}
-                  className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-all border ${
+                  className={`w-full flex items-center space-x-3.5 px-4 py-3 rounded-xl text-left transition-all border ${
                     isActive
                       ? 'font-bold shadow-sm'
                       : 'hover:bg-[#F1F5F9] hover:text-[#0F172A]'
                   }`}
                 >
-                  <Icon className="w-4 h-4 flex-shrink-0" style={{ color: isActive ? '#1C3806' : '#64748B' }} />
-                  <div className="flex-1 truncate">
-                    <div className="text-xs font-mono tracking-tight leading-none font-bold">
+                  <Icon className="w-4 h-4 flex-shrink-0" style={{ color: isActive ? '#143834' : '#64748B' }} />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-bold leading-snug">
                       {item.label}
                     </div>
                     <div
-                      className="text-[11px] mt-1 leading-none font-normal font-sans"
-                      style={{ color: isActive ? '#2A5208' : '#64748B' }}
+                      className="text-[11px] mt-0.5 leading-snug font-normal font-sans"
+                      style={{ color: isActive ? '#204E4C' : '#64748B' }}
                     >
                       {item.descriptor}
                     </div>
                   </div>
-                  {isActive && <ChevronRight className="w-4 h-4" style={{ color: '#1C3806' }} />}
+                  {isActive && <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: '#143834' }} />}
                 </button>
               );
             })}
@@ -151,30 +150,30 @@ export default function App() {
         </div>
 
         {/* Sidebar Footer: Active Demo Persona & System Status */}
-        <div className="border-t border-[#E2E8F0] p-3.5 bg-[#F8FAFC] space-y-2.5">
+        <div className="border-t border-[#E2E8F0] p-4 bg-[#F8FAFC] space-y-3">
           {/* Operational Status */}
           <div className="flex items-center justify-between text-xs px-0.5">
-            <span className="flex items-center space-x-1.5 text-[11px] text-[#475569] font-medium font-sans">
+            <span className="flex items-center space-x-2 text-[11px] text-[#475569] font-medium font-sans">
               <span className="w-2 h-2 rounded-full bg-[#087443]"></span>
               <span>Verification Engine</span>
             </span>
-            <span className="text-[10px] font-mono font-bold text-[#204E4C] bg-white px-2 py-0.5 rounded-md border border-[#E2E8F0]">
+            <span className="text-[10px] font-mono font-bold text-[#16433F] bg-white px-2 py-0.5 rounded-md border border-[#E2E8F0]">
               READY
             </span>
           </div>
 
           {/* Dynamic User Persona Card */}
-          <div className="pt-2 border-t border-[#E2E8F0] flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="w-7 h-7 rounded-md bg-[#204E4C] text-white flex items-center justify-center text-xs font-bold font-mono">
+          <div className="pt-2.5 border-t border-[#E2E8F0] flex items-center justify-between">
+            <div className="flex items-center space-x-2.5">
+              <div className="w-8 h-8 rounded-lg bg-[#16433F] text-white flex items-center justify-center text-xs font-bold font-mono">
                 {currentPersona.initials}
               </div>
               <div className="truncate">
                 <div className="text-xs font-bold text-[#0F172A] truncate">{currentPersona.name}</div>
-                <div className="text-[9.5px] text-[#64748B] uppercase tracking-wider font-mono">{currentPersona.title}</div>
+                <div className="text-[10px] text-[#64748B] uppercase tracking-wider font-mono">{currentPersona.title}</div>
               </div>
             </div>
-            <span className="text-[9.5px] font-mono font-bold text-[#204E4C] bg-[#EEF4FF] px-2 py-0.5 rounded-md border border-[#9DC0FB]">
+            <span className="text-[9.5px] font-mono font-bold text-[#16433F] bg-[#EEF4FF] px-2 py-0.5 rounded-md border border-[#9DC0FB]">
               {currentPersona.role}
             </span>
           </div>
@@ -196,23 +195,23 @@ export default function App() {
             </button>
 
             <div className="hidden sm:flex items-center space-x-2 text-xs text-[#64748B] font-mono">
-              <span className="font-bold text-[#204E4C]">Intain Copilot</span>
+              <span className="font-bold text-[#16433F]">Intain Copilot</span>
               <span>/</span>
               <span className="capitalize font-sans font-semibold text-[#0F172A]">{activeTab}</span>
             </div>
           </div>
 
-          {/* Center: Global Search Bar */}
+          {/* Center: Global Search Bar with Guaranteed Non-Overlapping Padding */}
           <div className="flex-1 max-w-md mx-4 hidden md:block">
-            <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-2.5 text-[#94A3B8]" />
+            <div className="relative flex items-center">
+              <Search className="w-4 h-4 absolute left-3 text-[#94A3B8] pointer-events-none" />
               <input
                 type="text"
                 placeholder="Search loan ID, borrower, exception..."
                 value={globalSearch}
                 onChange={(e) => setGlobalSearch(e.target.value)}
                 aria-label="Search loan ID, borrower, or exception"
-                className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-md pl-9 pr-3 py-1.5 text-xs text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:bg-white focus:border-[#204E4C] focus:ring-2 focus:ring-[#204E4C]/10 transition-all font-sans"
+                className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-md pl-10 pr-3 py-1.5 text-xs text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:bg-white focus:border-[#204E4C] focus:ring-2 focus:ring-[#204E4C]/10 transition-all font-sans"
               />
             </div>
           </div>
@@ -224,7 +223,7 @@ export default function App() {
               <button
                 onClick={() => handleTabChange('operator')}
                 style={{
-                  backgroundColor: activeTab === 'operator' ? '#204E4C' : 'transparent',
+                  backgroundColor: activeTab === 'operator' ? '#16433F' : 'transparent',
                   color: activeTab === 'operator' ? '#FFFFFF' : '#475569',
                 }}
                 className={`px-3 py-1.5 rounded-md text-[11px] font-bold transition-all ${
@@ -236,7 +235,7 @@ export default function App() {
               <button
                 onClick={() => handleTabChange('reviewer')}
                 style={{
-                  backgroundColor: activeTab === 'reviewer' ? '#204E4C' : 'transparent',
+                  backgroundColor: activeTab === 'reviewer' ? '#16433F' : 'transparent',
                   color: activeTab === 'reviewer' ? '#FFFFFF' : '#475569',
                 }}
                 className={`px-3 py-1.5 rounded-md text-[11px] font-bold transition-all ${
@@ -248,7 +247,7 @@ export default function App() {
               <button
                 onClick={() => handleTabChange('consumer')}
                 style={{
-                  backgroundColor: activeTab === 'consumer' ? '#204E4C' : 'transparent',
+                  backgroundColor: activeTab === 'consumer' ? '#16433F' : 'transparent',
                   color: activeTab === 'consumer' ? '#FFFFFF' : '#475569',
                 }}
                 className={`px-3 py-1.5 rounded-md text-[11px] font-bold transition-all ${
@@ -261,7 +260,7 @@ export default function App() {
 
             <div className="h-4 w-px bg-[#E2E8F0] hidden sm:block"></div>
 
-            <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-mono font-bold text-[#204E4C] bg-[#EEF4FF] border border-[#9DC0FB]">
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-mono font-bold text-[#16433F] bg-[#EEF4FF] border border-[#9DC0FB]">
               <span className="w-2 h-2 rounded-full bg-[#087443]"></span>
               {currentPersona.name}
             </span>
@@ -283,11 +282,11 @@ export default function App() {
                 }}
                 style={{
                   backgroundColor: activeTab === item.id ? '#CDE78C' : 'transparent',
-                  color: activeTab === item.id ? '#1C3806' : '#475569',
+                  color: activeTab === item.id ? '#143834' : '#475569',
                 }}
-                className="w-full flex items-center justify-between px-3 py-2.5 text-xs rounded-lg font-bold"
+                className="w-full flex items-center justify-between px-3.5 py-3 text-xs rounded-xl font-bold"
               >
-                <span className="font-mono">{item.label}</span>
+                <span className="font-sans font-bold">{item.label}</span>
                 <span className="text-[10px] font-medium opacity-80">{item.descriptor}</span>
               </button>
             ))}
@@ -362,24 +361,24 @@ export default function App() {
         {/* Non-Technical Friendly Footer */}
         <footer className="border-t border-[#E2E8F0] bg-white px-6 py-3.5 text-xs text-[#64748B] flex flex-col sm:flex-row items-center justify-between gap-3 flex-shrink-0 shadow-sm">
           <div className="flex items-center space-x-2">
-            <span className="font-semibold text-[#0F172A]">Intain Loan Verification Copilot</span>
+            <span className="font-bold text-[#0F172A]">Intain Loan Verification Copilot</span>
             <span className="text-[#CBD5E1]">•</span>
             <span className="text-[11px] text-[#64748B]">Automated error detection with underwriter review and permanent protection</span>
           </div>
 
           <div className="flex items-center space-x-3 text-[11px] font-medium text-[#475569]">
-            <span className="inline-flex items-center gap-1 text-[#087443]">
-              <CheckCircle className="w-3.5 h-3.5 text-[#087443]" />
+            <span className="inline-flex items-center gap-1.5 text-[#087443] font-bold">
+              <Check className="w-3.5 h-3.5" />
               <span>Verified by Underwriters</span>
             </span>
             <span className="text-[#CBD5E1]">•</span>
-            <span className="inline-flex items-center gap-1 text-[#204E4C]">
-              <Lock className="w-3.5 h-3.5 text-[#204E4C]" />
+            <span className="inline-flex items-center gap-1.5 text-[#16433F] font-bold">
+              <Lock className="w-3.5 h-3.5" />
               <span>Tamper-Proof Records</span>
             </span>
             <span className="text-[#CBD5E1]">•</span>
-            <span className="inline-flex items-center gap-1 text-[#0F172A]">
-              <Sparkles className="w-3.5 h-3.5 text-[#0F172A]" />
+            <span className="inline-flex items-center gap-1.5 text-[#0F172A] font-bold">
+              <Sparkles className="w-3.5 h-3.5 text-[#A15C00]" />
               <span>100% Audit-Ready</span>
             </span>
           </div>

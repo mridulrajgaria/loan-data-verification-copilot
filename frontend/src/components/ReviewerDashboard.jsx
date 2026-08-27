@@ -291,14 +291,15 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
 
           {/* Search & Filters */}
           <div className="space-y-2">
-            <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-2.5 text-[#768883]" />
+            <div className="relative flex items-center">
+              <Search className="w-4 h-4 absolute left-2.5 text-[#768883] pointer-events-none" />
               <input
                 type="text"
                 placeholder="Filter loan ID, borrower, rule..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="input-institutional w-full pl-9 py-1.5 text-xs bg-[#F4F8F3]"
+                style={{ paddingLeft: '2.25rem' }}
+                className="input-institutional w-full py-1.5 text-xs bg-[#F8FAFC]"
               />
             </div>
 
