@@ -252,19 +252,19 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
   return (
     <div className="space-y-6">
       {/* Top Section Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1 border-b border-border">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-border">
         <div>
           <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-content-primary">
             Underwriting Case Management Dossier
           </h2>
-          <p className="text-xs text-content-secondary mt-0.5">
+          <p className="text-xs text-content-secondary mt-0.5 font-sans">
             Adjudicate validation rule violations, inspect forensic source discrepancies, and log permanent decisions.
           </p>
         </div>
         <div className="flex items-center space-x-2 text-xs font-mono text-content-muted">
           <span className="badge-warning">Queue: {exceptions.length} Open</span>
           <span>•</span>
-          <span>Signer: David Chen (REVIEWER)</span>
+          <span className="font-semibold text-content-primary">Signer: David Chen (REVIEWER)</span>
         </div>
       </div>
 
@@ -277,11 +277,11 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
           <div className="flex items-center justify-between border-b border-border pb-2.5">
             <div className="flex items-center space-x-2">
               <ShieldAlert className="w-4 h-4 text-semantic-warning" />
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-content-primary font-mono">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-content-primary font-mono">
                 Case Queue
               </h3>
             </div>
-            <span className="text-[10px] font-mono font-bold text-ref-yellow-text bg-ref-yellow px-1.5 py-0.5 rounded-xs">
+            <span className="text-[10px] font-mono font-bold text-ref-yellow-text bg-ref-yellow px-2 py-0.5 rounded-md border border-ref-yellow-border">
               {exceptions.length} Open
             </span>
           </div>
@@ -289,13 +289,13 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
           {/* Search & Filters */}
           <div className="space-y-2">
             <div className="relative">
-              <Search className="w-3.5 h-3.5 absolute left-2.5 top-2 text-content-muted" />
+              <Search className="w-4 h-4 absolute left-3 top-2.5 text-content-muted" />
               <input
                 type="text"
                 placeholder="Filter loan ID, borrower, rule..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="input-institutional w-full pl-8 py-1 text-xs"
+                className="input-institutional w-full pl-9 py-1.5 text-xs bg-[#F4F8F3]"
               />
             </div>
 
@@ -303,7 +303,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
               <select
                 value={severityFilter}
                 onChange={(e) => setSeverityFilter(e.target.value)}
-                className="select-institutional text-xs py-1 font-mono text-[11px]"
+                className="select-institutional text-xs py-1.5 font-mono text-[11px]"
               >
                 <option value="">All Severities</option>
                 <option value="CRITICAL">Critical</option>
@@ -315,7 +315,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
               <select
                 value={ruleFilter}
                 onChange={(e) => setRuleFilter(e.target.value)}
-                className="select-institutional text-xs py-1 truncate font-mono text-[11px]"
+                className="select-institutional text-xs py-1.5 truncate font-mono text-[11px]"
               >
                 <option value="">All Rules</option>
                 <option value="RULE_MATURITY_AFTER_ORIGINATION">Maturity Sequence</option>
@@ -335,7 +335,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
               <Loader2 className="w-5 h-5 animate-spin text-ref-teal" />
             </div>
           ) : listError ? (
-            <div className="p-3 bg-semantic-critical-bg border border-semantic-critical-border rounded-xs text-semantic-critical text-xs font-mono">
+            <div className="p-3 bg-semantic-critical-bg border border-semantic-critical-border rounded-md text-semantic-critical text-xs font-mono">
               {listError}
             </div>
           ) : exceptions.length === 0 ? (
@@ -343,17 +343,17 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
               No open exceptions match filter criteria.
             </div>
           ) : (
-            <div className="space-y-1 max-h-[640px] overflow-y-auto pr-1 divide-y divide-border/40">
+            <div className="space-y-1.5 max-h-[640px] overflow-y-auto pr-1 divide-y divide-border/40">
               {exceptions.map((e) => {
                 const isSelected = e.id === selectedExceptionId;
                 return (
                   <div
                     key={e.id}
                     onClick={() => setSelectedExceptionId(e.id)}
-                    className={`p-2.5 rounded-xs transition-colors cursor-pointer text-left ${
+                    className={`p-3 rounded-md transition-all cursor-pointer text-left ${
                       isSelected
-                        ? 'bg-ref-periwinkle-light border-l-3 border-ref-teal pl-2'
-                        : 'hover:bg-surface-secondary/60'
+                        ? 'bg-ref-periwinkle/30 border-l-4 border-ref-teal pl-3 shadow-subtle'
+                        : 'hover:bg-surface-secondary/70'
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2 mb-1">
@@ -365,13 +365,13 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                       </span>
                     </div>
 
-                    <div className="text-xs text-content-primary font-medium truncate">
+                    <div className="text-xs text-content-primary font-bold truncate font-sans">
                       {e.rule?.name || e.ruleId}
                     </div>
 
                     <div className="text-[11px] text-content-secondary mt-1 flex items-center justify-between font-sans">
                       <span className="truncate max-w-[140px]">{e.loan?.borrowerName || 'Borrower'}</span>
-                      <span className="font-mono font-medium text-content-primary tabular-nums">
+                      <span className="font-mono font-bold text-content-primary tabular-nums">
                         ${e.loan?.currentBalance?.toLocaleString() ?? '0.00'}
                       </span>
                     </div>
@@ -401,13 +401,13 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
             </div>
           ) : (
             <>
-              {/* 1. Case Header & Diagnostic Statement */}
+              {/* 1. Case Header & Diagnostic Statement (PALE YELLOW ANOMALY BLOCK) */}
               <div className="section-band p-5 space-y-4 bg-white">
                 {/* Header & Rule Title */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-border">
                   <div>
                     <div className="flex items-center space-x-2">
-                      <span className="font-mono font-bold text-sm text-ref-teal">
+                      <span className="font-mono font-bold text-base text-ref-teal">
                         {exceptionDetail.loan?.loanIdentifier || '(Missing ID)'}
                       </span>
                       <span className={getSeverityBadgeClass(exceptionDetail.severity)}>
@@ -417,7 +417,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                         Rule: {exceptionDetail.rule?.ruleCode}
                       </span>
                     </div>
-                    <h3 className="text-sm font-semibold text-content-primary mt-1">
+                    <h3 className="text-sm font-bold text-content-primary mt-1 font-sans">
                       {exceptionDetail.rule?.name}
                     </h3>
                   </div>
@@ -427,29 +427,29 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                     className="btn-institutional-secondary text-xs self-start sm:self-auto"
                   >
                     <span>Full Loan Lineage</span>
-                    <ExternalLink className="w-3 h-3" />
+                    <ExternalLink className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
-                {/* Violation Diagnostic Banner (Pale Yellow Block Surface) */}
-                <div className="block-yellow p-3 text-xs text-ref-yellow-text">
-                  <span className="font-bold block mb-0.5 font-mono uppercase text-[10px]">
+                {/* Violation Diagnostic Banner (Rich Pale Yellow Surface #FFEB8C) */}
+                <div className="block-yellow p-4 text-xs text-ref-yellow-text shadow-subtle">
+                  <span className="font-bold block mb-1 font-mono uppercase text-[10px] tracking-wider">
                     Violation Diagnostic:
                   </span>
-                  <p className="font-sans leading-relaxed">
+                  <p className="font-sans leading-relaxed font-semibold text-xs">
                     {exceptionDetail.details
                       ? JSON.parse(exceptionDetail.details).message
                       : 'Validation rule condition failed.'}
                   </p>
                 </div>
 
-                {/* Critical Financial Facts Grid (Periwinkle Surface Band) */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-ref-periwinkle-light p-3 rounded-xs border border-ref-periwinkle-border text-xs">
+                {/* Critical Financial Facts Grid (Soft Periwinkle Surface Block #C1D8FF) */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-ref-periwinkle-light p-4 rounded-md border border-ref-periwinkle-border text-xs">
                   <div>
                     <span className="text-[10px] font-mono uppercase font-bold text-ref-periwinkle-text/70 block">
                       Original Principal
                     </span>
-                    <span className="font-mono font-bold text-ref-periwinkle-text text-xs tabular-nums">
+                    <span className="font-mono font-bold text-ref-periwinkle-text text-sm tabular-nums">
                       ${exceptionDetail.loan?.originalPrincipal?.toLocaleString() ?? '—'}
                     </span>
                   </div>
@@ -457,7 +457,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                     <span className="text-[10px] font-mono uppercase font-bold text-ref-periwinkle-text/70 block">
                       Current Balance
                     </span>
-                    <span className="font-mono font-bold text-ref-periwinkle-text text-xs tabular-nums">
+                    <span className="font-mono font-bold text-ref-periwinkle-text text-sm tabular-nums">
                       ${exceptionDetail.loan?.currentBalance?.toLocaleString() ?? '—'}
                     </span>
                   </div>
@@ -465,7 +465,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                     <span className="text-[10px] font-mono uppercase font-bold text-ref-periwinkle-text/70 block">
                       Servicing Status / DPD
                     </span>
-                    <span className="font-sans font-medium text-ref-periwinkle-text text-xs">
+                    <span className="font-sans font-bold text-ref-periwinkle-text text-xs">
                       {exceptionDetail.loan?.paymentStatus} ({exceptionDetail.loan?.daysPastDue} DPD)
                     </span>
                   </div>
@@ -473,7 +473,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                     <span className="text-[10px] font-mono uppercase font-bold text-ref-periwinkle-text/70 block">
                       State / Term
                     </span>
-                    <span className="font-sans font-medium text-ref-periwinkle-text text-xs">
+                    <span className="font-sans font-bold text-ref-periwinkle-text text-xs">
                       {exceptionDetail.loan?.borrowerState || '—'} • {exceptionDetail.loan?.termMonths || 360}m
                     </span>
                   </div>
@@ -484,18 +484,20 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
               <div className="section-band p-5 space-y-3 bg-white">
                 <div className="flex items-center justify-between border-b border-border pb-2">
                   <div className="flex items-center space-x-2">
-                    <Info className="w-4 h-4 text-content-secondary" />
-                    <h3 className="text-xs font-semibold uppercase tracking-wider text-content-primary font-mono">
+                    <Info className="w-4 h-4 text-ref-teal" />
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-content-primary font-mono">
                       Source Evidence & Forensic Comparison
                     </h3>
                   </div>
-                  <span className="text-[10px] text-content-muted font-mono">Tape Row #{exceptionDetail.loan?.rawLoanRecord?.rowNumber ?? '—'}</span>
+                  <span className="text-[10px] text-content-muted font-mono bg-surface-secondary px-2 py-0.5 rounded-xs">
+                    Tape Row #{exceptionDetail.loan?.rawLoanRecord?.rowNumber ?? '—'}
+                  </span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
                   {/* Raw Source Tape */}
-                  <div className="bg-surface-secondary/70 border border-border rounded-xs p-3 space-y-1.5">
-                    <span className="text-[10px] uppercase font-semibold text-content-muted tracking-wider block font-sans border-b border-border/60 pb-1">
+                  <div className="bg-[#F8FAF7] border border-border rounded-md p-3.5 space-y-1.5">
+                    <span className="text-[10px] uppercase font-bold text-content-muted tracking-wider block font-sans border-b border-border/60 pb-1">
                       Raw Source Tape (Verbatim CSV)
                     </span>
                     {rawJsonObj ? (
@@ -514,8 +516,8 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                   </div>
 
                   {/* Normalized Database Record */}
-                  <div className="bg-surface-secondary/70 border border-border rounded-xs p-3 space-y-1.5">
-                    <span className="text-[10px] uppercase font-semibold text-content-muted tracking-wider block font-sans border-b border-border/60 pb-1">
+                  <div className="bg-[#F8FAF7] border border-border rounded-md p-3.5 space-y-1.5">
+                    <span className="text-[10px] uppercase font-bold text-content-muted tracking-wider block font-sans border-b border-border/60 pb-1">
                       Normalized Database Record
                     </span>
                     <div className="space-y-1 text-[11px] text-content-primary">
@@ -531,16 +533,16 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                 </div>
               </div>
 
-              {/* 3. AI REVIEW ASSIST (QUIET, COMPACT ADVISORY SECTION #FDF0FB) */}
-              <div className="bg-ref-pink-light border border-ref-pink-border rounded-xs p-3.5 space-y-2.5">
+              {/* 3. AI REVIEW ASSIST (LIGHT CORAL/RED TINT #FEECEB INSTEAD OF PINK) */}
+              <div className="block-coral p-4 space-y-3 shadow-subtle">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
-                    <BrainCircuit className="w-3.5 h-3.5 text-ref-pink-text" />
+                    <BrainCircuit className="w-4 h-4 text-ref-coral-text" />
                     <div>
-                      <span className="text-xs font-bold text-ref-pink-text uppercase tracking-wider block font-mono leading-none">
+                      <span className="text-xs font-bold text-ref-coral-text uppercase tracking-wider block font-mono leading-none">
                         AI Review Assist (Advisory Only)
                       </span>
-                      <span className="text-[10.5px] text-ref-pink-text/80 mt-0.5 block leading-none">
+                      <span className="text-[11px] text-ref-coral-text/80 mt-0.5 block leading-none font-sans font-medium">
                         Non-binding diagnostic. Human review is mandatory.
                       </span>
                     </div>
@@ -551,7 +553,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                       type="button"
                       onClick={handleRequestAiExplain}
                       disabled={loadingAiExplain}
-                      className="px-2 py-0.5 bg-white border border-ref-pink-border hover:bg-ref-pink-light text-ref-pink-text rounded-xs text-[11px] font-semibold transition-colors disabled:opacity-50 font-mono"
+                      className="px-2.5 py-1 bg-white border border-ref-coral-border hover:bg-white/80 text-ref-coral-text rounded-md text-xs font-bold transition-colors disabled:opacity-50 font-mono"
                     >
                       {loadingAiExplain ? <Loader2 className="w-3 h-3 animate-spin inline" /> : 'Explain'}
                     </button>
@@ -559,7 +561,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                       type="button"
                       onClick={handleRequestAiSuggest}
                       disabled={loadingAiSuggest}
-                      className="px-2 py-0.5 bg-ref-teal text-white hover:bg-ref-teal-dark rounded-xs text-[11px] font-semibold transition-colors disabled:opacity-50 font-mono"
+                      className="px-2.5 py-1 bg-ref-teal text-white hover:bg-ref-teal-dark rounded-md text-xs font-bold transition-colors disabled:opacity-50 font-mono"
                     >
                       {loadingAiSuggest ? <Loader2 className="w-3 h-3 animate-spin inline" /> : 'Suggest Fix'}
                     </button>
@@ -567,38 +569,38 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                 </div>
 
                 {aiError && (
-                  <div className="p-2 bg-semantic-critical-bg border border-semantic-critical-border rounded-xs text-xs text-semantic-critical font-mono">
+                  <div className="p-2.5 bg-semantic-critical-bg border border-semantic-critical-border rounded-md text-xs text-semantic-critical font-mono">
                     {aiError}
                   </div>
                 )}
 
                 {/* AI Explanation Text */}
                 {aiExplanation && (
-                  <div className="bg-white border border-ref-pink-border rounded-xs p-2.5 text-xs space-y-1">
+                  <div className="bg-white border border-ref-coral-border rounded-md p-3 text-xs space-y-1">
                     <div className="flex items-center justify-between text-[10px] text-content-muted">
-                      <span className="font-semibold text-ref-pink-text font-mono">Diagnostic Analysis</span>
+                      <span className="font-bold text-ref-coral-text font-mono">Diagnostic Analysis</span>
                       <span className="font-mono">
                         Model: {aiExplanation.modelName || 'Anthropic Claude'}
                       </span>
                     </div>
-                    <p className="text-content-primary leading-relaxed text-xs">{aiExplanation.explanation}</p>
+                    <p className="text-content-primary leading-relaxed text-xs font-sans">{aiExplanation.explanation}</p>
                   </div>
                 )}
 
                 {/* AI Suggested Field Correction Box */}
                 {aiSuggestion && aiSuggestion.suggestion && (
-                  <div className="bg-white border border-ref-pink-border rounded-xs p-2.5 text-xs space-y-2">
+                  <div className="bg-white border border-ref-coral-border rounded-md p-3 text-xs space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-ref-pink-text font-mono text-xs">Proposed Correction Patch</span>
-                      <span className="badge-ai font-mono">
+                      <span className="font-bold text-ref-coral-text font-mono text-xs">Proposed Correction Patch</span>
+                      <span className="badge-coral font-mono">
                         Confidence: {aiSuggestion.suggestion.confidence || 'HIGH'}
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 bg-surface-secondary p-1.5 rounded-xs border border-border text-xs">
+                    <div className="grid grid-cols-2 gap-2 bg-[#F8FAF7] p-2 rounded-md border border-border text-xs">
                       <div>
                         <span className="text-[10px] font-mono text-content-muted block">Target Field</span>
-                        <span className="font-mono font-semibold text-content-primary">{aiSuggestion.suggestion.field}</span>
+                        <span className="font-mono font-bold text-content-primary">{aiSuggestion.suggestion.field}</span>
                       </div>
                       <div>
                         <span className="text-[10px] font-mono text-content-muted block">Suggested Value</span>
@@ -612,9 +614,9 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                       <button
                         type="button"
                         onClick={() => handleApplyAiSuggestion(aiSuggestion.suggestion, aiSuggestion.recommendationId)}
-                        className="btn-institutional-secondary text-xs py-1"
+                        className="btn-institutional-secondary text-xs"
                       >
-                        <UserCheck className="w-3 h-3 text-ref-teal" />
+                        <UserCheck className="w-3.5 h-3.5 text-ref-teal" />
                         <span>Populate Human Review Form</span>
                       </button>
                     </div>
@@ -629,25 +631,25 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
               >
                 <div className="flex items-center justify-between border-b border-ref-teal-border/40 pb-3">
                   <div className="flex items-center space-x-2">
-                    <UserCheck className="w-4 h-4 text-ref-lime" />
+                    <UserCheck className="w-5 h-5 text-ref-lime" />
                     <h3 className="text-xs font-bold uppercase tracking-wider text-white font-mono">
                       Human Review Decision & Audit Sign-Off
                     </h3>
                   </div>
-                  <span className="text-[10px] font-mono text-ref-lime bg-white/10 px-2 py-0.5 rounded-xs">
+                  <span className="text-[10px] font-mono font-bold text-ref-teal bg-ref-lime px-2 py-0.5 rounded-md">
                     Signer: David Chen (REVIEWER)
                   </span>
                 </div>
 
                 {decisionSuccess && (
-                  <div className="p-3 bg-ref-lime text-ref-lime-text rounded-xs text-xs flex items-center space-x-2 font-mono font-bold">
+                  <div className="p-3 bg-ref-lime text-ref-lime-text rounded-md text-xs flex items-center space-x-2 font-mono font-bold">
                     <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
                     <span>{decisionSuccess}</span>
                   </div>
                 )}
 
                 {decisionError && (
-                  <div className="p-3 bg-semantic-critical text-white rounded-xs text-xs flex items-center space-x-2 font-mono font-bold">
+                  <div className="p-3 bg-semantic-critical text-white rounded-md text-xs flex items-center space-x-2 font-mono font-bold">
                     <XCircle className="w-4 h-4 flex-shrink-0" />
                     <span>{decisionError}</span>
                   </div>
@@ -662,9 +664,9 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                     <button
                       type="button"
                       onClick={() => setDecisionType('approved')}
-                      className={`p-3 rounded-xs border text-xs font-medium flex flex-col items-center justify-center space-y-1 transition-all ${
+                      className={`p-3 rounded-md border text-xs font-bold flex flex-col items-center justify-center space-y-1 transition-all ${
                         decisionType === 'approved'
-                          ? 'bg-ref-lime text-ref-lime-text border-ref-lime font-bold shadow-subtle'
+                          ? 'bg-ref-lime text-ref-lime-text border-ref-lime shadow-subtle'
                           : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
                       }`}
                     >
@@ -675,9 +677,9 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                     <button
                       type="button"
                       onClick={() => setDecisionType('corrected')}
-                      className={`p-3 rounded-xs border text-xs font-medium flex flex-col items-center justify-center space-y-1 transition-all ${
+                      className={`p-3 rounded-md border text-xs font-bold flex flex-col items-center justify-center space-y-1 transition-all ${
                         decisionType === 'corrected'
-                          ? 'bg-ref-lime text-ref-lime-text border-ref-lime font-bold shadow-subtle'
+                          ? 'bg-ref-lime text-ref-lime-text border-ref-lime shadow-subtle'
                           : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
                       }`}
                     >
@@ -688,9 +690,9 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                     <button
                       type="button"
                       onClick={() => setDecisionType('rejected')}
-                      className={`p-3 rounded-xs border text-xs font-medium flex flex-col items-center justify-center space-y-1 transition-all ${
+                      className={`p-3 rounded-md border text-xs font-bold flex flex-col items-center justify-center space-y-1 transition-all ${
                         decisionType === 'rejected'
-                          ? 'bg-semantic-critical text-white border-semantic-critical font-bold shadow-subtle'
+                          ? 'bg-semantic-critical text-white border-semantic-critical shadow-subtle'
                           : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
                       }`}
                     >
@@ -710,7 +712,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                       rows={3}
                       value={editedFieldsJson}
                       onChange={(e) => setEditedFieldsJson(e.target.value)}
-                      className="w-full bg-white text-content-primary border border-white rounded-xs p-2 text-xs font-mono focus:outline-none"
+                      className="w-full bg-white text-content-primary border border-white rounded-md p-2.5 text-xs font-mono focus:outline-none"
                     />
                     {appliedAiRecId && (
                       <span className="text-[10px] text-ref-lime mt-1 block font-mono">
@@ -731,13 +733,13 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                     placeholder="Enter compliance justification for policy override, field correction, or rejection..."
                     value={reviewerNote}
                     onChange={(e) => setReviewerNote(e.target.value)}
-                    className="w-full bg-white text-content-primary border border-white rounded-xs p-2 text-xs font-sans placeholder:text-content-muted focus:outline-none"
+                    className="w-full bg-white text-content-primary border border-white rounded-md p-2.5 text-xs font-sans placeholder:text-content-muted focus:outline-none"
                   />
                 </div>
 
                 {/* Submit Action */}
                 <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-ref-teal-border/40">
-                  <span className="text-[11px] text-ref-teal-light">
+                  <span className="text-[11px] text-ref-teal-light font-medium">
                     This decision will be permanently recorded in the immutable audit trail.
                   </span>
                   <button
@@ -745,7 +747,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                     disabled={submittingDecision}
                     className="btn-lime text-xs self-end"
                   >
-                    {submittingDecision ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                    {submittingDecision ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                     <span>Record Human Decision</span>
                   </button>
                 </div>

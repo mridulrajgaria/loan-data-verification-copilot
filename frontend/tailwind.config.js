@@ -7,34 +7,34 @@ export default {
   theme: {
     extend: {
       colors: {
-        canvas: '#F6F5F1',
+        canvas: '#EDF2EB', // Soft sage/warm background matching FinFox reference
         surface: {
           DEFAULT: '#FFFFFF',
-          secondary: '#F0F0EC',
-          inset: '#EAEAE5',
+          secondary: '#E2E9E0',
+          inset: '#D8E2D6',
         },
         border: {
-          DEFAULT: '#D8DAD4',
-          subtle: '#E4E6E0',
-          strong: '#BFC3BB',
+          DEFAULT: '#CDD7CB',
+          subtle: '#DEE6DC',
+          strong: '#B4C2B1',
         },
         content: {
-          primary: '#151817',
-          secondary: '#626762',
-          muted: '#92968F',
+          primary: '#131D1B',
+          secondary: '#495B56',
+          muted: '#768883',
         },
-        // Reference Palette Tokens (Deep Teal, Lime, Periwinkle, Yellow, Pink)
+        // Reference Palette Tokens (Deep Teal, Lime, Periwinkle, Yellow, Coral/Light Red)
         ref: {
           teal: {
             DEFAULT: '#204E4C',
-            dark: '#173C3A',
-            light: '#E6EFEF',
-            border: '#B2CDCB',
+            dark: '#163B39',
+            light: '#E2ECEB',
+            border: '#9BB8B6',
           },
           lime: {
             DEFAULT: '#CDE78C',
             text: '#1C3806',
-            light: '#F2F9DE',
+            light: '#F4FAE8',
             border: '#B3D463',
           },
           periwinkle: {
@@ -49,20 +49,11 @@ export default {
             light: '#FFF9DC',
             border: '#F0D452',
           },
-          pink: {
-            DEFAULT: '#FFD7FA',
-            text: '#4A1744',
-            light: '#FDF0FB',
-            border: '#E8AEDF',
+          coral: {
+            DEFAULT: '#FEECEB',
+            text: '#7A1D18',
+            border: '#F9C3BF',
           },
-        },
-        brand: {
-          teal: '#204E4C',
-          'teal-hover': '#173C3A',
-          lime: '#CDE78C',
-          periwinkle: '#C1D8FF',
-          yellow: '#FFEB8C',
-          pink: '#FFD7FA',
         },
         semantic: {
           verified: '#087443',
@@ -82,16 +73,17 @@ export default {
       },
       borderRadius: {
         none: '0px',
-        xs: '2px',
-        sm: '3px',
-        DEFAULT: '4px',
-        md: '6px',
+        xs: '3px',
+        sm: '4px',
+        DEFAULT: '6px',
+        md: '8px',
+        lg: '12px',
       },
       boxShadow: {
-        'subtle': '0 1px 2px 0 rgba(0, 0, 0, 0.02)',
-        'section': '0 1px 2px 0 rgba(0, 0, 0, 0.02)',
-        'drawer': '-4px 0 24px 0 rgba(0, 0, 0, 0.06)',
-        'modal': '0 16px 32px -4px rgba(0, 0, 0, 0.08)',
+        'subtle': '0 1px 2px 0 rgba(0, 0, 0, 0.04)',
+        'section': '0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.03)',
+        'drawer': '-4px 0 24px 0 rgba(0, 0, 0, 0.12)',
+        'modal': '0 16px 32px -4px rgba(0, 0, 0, 0.12)',
       },
     },
   },
