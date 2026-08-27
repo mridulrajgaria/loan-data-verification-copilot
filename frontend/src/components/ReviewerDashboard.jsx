@@ -245,7 +245,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
       case 'MEDIUM':
         return 'badge-warning';
       default:
-        return 'badge-institutional';
+        return 'badge-periwinkle';
     }
   };
 
@@ -262,7 +262,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
           </p>
         </div>
         <div className="flex items-center space-x-2 text-xs font-mono text-content-muted">
-          <span>Active Queue: {exceptions.length}</span>
+          <span className="badge-yellow">Active Queue: {exceptions.length}</span>
           <span>•</span>
           <span>Signer: David Chen (REVIEWER)</span>
         </div>
@@ -273,7 +273,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
         {/* ========================================================================= */}
         {/* LEFT COLUMN: Exception Queue (~33% width -> 4 cols)                        */}
         {/* ========================================================================= */}
-        <div className="lg:col-span-4 section-band p-4 space-y-3">
+        <div className="lg:col-span-4 section-band p-4 space-y-3 bg-white">
           <div className="flex items-center justify-between border-b border-border pb-2.5">
             <div className="flex items-center space-x-2">
               <ShieldAlert className="w-4 h-4 text-semantic-warning" />
@@ -281,7 +281,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                 Case Queue
               </h3>
             </div>
-            <span className="text-[10px] font-mono text-content-muted bg-surface-secondary px-1.5 py-0.5 rounded-xs border border-border">
+            <span className="text-[10px] font-mono font-bold text-ref-yellow-text bg-ref-yellow px-1.5 py-0.5 rounded-xs">
               {exceptions.length} Open
             </span>
           </div>
@@ -332,7 +332,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
           {/* Queue List Rows */}
           {loadingList ? (
             <div className="py-16 flex justify-center text-content-muted">
-              <Loader2 className="w-5 h-5 animate-spin text-brand-institutional" />
+              <Loader2 className="w-5 h-5 animate-spin text-ref-teal" />
             </div>
           ) : listError ? (
             <div className="p-3 bg-semantic-critical-bg border border-semantic-critical-border rounded-xs text-semantic-critical text-xs font-mono">
@@ -352,12 +352,12 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                     onClick={() => setSelectedExceptionId(e.id)}
                     className={`p-2.5 rounded-xs transition-colors cursor-pointer text-left ${
                       isSelected
-                        ? 'bg-surface-secondary border-l-2 border-brand-institutional pl-2'
+                        ? 'bg-ref-periwinkle-light border-l-3 border-ref-teal pl-2'
                         : 'hover:bg-surface-secondary/60'
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2 mb-1">
-                      <span className="font-mono font-bold text-xs text-brand-institutional truncate">
+                      <span className="font-mono font-bold text-xs text-ref-teal truncate">
                         {e.loan?.loanIdentifier || '(Missing ID)'}
                       </span>
                       <span className={getSeverityBadgeClass(e.severity)}>
@@ -387,8 +387,8 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
         {/* ========================================================================= */}
         <div className="lg:col-span-8 space-y-5">
           {loadingDetail ? (
-            <div className="section-band p-16 flex flex-col items-center justify-center text-content-muted">
-              <Loader2 className="w-6 h-6 animate-spin text-brand-institutional mb-2" />
+            <div className="section-band p-16 flex flex-col items-center justify-center text-content-muted bg-white">
+              <Loader2 className="w-6 h-6 animate-spin text-ref-teal mb-2" />
               <span className="text-xs font-medium">Fetching loan exception dossier...</span>
             </div>
           ) : detailError ? (
@@ -396,18 +396,18 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
               {detailError}
             </div>
           ) : !exceptionDetail ? (
-            <div className="section-band p-16 text-center text-xs text-content-muted">
+            <div className="section-band p-16 text-center text-xs text-content-muted bg-white">
               Select an exception from the queue to start underwriter review.
             </div>
           ) : (
             <>
-              {/* 1. Case Header & Diagnostic Statement */}
-              <div className="section-band p-5 space-y-4">
+              {/* 1. Case Header & Diagnostic Statement (PALE YELLOW ANOMALY BLOCK) */}
+              <div className="section-band p-5 space-y-4 bg-white">
                 {/* Header & Rule Title */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-border">
                   <div>
                     <div className="flex items-center space-x-2">
-                      <span className="font-mono font-bold text-sm text-brand-institutional">
+                      <span className="font-mono font-bold text-sm text-ref-teal">
                         {exceptionDetail.loan?.loanIdentifier || '(Missing ID)'}
                       </span>
                       <span className={getSeverityBadgeClass(exceptionDetail.severity)}>
@@ -431,9 +431,9 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                   </button>
                 </div>
 
-                {/* Violation Diagnostic Banner */}
-                <div className="p-3 bg-semantic-critical-bg/50 border border-semantic-critical-border rounded-xs text-xs text-semantic-critical">
-                  <span className="font-semibold block mb-0.5 font-mono uppercase text-[10px]">
+                {/* Violation Diagnostic Banner (Pale Yellow Surface) */}
+                <div className="block-yellow p-3.5 text-xs text-ref-yellow-text">
+                  <span className="font-bold block mb-0.5 font-mono uppercase text-[10px]">
                     Violation Diagnostic:
                   </span>
                   <p className="font-sans leading-relaxed">
@@ -480,8 +480,8 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                 </div>
               </div>
 
-              {/* 2. SOURCE EVIDENCE / FORENSIC COMPARISON */}
-              <div className="section-band p-5 space-y-3">
+              {/* 2. SOURCE EVIDENCE / FORENSIC COMPARISON (CLEAN WHITE DATA LEDGER) */}
+              <div className="section-band p-5 space-y-3 bg-white">
                 <div className="flex items-center justify-between border-b border-border pb-2">
                   <div className="flex items-center space-x-2">
                     <Info className="w-4 h-4 text-content-secondary" />
@@ -531,16 +531,16 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                 </div>
               </div>
 
-              {/* 3. AI REVIEW ASSIST (SUBORDINATE, ADVISORY ONLY, PLUM #725C91) */}
-              <div className="bg-semantic-ai-bg border border-semantic-ai-border rounded-xs p-4 space-y-3">
+              {/* 3. AI REVIEW ASSIST (SOFT PINK/LILAC SURFACE #FFD7FA) */}
+              <div className="block-pink p-4 space-y-3 shadow-subtle">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
-                    <BrainCircuit className="w-4 h-4 text-semantic-ai" />
+                    <BrainCircuit className="w-4 h-4 text-ref-pink-text" />
                     <div>
-                      <span className="text-xs font-bold text-semantic-ai uppercase tracking-wider block font-mono leading-none">
+                      <span className="text-xs font-bold text-ref-pink-text uppercase tracking-wider block font-mono leading-none">
                         AI Review Assist (Advisory Only)
                       </span>
-                      <span className="text-[11px] text-content-secondary mt-0.5 block leading-none">
+                      <span className="text-[11px] text-ref-pink-text/80 mt-0.5 block leading-none">
                         Non-binding advisory proposal. Human underwriter review is mandatory.
                       </span>
                     </div>
@@ -551,7 +551,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                       type="button"
                       onClick={handleRequestAiExplain}
                       disabled={loadingAiExplain}
-                      className="px-2.5 py-1 bg-surface border border-semantic-ai-border hover:bg-surface-secondary text-semantic-ai rounded-xs text-xs font-medium transition-colors disabled:opacity-50 font-mono"
+                      className="px-2.5 py-1 bg-white border border-ref-pink-border hover:bg-ref-pink-light text-ref-pink-text rounded-xs text-xs font-semibold transition-colors disabled:opacity-50 font-mono"
                     >
                       {loadingAiExplain ? <Loader2 className="w-3 h-3 animate-spin inline" /> : 'Explain'}
                     </button>
@@ -559,7 +559,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                       type="button"
                       onClick={handleRequestAiSuggest}
                       disabled={loadingAiSuggest}
-                      className="px-2.5 py-1 bg-semantic-ai text-white hover:bg-semantic-ai/90 rounded-xs text-xs font-medium transition-colors disabled:opacity-50 font-mono"
+                      className="px-2.5 py-1 bg-ref-teal text-white hover:bg-ref-teal-dark rounded-xs text-xs font-semibold transition-colors disabled:opacity-50 font-mono"
                     >
                       {loadingAiSuggest ? <Loader2 className="w-3 h-3 animate-spin inline" /> : 'Suggest Fix'}
                     </button>
@@ -574,9 +574,9 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
 
                 {/* AI Explanation Text */}
                 {aiExplanation && (
-                  <div className="bg-surface border border-semantic-ai-border/80 rounded-xs p-3 text-xs space-y-1">
+                  <div className="bg-white border border-ref-pink-border rounded-xs p-3 text-xs space-y-1">
                     <div className="flex items-center justify-between text-[10px] text-content-muted">
-                      <span className="font-semibold text-semantic-ai font-mono">Diagnostic Analysis</span>
+                      <span className="font-semibold text-ref-pink-text font-mono">Diagnostic Analysis</span>
                       <span className="font-mono">
                         Model: {aiExplanation.modelName || 'Anthropic Claude'} • {new Date(aiExplanation.timestamp).toLocaleTimeString()}
                       </span>
@@ -587,9 +587,9 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
 
                 {/* AI Suggested Field Correction Box */}
                 {aiSuggestion && aiSuggestion.suggestion && (
-                  <div className="bg-surface border border-semantic-ai-border/80 rounded-xs p-3 text-xs space-y-2">
+                  <div className="bg-white border border-ref-pink-border rounded-xs p-3 text-xs space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-semantic-ai font-mono">Proposed Correction Patch</span>
+                      <span className="font-semibold text-ref-pink-text font-mono">Proposed Correction Patch</span>
                       <span className="badge-ai font-mono">
                         Confidence: {aiSuggestion.suggestion.confidence || 'HIGH'}
                       </span>
@@ -618,7 +618,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                         onClick={() => handleApplyAiSuggestion(aiSuggestion.suggestion, aiSuggestion.recommendationId)}
                         className="btn-institutional-secondary text-xs"
                       >
-                        <UserCheck className="w-3 h-3 text-brand-institutional" />
+                        <UserCheck className="w-3 h-3 text-ref-teal" />
                         <span>Populate Human Review Form</span>
                       </button>
                     </div>
@@ -626,32 +626,32 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                 )}
               </div>
 
-              {/* 4. HUMAN REVIEW DECISION LAYER (HIGH-AUTHORITY SIGN-OFF) */}
+              {/* 4. HUMAN REVIEW DECISION LAYER (DEEP TEAL ANCHOR BLOCK #204E4C) */}
               <form
                 onSubmit={handleSubmitDecision}
-                className="section-band p-5 space-y-4 border-2 border-brand-institutional/30 bg-surface"
+                className="block-teal p-6 space-y-4 shadow-modal"
               >
-                <div className="flex items-center justify-between border-b border-border pb-3">
+                <div className="flex items-center justify-between border-b border-ref-teal-border/40 pb-3">
                   <div className="flex items-center space-x-2">
-                    <UserCheck className="w-4 h-4 text-brand-institutional" />
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-content-primary font-mono">
+                    <UserCheck className="w-4 h-4 text-ref-lime" />
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-white font-mono">
                       Human Review Decision & Audit Sign-Off
                     </h3>
                   </div>
-                  <span className="text-[10px] font-mono text-content-muted">
+                  <span className="text-[10px] font-mono text-ref-lime bg-white/10 px-2 py-0.5 rounded-xs">
                     Signer: David Chen (REVIEWER)
                   </span>
                 </div>
 
                 {decisionSuccess && (
-                  <div className="p-3 bg-semantic-verified-bg border border-semantic-verified-border rounded-xs text-semantic-verified text-xs flex items-center space-x-2 font-mono">
+                  <div className="p-3 bg-ref-lime text-ref-lime-text rounded-xs text-xs flex items-center space-x-2 font-mono font-bold">
                     <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
                     <span>{decisionSuccess}</span>
                   </div>
                 )}
 
                 {decisionError && (
-                  <div className="p-3 bg-semantic-critical-bg border border-semantic-critical-border rounded-xs text-semantic-critical text-xs flex items-center space-x-2 font-mono">
+                  <div className="p-3 bg-semantic-critical text-white rounded-xs text-xs flex items-center space-x-2 font-mono font-bold">
                     <XCircle className="w-4 h-4 flex-shrink-0" />
                     <span>{decisionError}</span>
                   </div>
@@ -659,17 +659,17 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
 
                 {/* 3 Distinct Action Selectors */}
                 <div>
-                  <label className="text-xs font-semibold text-content-primary block mb-2 font-mono uppercase text-[10px]">
+                  <label className="text-xs font-bold text-white block mb-2 font-mono uppercase text-[10px]">
                     Select Adjudication Action:
                   </label>
                   <div className="grid grid-cols-3 gap-3">
                     <button
                       type="button"
                       onClick={() => setDecisionType('approved')}
-                      className={`p-2.5 rounded-xs border text-xs font-medium flex flex-col items-center justify-center space-y-1 transition-all ${
+                      className={`p-3 rounded-xs border text-xs font-medium flex flex-col items-center justify-center space-y-1 transition-all ${
                         decisionType === 'approved'
-                          ? 'bg-semantic-verified text-white border-semantic-verified font-bold shadow-subtle'
-                          : 'bg-surface border-border text-content-secondary hover:bg-surface-secondary'
+                          ? 'bg-ref-lime text-ref-lime-text border-ref-lime font-bold shadow-subtle'
+                          : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
                       }`}
                     >
                       <CheckCircle2 className="w-4 h-4" />
@@ -679,10 +679,10 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                     <button
                       type="button"
                       onClick={() => setDecisionType('corrected')}
-                      className={`p-2.5 rounded-xs border text-xs font-medium flex flex-col items-center justify-center space-y-1 transition-all ${
+                      className={`p-3 rounded-xs border text-xs font-medium flex flex-col items-center justify-center space-y-1 transition-all ${
                         decisionType === 'corrected'
-                          ? 'bg-brand-institutional text-white border-brand-institutional font-bold shadow-subtle'
-                          : 'bg-surface border-border text-content-secondary hover:bg-surface-secondary'
+                          ? 'bg-ref-lime text-ref-lime-text border-ref-lime font-bold shadow-subtle'
+                          : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
                       }`}
                     >
                       <Edit3 className="w-4 h-4" />
@@ -692,10 +692,10 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                     <button
                       type="button"
                       onClick={() => setDecisionType('rejected')}
-                      className={`p-2.5 rounded-xs border text-xs font-medium flex flex-col items-center justify-center space-y-1 transition-all ${
+                      className={`p-3 rounded-xs border text-xs font-medium flex flex-col items-center justify-center space-y-1 transition-all ${
                         decisionType === 'rejected'
                           ? 'bg-semantic-critical text-white border-semantic-critical font-bold shadow-subtle'
-                          : 'bg-surface border-border text-content-secondary hover:bg-surface-secondary'
+                          : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
                       }`}
                     >
                       <XCircle className="w-4 h-4" />
@@ -707,17 +707,17 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                 {/* If "corrected" selected, show JSON editor for editedFields */}
                 {decisionType === 'corrected' && (
                   <div>
-                    <label className="text-xs font-semibold text-content-primary block mb-1 font-mono uppercase text-[10px]">
+                    <label className="text-xs font-bold text-white block mb-1 font-mono uppercase text-[10px]">
                       Corrected Fields Payload (JSON):
                     </label>
                     <textarea
                       rows={3}
                       value={editedFieldsJson}
                       onChange={(e) => setEditedFieldsJson(e.target.value)}
-                      className="input-institutional w-full font-mono text-xs text-brand-institutional"
+                      className="w-full bg-white text-content-primary border border-white rounded-xs p-2 text-xs font-mono focus:outline-none"
                     />
                     {appliedAiRecId && (
-                      <span className="text-[10px] text-semantic-ai mt-1 block font-mono">
+                      <span className="text-[10px] text-ref-lime mt-1 block font-mono">
                         Linked AI Recommendation ID: {appliedAiRecId.slice(0, 8)}...
                       </span>
                     )}
@@ -726,8 +726,8 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
 
                 {/* Required Reviewer Note */}
                 <div>
-                  <label className="text-xs font-semibold text-content-primary block mb-1 font-mono uppercase text-[10px]">
-                    Underwriting Rationale / Compliance Justification <span className="text-semantic-critical">*</span>:
+                  <label className="text-xs font-bold text-white block mb-1 font-mono uppercase text-[10px]">
+                    Underwriting Rationale / Compliance Justification <span className="text-ref-lime">*</span>:
                   </label>
                   <textarea
                     rows={2}
@@ -735,19 +735,19 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                     placeholder="Enter compliance justification for policy override, field correction, or rejection..."
                     value={reviewerNote}
                     onChange={(e) => setReviewerNote(e.target.value)}
-                    className="input-institutional w-full text-xs"
+                    className="w-full bg-white text-content-primary border border-white rounded-xs p-2 text-xs font-sans placeholder:text-content-muted focus:outline-none"
                   />
                 </div>
 
                 {/* Submit Action */}
-                <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-border">
-                  <span className="text-[11px] text-content-muted">
-                    This decision will be permanently recorded in the audit trail.
+                <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-ref-teal-border/40">
+                  <span className="text-[11px] text-ref-teal-light">
+                    This decision will be permanently recorded in the immutable audit trail.
                   </span>
                   <button
                     type="submit"
                     disabled={submittingDecision}
-                    className="btn-institutional text-xs self-end"
+                    className="btn-lime text-xs self-end"
                   >
                     {submittingDecision ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                     <span>Record Human Decision</span>

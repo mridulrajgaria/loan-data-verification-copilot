@@ -29,7 +29,7 @@
 }
 
 @layer components {
-  /* Understated, high-contrast institutional badges with 2px-3px radii */
+  /* Understated badges with reference palette variants */
   .badge-base {
     display: inline-flex;
     align-items: center;
@@ -42,9 +42,7 @@
     border-width: 1px;
     border-style: solid;
     text-transform: uppercase;
-    transition-property: color, background-color, border-color;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms;
+    transition: all 150ms;
     font-family: "IBM Plex Mono", monospace;
   }
 
@@ -55,27 +53,33 @@
   }
 
   .badge-warning {
-    background-color: #FEFBE8;
-    color: #A15C00;
-    border-color: #FEEF85;
+    background-color: #FFEB8C;
+    color: #453800;
+    border-color: #F0D452;
   }
 
   .badge-verified {
-    background-color: #EDFDF4;
-    color: #087443;
-    border-color: #AAF0C4;
+    background-color: #CDE78C;
+    color: #1C3806;
+    border-color: #B3D463;
   }
 
   .badge-ai {
-    background-color: #F5F1FA;
-    color: #725C91;
-    border-color: #E5DEF0;
+    background-color: #FFD7FA;
+    color: #4A1744;
+    border-color: #E8AEDF;
   }
 
-  .badge-institutional {
-    background-color: #E8EFECE8;
-    color: #163B32;
-    border-color: #C2D5CE;
+  .badge-teal {
+    background-color: #E6EFEF;
+    color: #204E4C;
+    border-color: #B2CDCB;
+  }
+
+  .badge-periwinkle {
+    background-color: #EEF4FF;
+    color: #0D2754;
+    border-color: #9DC0FB;
   }
 
   .badge-neutral {
@@ -84,7 +88,43 @@
     border-color: #D8DAD4;
   }
 
-  /* Institutional Form Controls */
+  /* Large Color Information Block Containers */
+  .block-teal {
+    background-color: #204E4C;
+    color: #FFFFFF;
+    border: 1px solid #173C3A;
+    border-radius: 3px;
+  }
+
+  .block-lime {
+    background-color: #CDE78C;
+    color: #1C3806;
+    border: 1px solid #B3D463;
+    border-radius: 3px;
+  }
+
+  .block-periwinkle {
+    background-color: #C1D8FF;
+    color: #0D2754;
+    border: 1px solid #9DC0FB;
+    border-radius: 3px;
+  }
+
+  .block-yellow {
+    background-color: #FFEB8C;
+    color: #453800;
+    border: 1px solid #F0D452;
+    border-radius: 3px;
+  }
+
+  .block-pink {
+    background-color: #FFD7FA;
+    color: #4A1744;
+    border: 1px solid #E8AEDF;
+    border-radius: 3px;
+  }
+
+  /* Form Controls */
   .input-institutional {
     background-color: #FFFFFF;
     color: #151817;
@@ -97,8 +137,8 @@
   }
   .input-institutional:focus {
     outline: none;
-    border-color: #163B32;
-    box-shadow: 0 0 0 1px rgba(22, 59, 50, 0.12);
+    border-color: #204E4C;
+    box-shadow: 0 0 0 1px rgba(32, 78, 76, 0.15);
   }
 
   .select-institutional {
@@ -113,32 +153,51 @@
   }
   .select-institutional:focus {
     outline: none;
-    border-color: #163B32;
-    box-shadow: 0 0 0 1px rgba(22, 59, 50, 0.12);
+    border-color: #204E4C;
+    box-shadow: 0 0 0 1px rgba(32, 78, 76, 0.15);
   }
 
-  /* Institutional Action Buttons */
-  .btn-institutional {
+  /* Buttons */
+  .btn-teal {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.375rem;
     padding: 0.375rem 0.75rem;
-    background-color: #163B32;
+    background-color: #204E4C;
     color: #FFFFFF;
     font-size: 0.75rem;
     font-weight: 500;
     border-radius: 2px;
-    border: 1px solid #163B32;
+    border: 1px solid #204E4C;
     transition: background-color 150ms;
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
   }
-  .btn-institutional:hover {
-    background-color: #102B25;
+  .btn-teal:hover {
+    background-color: #173C3A;
   }
-  .btn-institutional:disabled {
+  .btn-teal:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  .btn-lime {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    background-color: #CDE78C;
+    color: #1C3806;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 2px;
+    border: 1px solid #B3D463;
+    transition: background-color 150ms;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+  }
+  .btn-lime:hover {
+    background-color: #bddb72;
   }
 
   .btn-institutional-secondary {

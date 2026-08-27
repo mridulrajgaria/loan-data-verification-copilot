@@ -23,12 +23,46 @@ export default {
           secondary: '#626762',
           muted: '#92968F',
         },
+        // Reference Color Family (Blocks & Anchors)
+        ref: {
+          teal: {
+            DEFAULT: '#204E4C',
+            dark: '#173C3A',
+            light: '#E6EFEF',
+            border: '#B2CDCB',
+          },
+          lime: {
+            DEFAULT: '#CDE78C',
+            text: '#1C3806',
+            light: '#F2F9DE',
+            border: '#B3D463',
+          },
+          periwinkle: {
+            DEFAULT: '#C1D8FF',
+            text: '#0D2754',
+            light: '#EEF4FF',
+            border: '#9DC0FB',
+          },
+          yellow: {
+            DEFAULT: '#FFEB8C',
+            text: '#453800',
+            light: '#FFF9DC',
+            border: '#F0D452',
+          },
+          pink: {
+            DEFAULT: '#FFD7FA',
+            text: '#4A1744',
+            light: '#FDF0FB',
+            border: '#E8AEDF',
+          },
+        },
         brand: {
-          institutional: '#163B32',
-          'institutional-hover': '#102B25',
-          'institutional-subtle': '#E8EFECE8',
-          secondary: '#315C50',
-          navy: '#19324A',
+          teal: '#204E4C',
+          'teal-hover': '#173C3A',
+          lime: '#CDE78C',
+          periwinkle: '#C1D8FF',
+          yellow: '#FFEB8C',
+          pink: '#FFD7FA',
         },
         semantic: {
           verified: '#087443',
@@ -40,9 +74,6 @@ export default {
           critical: '#B42318',
           'critical-bg': '#FEF3F2',
           'critical-border': '#FECDCA',
-          ai: '#725C91',
-          'ai-bg': '#F5F1FA',
-          'ai-border': '#E5DEF0',
         },
       },
       fontFamily: {

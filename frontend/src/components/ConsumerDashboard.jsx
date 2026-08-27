@@ -148,9 +148,9 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
           <button
             onClick={() => handleExport('json')}
             disabled={exporting}
-            className="btn-institutional text-xs font-mono"
+            className="btn-teal text-xs font-mono"
           >
-            <FileJson className="w-3.5 h-3.5" />
+            <FileJson className="w-3.5 h-3.5 text-ref-lime" />
             <span>Export Bundle (JSON)</span>
           </button>
           <button
@@ -158,56 +158,56 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
             disabled={exporting}
             className="btn-institutional-secondary text-xs font-mono"
           >
-            <FileSpreadsheet className="w-3.5 h-3.5" />
+            <FileSpreadsheet className="w-3.5 h-3.5 text-content-secondary" />
             <span>Export CSV</span>
           </button>
         </div>
       </div>
 
-      {/* 1. DATA QUALITY SCORE & VERIFICATION STATUS BANNER */}
-      <div className="section-band p-5">
+      {/* 1. DATA QUALITY SCORE & VERIFICATION STATUS (LARGE PALE LIME BLOCK SURFACE #CDE78C) */}
+      <div className="block-lime p-6 shadow-subtle">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
-              <ShieldCheck className="w-4 h-4 text-semantic-verified" />
-              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-content-primary">
+              <ShieldCheck className="w-5 h-5 text-ref-lime-text" />
+              <h3 className="text-sm font-bold uppercase tracking-wider text-ref-lime-text font-mono">
                 Portfolio Data Quality & Verification Index
               </h3>
             </div>
 
             {/* FORMULA (GRADABLE CRITERIA) */}
-            <div className="bg-surface-secondary px-3 py-1.5 rounded-xs border border-border text-[11px] font-mono text-content-primary inline-flex items-center space-x-2">
-              <span className="text-content-muted">Formula:</span>
+            <div className="bg-white/60 px-3 py-1.5 rounded-xs border border-ref-lime-border text-[11px] font-mono text-ref-lime-text inline-flex items-center space-x-2">
+              <span className="font-semibold">Formula:</span>
               <span>(verified_records / total_ingested_records) × 100</span>
             </div>
 
-            <p className="text-xs text-content-secondary max-w-xl font-sans">
+            <p className="text-xs text-ref-lime-text max-w-xl font-sans">
               Measures the proportion of portfolio loans cryptographically signed and sealed with zero unresolved critical exceptions.
             </p>
           </div>
 
           {/* Metric Tiles Strip */}
-          <div className="flex items-center space-x-6 bg-surface-secondary/70 p-4 rounded-xs border border-border">
+          <div className="flex items-center space-x-6 bg-white/70 p-4 rounded-xs border border-ref-lime-border">
             <div className="text-left">
-              <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-content-muted block">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-ref-lime-text block">
                 Verification Rate
               </span>
-              <span className="text-2xl font-bold font-mono text-semantic-verified tabular-nums">
+              <span className="text-3xl font-bold font-mono text-ref-lime-text tabular-nums">
                 {verifiedRatio}%
               </span>
             </div>
-            <div className="h-8 w-px bg-border"></div>
+            <div className="h-8 w-px bg-ref-lime-border"></div>
             <div className="text-left">
-              <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-content-muted block">
+              <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-ref-lime-text block">
                 Verified / Total
               </span>
-              <span className="text-sm font-mono font-bold text-content-primary tabular-nums">
+              <span className="text-sm font-mono font-bold text-ref-lime-text tabular-nums">
                 {summary?.verifiedLoansCount?.toLocaleString() ?? 0} / {summary?.totalLoans?.toLocaleString() ?? 0}
               </span>
             </div>
-            <div className="h-8 w-px bg-border"></div>
+            <div className="h-8 w-px bg-ref-lime-border"></div>
             <div className="text-left">
-              <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-content-muted block">
+              <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-ref-lime-text block">
                 Avg Exceptions
               </span>
               <span className="text-sm font-mono font-bold text-semantic-warning tabular-nums">
@@ -233,8 +233,8 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
         </div>
       )}
 
-      {/* 2. CRYPTOGRAPHICALLY LOCKED VERIFIED RECORDS TABLE */}
-      <div className="section-band p-5 space-y-3">
+      {/* 2. CRYPTOGRAPHICALLY LOCKED VERIFIED RECORDS TABLE (CLEAN WHITE DATA LEDGER) */}
+      <div className="section-band p-5 space-y-3 bg-white">
         <div className="flex items-center justify-between border-b border-border pb-2.5">
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-content-primary font-mono">
@@ -251,7 +251,7 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
 
         {loadingVerified ? (
           <div className="py-16 flex justify-center text-content-muted">
-            <Loader2 className="w-6 h-6 animate-spin text-brand-institutional" />
+            <Loader2 className="w-6 h-6 animate-spin text-ref-teal" />
           </div>
         ) : verifiedError ? (
           <div className="p-3 bg-semantic-critical-bg border border-semantic-critical-border rounded-xs text-semantic-critical text-xs font-mono">
@@ -281,7 +281,7 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
                   return (
                     <tr key={v.id} className="hover:bg-surface-secondary/40 transition-colors">
                       <td className="py-3 pr-2">
-                        <span className="font-mono font-bold text-brand-institutional block">
+                        <span className="font-mono font-bold text-ref-teal block">
                           {v.loan?.loanIdentifier}
                         </span>
                         <span className="text-[10px] text-content-muted font-mono">

@@ -46,11 +46,11 @@ export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
         className="bg-surface border-l border-border shadow-drawer w-full max-w-2xl h-full flex flex-col text-content-primary animate-in slide-in-from-right duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Drawer Header */}
-        <div className="px-6 py-4 border-b border-border flex items-center justify-between flex-shrink-0 bg-surface">
+        {/* Drawer Header (Deep Teal Anchor) */}
+        <div className="px-6 py-4 border-b border-border flex items-center justify-between flex-shrink-0 bg-ref-teal text-white">
           <div>
             <div className="flex items-center space-x-2">
-              <h3 className="font-mono font-bold text-base text-brand-institutional">
+              <h3 className="font-mono font-bold text-base text-white">
                 {loan?.loanIdentifier || 'Loan Inspection'}
               </h3>
               {loan && (
@@ -60,14 +60,14 @@ export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
                       ? 'badge-verified'
                       : loan.status === 'FLAGGED'
                       ? 'badge-warning'
-                      : 'badge-institutional'
+                      : 'badge-teal'
                   }
                 >
                   {loan.status}
                 </span>
               )}
             </div>
-            <p className="text-xs text-content-secondary mt-0.5">
+            <p className="text-xs text-ref-teal-light mt-0.5">
               Forensic Lineage, Ingested CSV Raw Provenance & Entity Snapshot
             </p>
           </div>
@@ -75,14 +75,14 @@ export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
           <div className="flex items-center space-x-2">
             <button
               onClick={() => onOpenAudit && onOpenAudit(loanId)}
-              className="btn-institutional-secondary text-xs font-mono"
+              className="px-2.5 py-1 bg-white/10 hover:bg-white/20 text-white rounded-xs text-xs font-mono border border-white/20"
             >
-              <History className="w-3.5 h-3.5 text-content-secondary" />
+              <History className="w-3.5 h-3.5 inline mr-1 text-ref-lime" />
               <span>Audit History</span>
             </button>
             <button
               onClick={onClose}
-              className="p-1 text-content-muted hover:text-content-primary rounded-xs hover:bg-surface-secondary"
+              className="p-1 text-white/80 hover:text-white rounded-xs hover:bg-white/10"
             >
               <X className="w-4 h-4" />
             </button>
@@ -90,10 +90,10 @@ export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
         </div>
 
         {/* Drawer Body */}
-        <div className="p-6 overflow-y-auto space-y-5 flex-1 text-xs">
+        <div className="p-6 overflow-y-auto space-y-5 flex-1 text-xs bg-canvas">
           {loading ? (
             <div className="py-24 flex flex-col items-center justify-center text-content-muted">
-              <Loader2 className="w-6 h-6 animate-spin text-brand-institutional mb-2" />
+              <Loader2 className="w-6 h-6 animate-spin text-ref-teal mb-2" />
               <span>Fetching loan provenance dossier...</span>
             </div>
           ) : error ? (
@@ -104,48 +104,48 @@ export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
             <div className="text-center py-12 text-content-muted">Loan record not found.</div>
           ) : (
             <>
-              {/* 1. Core Financial Data Facts */}
+              {/* 1. Core Financial Data Facts (Periwinkle Surface Band) */}
               <div className="space-y-2">
-                <span className="text-[10px] font-mono uppercase font-semibold text-content-muted tracking-wider block">
+                <span className="text-[10px] font-mono uppercase font-bold text-ref-periwinkle-text tracking-wider block">
                   Financial Facts
                 </span>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-surface-secondary/70 p-3.5 rounded-xs border border-border">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-ref-periwinkle-light p-4 rounded-xs border border-ref-periwinkle-border">
                   <div>
-                    <span className="text-[10px] font-mono uppercase font-semibold text-content-muted block">
+                    <span className="text-[10px] font-mono uppercase font-bold text-ref-periwinkle-text/70 block">
                       Original Principal
                     </span>
-                    <span className="font-mono font-bold text-content-primary text-sm tabular-nums">
+                    <span className="font-mono font-bold text-ref-periwinkle-text text-sm tabular-nums">
                       ${loan.originalPrincipal?.toLocaleString() ?? '—'}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] font-mono uppercase font-semibold text-content-muted block">
+                    <span className="text-[10px] font-mono uppercase font-bold text-ref-periwinkle-text/70 block">
                       Current Balance
                     </span>
-                    <span className="font-mono font-bold text-content-primary text-sm tabular-nums">
+                    <span className="font-mono font-bold text-ref-periwinkle-text text-sm tabular-nums">
                       ${loan.currentBalance?.toLocaleString() ?? '—'}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] font-mono uppercase font-semibold text-content-muted block">
+                    <span className="text-[10px] font-mono uppercase font-bold text-ref-periwinkle-text/70 block">
                       Rate / Term
                     </span>
-                    <span className="font-sans font-medium text-content-primary text-xs">
+                    <span className="font-sans font-medium text-ref-periwinkle-text text-xs">
                       {loan.interestRate}% • {loan.termMonths}m
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] font-mono uppercase font-semibold text-content-muted block">
+                    <span className="text-[10px] font-mono uppercase font-bold text-ref-periwinkle-text/70 block">
                       Status / DPD
                     </span>
-                    <span className="font-sans font-medium text-content-primary text-xs">
+                    <span className="font-sans font-medium text-ref-periwinkle-text text-xs">
                       {loan.paymentStatus} ({loan.daysPastDue} DPD)
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* 2. Side-by-Side Forensic Comparison */}
+              {/* 2. Side-by-Side Forensic Comparison (Clean White Surface) */}
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <Info className="w-4 h-4 text-content-secondary" />
@@ -156,7 +156,7 @@ export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono text-xs">
                   {/* Raw Ingested Row */}
-                  <div className="bg-surface-secondary/70 border border-border rounded-xs p-3.5 space-y-1.5">
+                  <div className="bg-white border border-border rounded-xs p-3.5 space-y-1.5 shadow-subtle">
                     <span className="text-[10px] uppercase font-semibold text-content-muted tracking-wider block font-sans border-b border-border/60 pb-1">
                       Raw Source CSV (Verbatim)
                     </span>
@@ -179,7 +179,7 @@ export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
                   </div>
 
                   {/* Normalized Database Entity */}
-                  <div className="bg-surface-secondary/70 border border-border rounded-xs p-3.5 space-y-1.5">
+                  <div className="bg-white border border-border rounded-xs p-3.5 space-y-1.5 shadow-subtle">
                     <span className="text-[10px] uppercase font-semibold text-content-muted tracking-wider block font-sans border-b border-border/60 pb-1">
                       Normalized Database Record
                     </span>
@@ -200,14 +200,14 @@ export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
               </div>
 
               {/* 3. Source Lineage Provenance */}
-              <div className="section-band p-4 space-y-2 text-xs">
+              <div className="section-band p-4 space-y-2 text-xs bg-white">
                 <span className="text-[10px] font-mono uppercase font-semibold text-content-muted tracking-wider block">
                   Source Lineage
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px]">
                   <div>
                     <span className="text-content-muted block font-sans">Source File:</span>
-                    <span className="font-semibold text-content-primary font-mono">{loan.rawUpload?.filename || 'loan_tape.csv'}</span>
+                    <span className="font-semibold text-ref-teal font-mono">{loan.rawUpload?.filename || 'loan_tape.csv'}</span>
                   </div>
                   <div>
                     <span className="text-content-muted block font-sans">Source Row Index:</span>
@@ -226,7 +226,7 @@ export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
         </div>
 
         {/* Drawer Footer */}
-        <div className="px-6 py-3 border-t border-border bg-surface-secondary/40 flex items-center justify-between flex-shrink-0">
+        <div className="px-6 py-3 border-t border-border bg-surface-secondary/50 flex items-center justify-between flex-shrink-0">
           <span className="text-[11px] text-content-muted font-mono">
             Lineage ID: {loan?.id ? loan.id.slice(0, 16) + '...' : '—'}
           </span>

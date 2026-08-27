@@ -113,92 +113,85 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
 
   return (
     <div className="space-y-6">
-      {/* 1. HORIZONTAL ANALYTICAL METRIC BAND (TYPOGRAPHY + VERTICAL DIVIDERS) */}
-      <div className="section-band p-5">
-        <div className="flex items-center justify-between pb-3 mb-4 border-b border-border">
-          <div>
-            <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-content-primary">
-              Data Control Room Summary
-            </h2>
-            <p className="text-xs text-content-secondary mt-0.5">
-              Portfolio lineage and ingestion metrics across active loan tape batches
-            </p>
+      {/* 1. COLOR-BLOCK ANALYTICAL METRIC STRIP (PERIWINKLE -> LIME -> YELLOW -> CRITICAL) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Block 1: Total Records (Periwinkle #C1D8FF) */}
+        <div className="block-periwinkle p-4 flex flex-col justify-between shadow-subtle">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-ref-periwinkle-text">
+              Total Ingested
+            </span>
+            <span className="text-[10px] font-mono text-ref-periwinkle-text/70">Tape</span>
           </div>
-          <button
-            onClick={refreshAll}
-            className="btn-institutional-secondary text-xs"
-            title="Refresh feeds"
-          >
-            <RefreshCw className="w-3.5 h-3.5 text-content-secondary" />
-            <span>Refresh Feeds</span>
-          </button>
+          <div className="my-2">
+            <span className="text-3xl font-bold tracking-tight font-mono text-ref-periwinkle-text tabular-nums">
+              {loadingSummary ? '—' : summary?.totalLoans?.toLocaleString() ?? 0}
+            </span>
+            <span className="text-xs font-mono text-ref-periwinkle-text/80 ml-1">loans</span>
+          </div>
+          <div className="text-[11px] font-mono text-ref-periwinkle-text/90">
+            {summary?.totalUploads ?? 0} active batch file(s)
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 divide-y sm:divide-y-0 sm:divide-x divide-border">
-          {/* Total Records */}
-          <div className="pt-2 sm:pt-0 sm:px-3">
-            <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-content-muted block">
-              Total Records
-            </span>
-            <div className="mt-1 flex items-baseline space-x-1.5">
-              <span className="text-2xl font-bold tracking-tight text-content-primary font-mono tabular-nums">
-                {loadingSummary ? '—' : summary?.totalLoans?.toLocaleString() ?? 0}
-              </span>
-              <span className="text-[11px] text-content-muted">loans</span>
-            </div>
-            <span className="text-[11px] text-content-secondary mt-1 block font-mono">
-              {summary?.totalUploads ?? 0} batch file(s)
-            </span>
-          </div>
-
-          {/* Verified */}
-          <div className="pt-2 sm:pt-0 sm:px-3">
-            <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-semantic-verified block">
+        {/* Block 2: Verified & Sealed (Lime #CDE78C) */}
+        <div className="block-lime p-4 flex flex-col justify-between shadow-subtle">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-ref-lime-text">
               Verified & Sealed
             </span>
-            <div className="mt-1 flex items-baseline space-x-1.5">
-              <span className="text-2xl font-bold tracking-tight text-semantic-verified font-mono tabular-nums">
-                {loadingSummary ? '—' : summary?.verifiedLoansCount?.toLocaleString() ?? 0}
-              </span>
-              <span className="text-[11px] font-medium text-semantic-verified font-mono">
-                ({summary?.dataQualityScore?.percentage ?? 0}%)
-              </span>
-            </div>
-            <span className="text-[11px] text-content-secondary mt-1 block">
-              SHA-256 attested
+            <span className="text-[10px] font-mono font-bold text-ref-lime-text bg-white/40 px-1 py-0.5 rounded-xs">
+              {summary?.dataQualityScore?.percentage ?? 0}%
             </span>
           </div>
+          <div className="my-2">
+            <span className="text-3xl font-bold tracking-tight font-mono text-ref-lime-text tabular-nums">
+              {loadingSummary ? '—' : summary?.verifiedLoansCount?.toLocaleString() ?? 0}
+            </span>
+            <span className="text-xs font-mono text-ref-lime-text/80 ml-1">sealed</span>
+          </div>
+          <div className="text-[11px] font-mono text-ref-lime-text/90">
+            SHA-256 Attestation
+          </div>
+        </div>
 
-          {/* Open Exceptions */}
-          <div className="pt-2 sm:pt-0 sm:px-3">
-            <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-semantic-warning block">
+        {/* Block 3: Open Exceptions (Pale Yellow #FFEB8C) */}
+        <div className="block-yellow p-4 flex flex-col justify-between shadow-subtle">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-ref-yellow-text">
               Open Exceptions
             </span>
-            <div className="mt-1 flex items-baseline space-x-1.5">
-              <span className="text-2xl font-bold tracking-tight text-semantic-warning font-mono tabular-nums">
-                {loadingSummary ? '—' : summary?.totalOpenExceptions?.toLocaleString() ?? 0}
-              </span>
-              <span className="text-[11px] text-content-muted">violations</span>
-            </div>
-            <span className="text-[11px] text-content-secondary mt-1 block font-mono">
-              {summary?.flaggedLoansCount ?? 0} loans affected
-            </span>
+            <span className="text-[10px] font-mono text-ref-yellow-text/80">Queue</span>
           </div>
+          <div className="my-2">
+            <span className="text-3xl font-bold tracking-tight font-mono text-ref-yellow-text tabular-nums">
+              {loadingSummary ? '—' : summary?.totalOpenExceptions?.toLocaleString() ?? 0}
+            </span>
+            <span className="text-xs font-mono text-ref-yellow-text/80 ml-1">violations</span>
+          </div>
+          <div className="text-[11px] font-mono text-ref-yellow-text/90">
+            {summary?.flaggedLoansCount ?? 0} flagged entities
+          </div>
+        </div>
 
-          {/* Critical Failures */}
-          <div className="pt-2 sm:pt-0 sm:px-3">
-            <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-semantic-critical block">
+        {/* Block 4: Critical Failures (Critical Red Surface) */}
+        <div className="bg-semantic-critical-bg border border-semantic-critical-border text-semantic-critical p-4 rounded-xs flex flex-col justify-between shadow-subtle">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-semantic-critical">
               Critical Failures
             </span>
-            <div className="mt-1 flex items-baseline space-x-1.5">
-              <span className="text-2xl font-bold tracking-tight text-semantic-critical font-mono tabular-nums">
-                {loadingSummary ? '—' : summary?.severityCounts?.CRITICAL ?? 0}
-              </span>
-              <span className="text-[11px] text-content-muted">blocking</span>
-            </div>
-            <span className="text-[11px] text-content-secondary mt-1 block">
-              Requires underwriter sign-off
+            <span className="text-[10px] font-mono font-bold bg-semantic-critical text-white px-1.5 py-0.5 rounded-xs">
+              Blocking
             </span>
+          </div>
+          <div className="my-2">
+            <span className="text-3xl font-bold tracking-tight font-mono text-semantic-critical tabular-nums">
+              {loadingSummary ? '—' : summary?.severityCounts?.CRITICAL ?? 0}
+            </span>
+            <span className="text-xs font-mono text-semantic-critical/80 ml-1">items</span>
+          </div>
+          <div className="text-[11px] font-mono text-semantic-critical/90">
+            Requires Underwriter Sign-off
           </div>
         </div>
       </div>
@@ -209,18 +202,18 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
         </div>
       )}
 
-      {/* 2. FILE INTAKE OPERATION PANEL */}
-      <div className="section-band p-5 space-y-3">
-        <div className="flex items-center justify-between border-b border-border pb-2.5">
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-content-primary font-mono">
-              File Intake Operation
+      {/* 2. FILE INTAKE OPERATION PANEL (PERIWINKLE-LIGHT SURFACE BAND) */}
+      <div className="bg-ref-periwinkle-light border border-ref-periwinkle-border rounded-xs p-5 space-y-3">
+        <div className="flex items-center justify-between border-b border-ref-periwinkle-border pb-2.5">
+          <div className="flex items-center space-x-2">
+            <UploadCloud className="w-4 h-4 text-ref-periwinkle-text" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-ref-periwinkle-text font-mono">
+              File Intake & Lineage Operation
             </h3>
-            <p className="text-xs text-content-secondary mt-0.5">
-              Streaming RFC-4180 CSV parser with 20,000-row memory protection boundary and SHA-256 raw file hashing.
-            </p>
           </div>
-          <span className="text-[10px] font-mono text-content-muted">Max: 10MB</span>
+          <span className="text-[10px] font-mono text-ref-periwinkle-text/80 bg-white/70 px-2 py-0.5 rounded-xs border border-ref-periwinkle-border">
+            RFC-4180 Streaming Engine • Max: 10MB
+          </span>
         </div>
 
         <div
@@ -236,10 +229,10 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
               handleFileUpload(e.dataTransfer.files[0]);
             }
           }}
-          className={`border border-dashed rounded-xs p-6 text-center transition-colors ${
+          className={`border border-dashed rounded-xs p-5 text-center transition-colors bg-white ${
             isDragging
-              ? 'border-brand-institutional bg-surface-secondary'
-              : 'border-border hover:border-border-strong bg-surface-secondary/40'
+              ? 'border-ref-teal bg-ref-teal-light'
+              : 'border-ref-periwinkle-border hover:border-ref-teal'
           }`}
         >
           <input
@@ -253,20 +246,20 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
               }
             }}
           />
-          <label htmlFor="operatorCsvInput" className="cursor-pointer flex flex-col items-center justify-center">
+          <label htmlFor="operatorCsvInput" className="cursor-pointer flex flex-col sm:flex-row items-center justify-center gap-3">
             {uploading ? (
-              <div className="py-2 flex items-center space-x-3 text-xs text-content-primary font-mono">
-                <Loader2 className="w-4 h-4 animate-spin text-brand-institutional" />
+              <div className="py-1 flex items-center space-x-3 text-xs text-ref-teal font-mono">
+                <Loader2 className="w-4 h-4 animate-spin text-ref-teal" />
                 <span>Streaming tape, computing SHA-256 hash, and generating NormalizedLoan entities...</span>
               </div>
             ) : (
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <UploadCloud className="w-4 h-4 text-content-secondary" />
+              <>
+                <FileSpreadsheet className="w-4 h-4 text-ref-teal" />
                 <div className="text-xs text-content-primary">
-                  <span className="font-semibold text-brand-institutional underline font-mono">Select loan_tape.csv</span> or drag and drop file here
+                  <span className="font-bold text-ref-teal underline font-mono">Select loan_tape.csv</span> or drop tape file here
                 </div>
                 <span className="text-[10px] text-content-muted font-mono">(.csv, UTF-8)</span>
-              </div>
+              </>
             )}
           </label>
         </div>
@@ -286,10 +279,10 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
         )}
       </div>
 
-      {/* 3. SPLIT CONTROL ROOM: RECENT LINEAGE & WORK QUEUE */}
+      {/* 3. WHITE DATA SURFACES: RECENT LINEAGE & WORK QUEUE */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left: Recent Tape Lineage (6 Cols) */}
-        <div className="lg:col-span-6 section-band p-5 space-y-3">
+        <div className="lg:col-span-6 section-band p-5 space-y-3 bg-white">
           <div className="flex items-center justify-between border-b border-border pb-2.5">
             <div>
               <h3 className="text-xs font-semibold uppercase tracking-wider text-content-primary font-mono">
@@ -304,7 +297,7 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
 
           {loadingUploads ? (
             <div className="py-12 flex justify-center text-content-muted">
-              <Loader2 className="w-5 h-5 animate-spin text-brand-institutional" />
+              <Loader2 className="w-5 h-5 animate-spin text-ref-teal" />
             </div>
           ) : uploadsError ? (
             <div className="p-3 bg-semantic-critical-bg border border-semantic-critical-border rounded-xs text-semantic-critical text-xs font-mono">
@@ -352,7 +345,7 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
         </div>
 
         {/* Right: Exceptions Requiring Review Queue (6 Cols) */}
-        <div className="lg:col-span-6 section-band p-5 space-y-3">
+        <div className="lg:col-span-6 section-band p-5 space-y-3 bg-white">
           <div className="flex items-center justify-between border-b border-border pb-2.5">
             <div>
               <h3 className="text-xs font-semibold uppercase tracking-wider text-content-primary font-mono">
@@ -381,7 +374,7 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
             <div className="overflow-x-auto max-h-[380px] overflow-y-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="border-b border-border text-[10px] text-content-muted font-mono font-semibold uppercase tracking-wider sticky top-0 bg-surface">
+                  <tr className="border-b border-border text-[10px] text-content-muted font-mono font-semibold uppercase tracking-wider sticky top-0 bg-white">
                     <th className="pb-2">Loan ID</th>
                     <th className="pb-2">Borrower</th>
                     <th className="pb-2 text-right">Balance</th>
@@ -409,7 +402,7 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
                       <td className="py-2.5 text-right">
                         <button
                           onClick={() => onSelectLoan && onSelectLoan(loan.id)}
-                          className="btn-institutional-ghost text-brand-institutional text-[11px] font-semibold font-mono"
+                          className="btn-institutional-ghost text-ref-teal text-[11px] font-semibold font-mono"
                         >
                           <span>Inspect</span>
                           <ArrowUpRight className="w-3 h-3" />
