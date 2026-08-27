@@ -6,16 +6,18 @@
 
 Rather than using AI as an unguided code generator, tools were deployed with strict modular scopes:
 
-* **Antigravity (DeepMind Agentic AI & Claude 3.5 Sonnet)**:
-  * **Module 1 (Architecture & Data Modeling)**: Generated the multi-entity relational SQLite schema in Prisma, establishing non-negotiable foreign-key lineage from raw CSV rows to verified cryptographic records.
+* **Antigravity Extension in VS Code (Google DeepMind Agentic IDE Assistant)**:
+  * **IDE & Workflow Orchestration**: Utilized the Antigravity VS Code extension as the primary interactive pair-programming environment. Enabled direct in-editor agentic task execution, automated terminal commands, file creation, side-by-side diff reviews, and real-time test execution without context-switching.
+  * **Module 1 (Architecture & Data Modeling)**: Generated the multi-entity relational SQLite schema in Prisma directly in the IDE workspace, establishing non-negotiable foreign-key lineage from raw CSV rows to verified cryptographic records.
   * **Module 2 (Synthetic Data Engine)**: Created the deterministic synthetic loan portfolio generator with statistical distributions across credit grades and states, as well as 14 discrete anomaly injection routines.
   * **Module 3 (Ingestion & Lineage Pipeline)**: Built the streaming CSV parser with memory-bounded chunking, SHA-256 raw file hashing, and dual-event audit logging (`UPLOAD` vs `IMPORT`).
   * **Module 4 (Validation Engine)**: Formulated the standalone 15-rule validation engine driven by `validation_rules.json` and a strict servicing Delinquency/Days-Past-Due (DPD) matrix.
   * **Module 5 (AI Review Assistant)**: Implemented the read-only Anthropic Claude API wrapper for plain-language rule explanations, suggested field patches, and portfolio summaries, strictly isolated from human decision tables.
   * **Module 6 (Cryptographic Attestation Engine)**: Built recursive key-sorting canonical JSON stringification, SHA-256 hash generation, and independent tamper-detection verification routines.
-  * **Module 7 (Frontend Dashboards)**: Generated the three React/Tailwind functional dashboards (Data Operator, Reviewer Adjudication, and Data Consumer).
+  * **Module 7 (Frontend Dashboards)**: Generated the three React/Tailwind functional dashboards (Data Operator, Reviewer Adjudication, and Data Consumer) with real-time Vite dev server testing.
   * **Module 8 (Security Audit & Remediation)**: Implemented centralized Zod schema validation, unbounded pagination guards, and Role-Based Access Control (RBAC) middleware.
 
+* **Anthropic Claude 3.5 Sonnet API**: Deployed as the underlying LLM engine for runtime underwriter assistance (`explainFailure`, `suggestCorrection`, `summarizeExceptionBatch`), rate-limited to 30 req/min.
 * **Prisma ORM & SQLite Engine**: Enforced relational schema constraints, cascade behavior, and transactional atomicity (`prisma.$transaction`).
 * **Node.js Native Test Runner (`node:test`, `node:assert/strict`)**: Executed independent unit and integration tests for validation rules, edge-case date handling, and security boundaries.
 
@@ -44,7 +46,7 @@ The following prompts illustrate the precise constraints, negative boundaries, a
 
 ## 3. Human Review & Verification Process
 
-Every module underwent rigorous human validation and live CLI/integration testing before proceeding to the next step:
+Every module underwent rigorous human validation, in-editor diff review in VS Code, and live CLI/integration testing before proceeding to the next step:
 
 ```
 [Module A: Ingestion]  --> Tested with 2,000-row CSV; confirmed 2,000 RawLoanRecords + 2,000 NormalizedLoans + 2 AuditLogs.
@@ -54,15 +56,14 @@ Every module underwent rigorous human validation and live CLI/integration testin
 [Module 8: Security]   --> Tested Zod query rejections (limit > 100), RBAC permission blocking (AUDITOR rejected with HTTP 403).
 ```
 
-> **Development Workflow & Commit Note**: The iterative build process, rapid refactoring, and modular verification took place directly within active Google Antigravity agentic pairing sessions rather than being committed incrementally to git at each micro-step. Comprehensive test suite runs (detailed below) served as the authoritative checkpoint mechanism across every modular milestone. Going forward, logical changes are committed incrementally using conventional commit standards.
-
-1. **Schema Review**: Inspected SQLite table constraints and verified that `NormalizedLoan` maintains non-nullable foreign keys (`rawLoanRecordId`, `rawUploadId`) to guarantee provenance.
-2. **Dataset Audit**: Ran `node scripts/generate-loan-tape.js` and cross-referenced the CLI summary table against injected counts.
-3. **Ingestion Testing (`test-ingestion.js`)**: Ingested `loan_tape.csv` through the streaming pipeline; verified that raw CSV text was preserved verbatim in `RawLoanRecord` while normalized records were created.
-4. **Validation Test Suite (`engine.test.js`)**: Executed 16 automated tests covering all 15 validation rules, DPD consistency matrices, and cross-source discrepancies.
-5. **AI Proposal Isolation (`test-ai-assistant.js`)**: Confirmed that running `explainFailure()` and `suggestCorrection()` created `AIRecommendation` rows with `acceptedByReviewer: null` and left the loan's version and fields completely untouched until a human `ReviewAction` was recorded.
-6. **Tamper Detection Demo (`test-verification.js`)**: Verified that identical JSON objects with scrambled keys produced matching SHA-256 hashes, and confirmed that an unauthorized database modification was immediately flagged as `HASH_MISMATCH_TAMPER_DETECTED`.
-7. **Security Verification (`test-security.js`)**: Validated that Zod schemas rejected out-of-bounds parameters (e.g. `limit=500` or invalid enum strings) and that RBAC middleware blocked unauthorized roles with `HTTP 403 Forbidden`.
+1. **In-Editor Code Review (Antigravity Extension)**: Inspected each proposed modification within VS Code side-by-side diff viewers before applying changes, verifying that no business logic was silently stubbed or mocked.
+2. **Schema Review**: Inspected SQLite table constraints and verified that `NormalizedLoan` maintains non-nullable foreign keys (`rawLoanRecordId`, `rawUploadId`) to guarantee provenance.
+3. **Dataset Audit**: Ran `node scripts/generate-loan-tape.js` in the integrated terminal and cross-referenced the CLI summary table against injected counts.
+4. **Ingestion Testing (`test-ingestion.js`)**: Ingested `loan_tape.csv` through the streaming pipeline; verified that raw CSV text was preserved verbatim in `RawLoanRecord` while normalized records were created.
+5. **Validation Test Suite (`engine.test.js`)**: Executed 16 automated tests covering all 15 validation rules, DPD consistency matrices, and cross-source discrepancies.
+6. **AI Proposal Isolation (`test-ai-assistant.js`)**: Confirmed that running `explainFailure()` and `suggestCorrection()` created `AIRecommendation` rows with `acceptedByReviewer: null` and left the loan's version and fields completely untouched until a human `ReviewAction` was recorded.
+7. **Tamper Detection Demo (`test-verification.js`)**: Verified that identical JSON objects with scrambled keys produced matching SHA-256 hashes, and confirmed that an unauthorized database modification was immediately flagged as `HASH_MISMATCH_TAMPER_DETECTED`.
+8. **Security Verification (`test-security.js`)**: Validated that Zod schemas rejected out-of-bounds parameters (e.g. `limit=500` or invalid enum strings) and that RBAC middleware blocked unauthorized roles with `HTTP 403 Forbidden`.
 
 ---
 
@@ -152,9 +153,10 @@ Every module underwent rigorous human validation and live CLI/integration testin
 ## 6. Lessons Learned
 
 ### Where AI Helped Most:
-1. **Accelerated Rule Engine Construction**: Generating the 15 distinct compliance rules and the complete DPD-to-status mapping matrix in JSON and JavaScript in a single pass.
-2. **Synthetic Domain Data Modeling**: Rapidly creating realistic statistical distributions (realistic credit grade curves, state weightings, and amortization calculations) while injecting anomalies deterministically.
-3. **Modern Multi-Role Frontend UI**: Scaffolding three responsive, role-differentiated React dashboards with Tailwind styling, modals, and status badges in minutes.
+1. **Integrated In-Editor Velocity**: Using the Antigravity extension directly in VS Code eliminated manual copy-pasting, allowed immediate execution and debugging of test suites in the integrated terminal, and enabled rapid iterative refactoring of complex full-stack modules.
+2. **Accelerated Rule Engine Construction**: Generating the 15 distinct compliance rules and the complete DPD-to-status mapping matrix in JSON and JavaScript in a single pass.
+3. **Synthetic Domain Data Modeling**: Rapidly creating realistic statistical distributions (realistic credit grade curves, state weightings, and amortization calculations) while injecting anomalies deterministically.
+4. **Modern Multi-Role Frontend UI**: Scaffolding three responsive, role-differentiated React dashboards with Tailwind styling, modals, and status badges in minutes.
 
 ### Where Human Judgment Was Essential:
 1. **Architectural Isolation (AI vs Human Boundary)**: AI models naturally tend to write "all-in-one" convenience functions that calculate a suggestion and immediately update the database. Human oversight was critical to enforce the rule that AI services must be **strictly read-only**, writing only to `AIRecommendation` while reserving state mutations exclusively for `ReviewAction`.
