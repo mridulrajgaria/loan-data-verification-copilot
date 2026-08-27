@@ -23,7 +23,7 @@ export default {
           secondary: '#626762',
           muted: '#92968F',
         },
-        // Reference Color Family (Blocks & Anchors)
+        // Reference Palette Tokens (Deep Teal, Lime, Periwinkle, Yellow, Pink)
         ref: {
           teal: {
             DEFAULT: '#204E4C',
@@ -77,7 +77,7 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['"DM Sans"', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        sans: ['"Figtree"', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
         mono: ['"IBM Plex Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
       borderRadius: {

@@ -6,7 +6,7 @@
   body {
     background-color: #F6F5F1;
     color: #151817;
-    font-family: "DM Sans", -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+    font-family: "Figtree", -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'tnum';
     -webkit-font-smoothing: antialiased;
   }
@@ -29,15 +29,15 @@
 }
 
 @layer components {
-  /* Understated badges with reference palette variants */
+  /* Compact semantic badges (NOT giant yellow/pink rectangles) */
   .badge-base {
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
     padding: 0.125rem 0.375rem;
-    font-size: 10.5px;
+    font-size: 10px;
     font-weight: 600;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.03em;
     border-radius: 2px;
     border-width: 1px;
     border-style: solid;
@@ -53,19 +53,19 @@
   }
 
   .badge-warning {
-    background-color: #FFEB8C;
-    color: #453800;
-    border-color: #F0D452;
+    background-color: #FEFBE8;
+    color: #A15C00;
+    border-color: #FEEF85;
   }
 
   .badge-verified {
-    background-color: #CDE78C;
-    color: #1C3806;
-    border-color: #B3D463;
+    background-color: #EDFDF4;
+    color: #087443;
+    border-color: #AAF0C4;
   }
 
   .badge-ai {
-    background-color: #FFD7FA;
+    background-color: #FDF0FB;
     color: #4A1744;
     border-color: #E8AEDF;
   }
@@ -88,7 +88,7 @@
     border-color: #D8DAD4;
   }
 
-  /* Large Color Information Block Containers */
+  /* Section-Level Color Information Blocks */
   .block-teal {
     background-color: #204E4C;
     color: #FFFFFF;
@@ -118,7 +118,7 @@
   }
 
   .block-pink {
-    background-color: #FFD7FA;
+    background-color: #FDF0FB;
     color: #4A1744;
     border: 1px solid #E8AEDF;
     border-radius: 3px;
@@ -133,7 +133,7 @@
     padding: 0.375rem 0.625rem;
     font-size: 0.75rem;
     transition: all 150ms;
-    font-family: "DM Sans", sans-serif;
+    font-family: "Figtree", sans-serif;
   }
   .input-institutional:focus {
     outline: none;
@@ -149,7 +149,7 @@
     padding: 0.375rem 0.5rem;
     font-size: 0.75rem;
     transition: all 150ms;
-    font-family: "DM Sans", sans-serif;
+    font-family: "Figtree", sans-serif;
   }
   .select-institutional:focus {
     outline: none;
@@ -238,44 +238,6 @@
   .btn-institutional-ghost:hover {
     background-color: #F0F0EC;
     color: #151817;
-  }
-
-  .btn-verified {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.375rem;
-    padding: 0.375rem 0.75rem;
-    background-color: #087443;
-    color: #FFFFFF;
-    font-size: 0.75rem;
-    font-weight: 500;
-    border-radius: 2px;
-    border: 1px solid #087443;
-    transition: background-color 150ms;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
-  }
-  .btn-verified:hover {
-    background-color: #065b35;
-  }
-
-  .btn-critical {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.375rem;
-    padding: 0.375rem 0.75rem;
-    background-color: #B42318;
-    color: #FFFFFF;
-    font-size: 0.75rem;
-    font-weight: 500;
-    border-radius: 2px;
-    border: 1px solid #B42318;
-    transition: background-color 150ms;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
-  }
-  .btn-critical:hover {
-    background-color: #931c13;
   }
 
   /* Un-Carded Section Band */

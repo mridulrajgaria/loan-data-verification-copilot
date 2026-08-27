@@ -170,7 +170,11 @@ async function runHardQAAudit() {
     assert(cleanCheck.ok, 'Verify hash endpoint must return 200');
     assert.strictEqual(cleanCheck.data.data.isValid, true, 'Clean record must pass hash verification');
     assert.strictEqual(cleanCheck.data.data.match, 'EXACT_MATCH', 'Clean record must match stored hash exactly');
-    console.log(`✅ Clean verification passed: Record #${targetVerified.id.slice(0, 8)} matches SHA-256 digest ${cleanCheck.data.data.storedHash.slice(0, 16)}...`);
+    // Save original database raw canonical payload for bit-for-bit restoration
+    const { PrismaClient } = await import('../backend/node_modules/@prisma/client/index.js');
+    const prisma = new PrismaClient();
+    const originalDbRow = await prisma.verifiedLoan.findUnique({ where: { id: targetVerified.id } });
+    const originalRawPayload = originalDbRow?.canonicalJson;
 
     // Tamper Simulation
     const tamperSimRes = await req(`/verified-loans/${targetVerified.id}/simulate-tamper`, { method: 'POST' });
@@ -183,6 +187,15 @@ async function runHardQAAudit() {
     assert.strictEqual(tamperedCheck.data.data.tamperDetected, true, 'Tamper must be detected');
     assert.strictEqual(tamperedCheck.data.data.match, 'HASH_MISMATCH_TAMPER_DETECTED', 'Match status must be HASH_MISMATCH_TAMPER_DETECTED');
     console.log('✅ Tamper detection verified: Hash mismatch triggered immediately.');
+
+    // Restore clean state in database for idempotency
+    if (originalRawPayload) {
+      await prisma.verifiedLoan.update({
+        where: { id: targetVerified.id },
+        data: { canonicalJson: originalRawPayload },
+      });
+    }
+    await prisma.$disconnect();
     results.passed.push('Cryptographic verification and live tamper detection verified');
   }
 

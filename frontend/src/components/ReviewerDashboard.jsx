@@ -262,7 +262,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
           </p>
         </div>
         <div className="flex items-center space-x-2 text-xs font-mono text-content-muted">
-          <span className="badge-yellow">Active Queue: {exceptions.length}</span>
+          <span className="badge-warning">Queue: {exceptions.length} Open</span>
           <span>•</span>
           <span>Signer: David Chen (REVIEWER)</span>
         </div>
@@ -401,7 +401,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
             </div>
           ) : (
             <>
-              {/* 1. Case Header & Diagnostic Statement (PALE YELLOW ANOMALY BLOCK) */}
+              {/* 1. Case Header & Diagnostic Statement */}
               <div className="section-band p-5 space-y-4 bg-white">
                 {/* Header & Rule Title */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-border">
@@ -431,8 +431,8 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                   </button>
                 </div>
 
-                {/* Violation Diagnostic Banner (Pale Yellow Surface) */}
-                <div className="block-yellow p-3.5 text-xs text-ref-yellow-text">
+                {/* Violation Diagnostic Banner (Pale Yellow Block Surface) */}
+                <div className="block-yellow p-3 text-xs text-ref-yellow-text">
                   <span className="font-bold block mb-0.5 font-mono uppercase text-[10px]">
                     Violation Diagnostic:
                   </span>
@@ -443,37 +443,37 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                   </p>
                 </div>
 
-                {/* Critical Financial Facts Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-surface-secondary/70 p-3 rounded-xs border border-border text-xs">
+                {/* Critical Financial Facts Grid (Periwinkle Surface Band) */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-ref-periwinkle-light p-3 rounded-xs border border-ref-periwinkle-border text-xs">
                   <div>
-                    <span className="text-[10px] font-mono uppercase font-semibold text-content-muted block">
+                    <span className="text-[10px] font-mono uppercase font-bold text-ref-periwinkle-text/70 block">
                       Original Principal
                     </span>
-                    <span className="font-mono font-bold text-content-primary text-xs tabular-nums">
+                    <span className="font-mono font-bold text-ref-periwinkle-text text-xs tabular-nums">
                       ${exceptionDetail.loan?.originalPrincipal?.toLocaleString() ?? '—'}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] font-mono uppercase font-semibold text-content-muted block">
+                    <span className="text-[10px] font-mono uppercase font-bold text-ref-periwinkle-text/70 block">
                       Current Balance
                     </span>
-                    <span className="font-mono font-bold text-content-primary text-xs tabular-nums">
+                    <span className="font-mono font-bold text-ref-periwinkle-text text-xs tabular-nums">
                       ${exceptionDetail.loan?.currentBalance?.toLocaleString() ?? '—'}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] font-mono uppercase font-semibold text-content-muted block">
+                    <span className="text-[10px] font-mono uppercase font-bold text-ref-periwinkle-text/70 block">
                       Servicing Status / DPD
                     </span>
-                    <span className="font-sans font-medium text-content-primary text-xs">
+                    <span className="font-sans font-medium text-ref-periwinkle-text text-xs">
                       {exceptionDetail.loan?.paymentStatus} ({exceptionDetail.loan?.daysPastDue} DPD)
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] font-mono uppercase font-semibold text-content-muted block">
+                    <span className="text-[10px] font-mono uppercase font-bold text-ref-periwinkle-text/70 block">
                       State / Term
                     </span>
-                    <span className="font-sans font-medium text-content-primary text-xs">
+                    <span className="font-sans font-medium text-ref-periwinkle-text text-xs">
                       {exceptionDetail.loan?.borrowerState || '—'} • {exceptionDetail.loan?.termMonths || 360}m
                     </span>
                   </div>
@@ -531,17 +531,17 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                 </div>
               </div>
 
-              {/* 3. AI REVIEW ASSIST (SOFT PINK/LILAC SURFACE #FFD7FA) */}
-              <div className="block-pink p-4 space-y-3 shadow-subtle">
+              {/* 3. AI REVIEW ASSIST (QUIET, COMPACT ADVISORY SECTION #FDF0FB) */}
+              <div className="bg-ref-pink-light border border-ref-pink-border rounded-xs p-3.5 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
-                    <BrainCircuit className="w-4 h-4 text-ref-pink-text" />
+                    <BrainCircuit className="w-3.5 h-3.5 text-ref-pink-text" />
                     <div>
                       <span className="text-xs font-bold text-ref-pink-text uppercase tracking-wider block font-mono leading-none">
                         AI Review Assist (Advisory Only)
                       </span>
-                      <span className="text-[11px] text-ref-pink-text/80 mt-0.5 block leading-none">
-                        Non-binding advisory proposal. Human underwriter review is mandatory.
+                      <span className="text-[10.5px] text-ref-pink-text/80 mt-0.5 block leading-none">
+                        Non-binding diagnostic. Human review is mandatory.
                       </span>
                     </div>
                   </div>
@@ -551,7 +551,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                       type="button"
                       onClick={handleRequestAiExplain}
                       disabled={loadingAiExplain}
-                      className="px-2.5 py-1 bg-white border border-ref-pink-border hover:bg-ref-pink-light text-ref-pink-text rounded-xs text-xs font-semibold transition-colors disabled:opacity-50 font-mono"
+                      className="px-2 py-0.5 bg-white border border-ref-pink-border hover:bg-ref-pink-light text-ref-pink-text rounded-xs text-[11px] font-semibold transition-colors disabled:opacity-50 font-mono"
                     >
                       {loadingAiExplain ? <Loader2 className="w-3 h-3 animate-spin inline" /> : 'Explain'}
                     </button>
@@ -559,7 +559,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                       type="button"
                       onClick={handleRequestAiSuggest}
                       disabled={loadingAiSuggest}
-                      className="px-2.5 py-1 bg-ref-teal text-white hover:bg-ref-teal-dark rounded-xs text-xs font-semibold transition-colors disabled:opacity-50 font-mono"
+                      className="px-2 py-0.5 bg-ref-teal text-white hover:bg-ref-teal-dark rounded-xs text-[11px] font-semibold transition-colors disabled:opacity-50 font-mono"
                     >
                       {loadingAiSuggest ? <Loader2 className="w-3 h-3 animate-spin inline" /> : 'Suggest Fix'}
                     </button>
@@ -567,35 +567,35 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                 </div>
 
                 {aiError && (
-                  <div className="p-2.5 bg-semantic-critical-bg border border-semantic-critical-border rounded-xs text-xs text-semantic-critical font-mono">
+                  <div className="p-2 bg-semantic-critical-bg border border-semantic-critical-border rounded-xs text-xs text-semantic-critical font-mono">
                     {aiError}
                   </div>
                 )}
 
                 {/* AI Explanation Text */}
                 {aiExplanation && (
-                  <div className="bg-white border border-ref-pink-border rounded-xs p-3 text-xs space-y-1">
+                  <div className="bg-white border border-ref-pink-border rounded-xs p-2.5 text-xs space-y-1">
                     <div className="flex items-center justify-between text-[10px] text-content-muted">
                       <span className="font-semibold text-ref-pink-text font-mono">Diagnostic Analysis</span>
                       <span className="font-mono">
-                        Model: {aiExplanation.modelName || 'Anthropic Claude'} • {new Date(aiExplanation.timestamp).toLocaleTimeString()}
+                        Model: {aiExplanation.modelName || 'Anthropic Claude'}
                       </span>
                     </div>
-                    <p className="text-content-primary leading-relaxed">{aiExplanation.explanation}</p>
+                    <p className="text-content-primary leading-relaxed text-xs">{aiExplanation.explanation}</p>
                   </div>
                 )}
 
                 {/* AI Suggested Field Correction Box */}
                 {aiSuggestion && aiSuggestion.suggestion && (
-                  <div className="bg-white border border-ref-pink-border rounded-xs p-3 text-xs space-y-2">
+                  <div className="bg-white border border-ref-pink-border rounded-xs p-2.5 text-xs space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-ref-pink-text font-mono">Proposed Correction Patch</span>
+                      <span className="font-semibold text-ref-pink-text font-mono text-xs">Proposed Correction Patch</span>
                       <span className="badge-ai font-mono">
                         Confidence: {aiSuggestion.suggestion.confidence || 'HIGH'}
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 bg-surface-secondary p-2 rounded-xs border border-border text-xs">
+                    <div className="grid grid-cols-2 gap-2 bg-surface-secondary p-1.5 rounded-xs border border-border text-xs">
                       <div>
                         <span className="text-[10px] font-mono text-content-muted block">Target Field</span>
                         <span className="font-mono font-semibold text-content-primary">{aiSuggestion.suggestion.field}</span>
@@ -608,15 +608,11 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                       </div>
                     </div>
 
-                    <p className="text-content-secondary italic text-[11px]">
-                      "{aiSuggestion.suggestion.justification}"
-                    </p>
-
                     <div className="pt-1 flex justify-end">
                       <button
                         type="button"
                         onClick={() => handleApplyAiSuggestion(aiSuggestion.suggestion, aiSuggestion.recommendationId)}
-                        className="btn-institutional-secondary text-xs"
+                        className="btn-institutional-secondary text-xs py-1"
                       >
                         <UserCheck className="w-3 h-3 text-ref-teal" />
                         <span>Populate Human Review Form</span>
