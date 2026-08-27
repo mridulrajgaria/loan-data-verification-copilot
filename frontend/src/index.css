@@ -4,8 +4,8 @@
 
 @layer base {
   html, body, #root {
-    background-color: #E7EFE5 !important;
-    color: #131D1B;
+    background-color: #F6F8F6 !important;
+    color: #111827;
     font-family: "Figtree", -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'tnum';
     -webkit-font-smoothing: antialiased;
@@ -18,20 +18,20 @@
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: #DCE5DA;
+    background: #F1F5F9;
   }
   ::-webkit-scrollbar-thumb {
-    background: #A6B8A2;
+    background: #CBD5E1;
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #80967C;
+    background: #94A3B8;
   }
 }
 
 /* Explicit, Guaranteed High-Contrast Color Classes */
-.bg-canvas-sage {
-  background-color: #E7EFE5 !important;
+.bg-canvas-clean {
+  background-color: #F6F8F6 !important;
 }
 
 .bg-teal-anchor {
@@ -69,12 +69,12 @@
 
 .role-btn-inactive {
   background-color: transparent !important;
-  color: #495B56 !important;
+  color: #475569 !important;
   font-weight: 600 !important;
 }
 .role-btn-inactive:hover {
-  background-color: #D3DDD0 !important;
-  color: #131D1B !important;
+  background-color: #E2E8F0 !important;
+  color: #0F172A !important;
 }
 
 /* High-Contrast Badges */
@@ -191,10 +191,10 @@
   border-radius: 8px !important;
 }
 
-/* White Data Surface on Sage Canvas */
+/* White Data Surface on Clean Canvas */
 .section-band {
   background-color: #FFFFFF !important;
-  border: 1px solid #CDD7CB !important;
+  border: 1px solid #E2E8F0 !important;
   border-radius: 8px !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
 }
@@ -243,15 +243,15 @@
   gap: 0.375rem;
   padding: 0.45rem 0.9rem;
   background-color: #FFFFFF !important;
-  color: #131D1B !important;
+  color: #0F172A !important;
   font-size: 0.75rem;
   font-weight: 600;
   border-radius: 6px;
-  border: 1px solid #CDD7CB;
+  border: 1px solid #E2E8F0;
   transition: all 150ms;
 }
 .btn-institutional-secondary:hover {
-  background-color: #E2E9E0 !important;
+  background-color: #F1F5F9 !important;
 }
 
 .btn-institutional-ghost {
@@ -267,13 +267,13 @@
   transition: all 150ms;
 }
 .btn-institutional-ghost:hover {
-  background-color: #DDE7DB !important;
+  background-color: #E2E8F0 !important;
 }
 
 .input-institutional {
   background-color: #FFFFFF !important;
-  color: #131D1B !important;
-  border: 1px solid #CDD7CB !important;
+  color: #0F172A !important;
+  border: 1px solid #E2E8F0 !important;
   border-radius: 6px !important;
   padding: 0.45rem 0.75rem !important;
   font-size: 0.75rem !important;
@@ -286,8 +286,8 @@
 
 .select-institutional {
   background-color: #FFFFFF !important;
-  color: #131D1B !important;
-  border: 1px solid #CDD7CB !important;
+  color: #0F172A !important;
+  border: 1px solid #E2E8F0 !important;
   border-radius: 6px !important;
   padding: 0.45rem 0.6rem !important;
   font-size: 0.75rem !important;
