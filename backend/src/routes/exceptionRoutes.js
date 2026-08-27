@@ -319,6 +319,9 @@ router.post(
         let updatedLoan = loan;
         if (normalizedDecision === 'corrected' && editedFields && typeof editedFields === 'object') {
           const allowedLoanFields = [
+            'loanIdentifier',
+            'borrowerId',
+            'borrowerName',
             'originalPrincipal',
             'currentBalance',
             'interestRate',
@@ -331,6 +334,8 @@ router.post(
             'documentStatus',
             'originationDate',
             'maturityDate',
+            'lastUpdatedAt',
+            'lastPaymentDate',
           ];
 
           const sanitizedUpdate = {};
@@ -346,6 +351,22 @@ router.post(
                 sanitizedUpdate[key] = val;
               }
             }
+          }
+
+          if (loan.rawUnparsedValues) {
+            try {
+              const unparsed = JSON.parse(loan.rawUnparsedValues);
+              if (sanitizedUpdate.originationDate && unparsed.origination_date) {
+                delete unparsed.origination_date;
+              }
+              if (sanitizedUpdate.maturityDate && unparsed.maturity_date) {
+                delete unparsed.maturity_date;
+              }
+              if (sanitizedUpdate.loanIdentifier && unparsed.loan_id) {
+                delete unparsed.loan_id;
+              }
+              sanitizedUpdate.rawUnparsedValues = Object.keys(unparsed).length > 0 ? JSON.stringify(unparsed) : null;
+            } catch {}
           }
 
           updatedLoan = await tx.normalizedLoan.update({

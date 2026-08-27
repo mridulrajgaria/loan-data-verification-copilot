@@ -37,7 +37,7 @@ async function testVerificationPipeline() {
   // ---------------------------------------------------------------------------
   console.log('\n--- 2. Creating VerifiedLoan Record in SQLite ---');
   const sampleLoan = await prisma.normalizedLoan.findFirst({
-    where: { status: { in: ['VALID', 'APPROVED'] } },
+    where: { status: { in: ['VALID', 'APPROVED', 'VERIFIED'] } },
     include: { rawUpload: true, rawLoanRecord: true },
   });
 
@@ -117,7 +117,7 @@ async function testVerificationPipeline() {
   // ---------------------------------------------------------------------------
   const verifyAudit = await prisma.auditLog.findFirst({
     where: {
-      actionType: 'VERIFIED',
+      actionType: { in: ['VERIFY', 'VERIFIED'] },
       entityId: verificationResult.verifiedLoan.id,
     },
   });

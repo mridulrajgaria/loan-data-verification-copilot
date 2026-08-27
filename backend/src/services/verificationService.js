@@ -19,7 +19,6 @@ const { validateLoan } = require('../validation/engine');
  */
 function canonicalStringify(obj) {
   if (obj === null || typeof obj !== 'object') {
-    // Standardize undefined as null for deterministic JSON
     if (obj === undefined) return 'null';
     return JSON.stringify(obj);
   }
@@ -64,44 +63,49 @@ function buildCanonicalDocument({
   aiRecommendationId = null,
   verifiedAt = new Date().toISOString(),
 }) {
+  const lastUpdated = loan.lastUpdatedAt
+    ? new Date(loan.lastUpdatedAt).toISOString().split('T')[0]
+    : (loan.lastPaymentDate ? new Date(loan.lastPaymentDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]);
+
   return {
     schemaVersion: '1.0.0',
     verifiedAt: typeof verifiedAt === 'string' ? verifiedAt : verifiedAt.toISOString(),
 
     // 1. Canonical Loan Fields (Deep copy of verified domain attributes)
     canonicalLoan: {
-      loanIdentifier: loan.loanIdentifier,
+      loanIdentifier: loan.loanIdentifier || '',
       borrowerId: loan.borrowerId,
       borrowerName: loan.borrowerName,
-      borrowerEmail: loan.borrowerEmail,
+      borrowerEmail: loan.borrowerEmail || null,
       loanType: loan.loanType,
       originationDate: loan.originationDate ? new Date(loan.originationDate).toISOString().split('T')[0] : null,
       maturityDate: loan.maturityDate ? new Date(loan.maturityDate).toISOString().split('T')[0] : null,
-      originalPrincipal: loan.originalPrincipal !== null ? parseFloat(Number(loan.originalPrincipal).toFixed(2)) : null,
-      currentBalance: loan.currentBalance !== null ? parseFloat(Number(loan.currentBalance).toFixed(2)) : null,
-      interestRate: loan.interestRate !== null ? parseFloat(Number(loan.interestRate).toFixed(4)) : null,
-      termMonths: loan.termMonths,
-      borrowerState: loan.borrowerState,
-      loanPurpose: loan.loanPurpose,
-      creditGrade: loan.creditGrade,
-      employmentLength: loan.employmentLength,
-      incomeBand: loan.incomeBand,
-      paymentStatus: loan.paymentStatus,
-      daysPastDue: loan.daysPastDue,
-      documentStatus: loan.documentStatus,
-      servicerName: loan.servicerName,
-      sourceSystem: loan.sourceSystem,
-      propertyAddress: loan.propertyAddress,
-      propertyValue: loan.propertyValue,
-      ltvRatio: loan.ltvRatio,
-      creditScore: loan.creditScore,
-      entityVersion: loan.currentVersion,
+      originalPrincipal: loan.originalPrincipal !== null && loan.originalPrincipal !== undefined ? parseFloat(Number(loan.originalPrincipal).toFixed(2)) : null,
+      currentBalance: loan.currentBalance !== null && loan.currentBalance !== undefined ? parseFloat(Number(loan.currentBalance).toFixed(2)) : null,
+      interestRate: loan.interestRate !== null && loan.interestRate !== undefined ? parseFloat(Number(loan.interestRate).toFixed(4)) : null,
+      termMonths: loan.termMonths !== null && loan.termMonths !== undefined ? parseInt(loan.termMonths, 10) : null,
+      borrowerState: loan.borrowerState || null,
+      loanPurpose: loan.loanPurpose || null,
+      creditGrade: loan.creditGrade || null,
+      employmentLength: loan.employmentLength || null,
+      incomeBand: loan.incomeBand || null,
+      paymentStatus: loan.paymentStatus || null,
+      daysPastDue: loan.daysPastDue !== null && loan.daysPastDue !== undefined ? parseInt(loan.daysPastDue, 10) : 0,
+      documentStatus: loan.documentStatus || null,
+      servicerName: loan.servicerName || null,
+      sourceSystem: loan.sourceSystem || null,
+      propertyAddress: loan.propertyAddress || null,
+      propertyValue: loan.propertyValue || null,
+      ltvRatio: loan.ltvRatio || null,
+      creditScore: loan.creditScore || null,
+      lastUpdatedAt: lastUpdated,
+      entityVersion: loan.currentVersion || 1,
     },
 
     // 2. Source Lineage Provenance
     provenance: {
-      sourceUploadId: rawUpload?.id || loan.rawUploadId,
-      sourceFilename: rawUpload?.filename || 'unknown_upload',
+      sourceUploadId: rawUpload?.id || loan.rawUploadId || 'unknown_upload',
+      sourceFilename: rawUpload?.filename || 'loan_tape.csv',
       sourceFileHash: rawUpload?.fileHash || 'unhashed',
       sourceRowNumber: rawLoanRecord?.rowNumber || null,
       sourceRawContentSha256: rawLoanRecord?.rawContent
@@ -137,6 +141,7 @@ function buildCanonicalDocument({
  * @param {string} params.userId - Reviewer User ID
  * @param {string} [params.reviewerNote] - Underwriter notes
  * @param {string} [params.aiRecommendationId] - AI suggestion reference if accepted
+ * @param {boolean} [params.allowPolicyOverride=true] - Whether policy override approved warnings are permitted
  * @param {Object} [params.tx] - Optional Prisma transaction
  * @returns {Promise<Object>} The created VerifiedLoan record and verification details
  */
@@ -145,6 +150,7 @@ async function createVerifiedLoanRecord({
   userId,
   reviewerNote = null,
   aiRecommendationId = null,
+  allowPolicyOverride = true,
   tx = null,
 }) {
   const db = tx || prisma;
@@ -169,6 +175,10 @@ async function createVerifiedLoanRecord({
     throw new Error(`NormalizedLoan with ID '${loanId}' not found.`);
   }
 
+  if (loan.status === 'REJECTED') {
+    throw new Error(`Cannot verify loan '${loan.loanIdentifier}': loan status is REJECTED.`);
+  }
+
   // Ensure user exists
   let validUserId = userId;
   const user = await db.user.findUnique({ where: { id: userId } });
@@ -190,6 +200,16 @@ async function createVerifiedLoanRecord({
   // 2. Evaluate point-in-time validation snapshot
   const validationSnapshot = validateLoan(loan);
 
+  // Guard against uncorrected critical failures unless explicitly covered by policy override
+  const latestReviewAction = loan.reviewActions[0] || null;
+  const isOverride = latestReviewAction?.actionType === 'OVERRIDE_APPROVE';
+
+  const criticalFailures = validationSnapshot.filter((r) => !r.passed && r.severity === 'CRITICAL');
+  if (criticalFailures.length > 0 && !isOverride) {
+    const failedMsg = criticalFailures.map((f) => `${f.name}: ${f.message}`).join(' | ');
+    throw new Error(`Cannot verify defective loan '${loan.loanIdentifier}': uncorrected CRITICAL validation failure(s) detected [${failedMsg}].`);
+  }
+
   // 3. Build canonical document payload
   const verifiedAt = new Date();
   const canonicalDoc = buildCanonicalDocument({
@@ -197,7 +217,7 @@ async function createVerifiedLoanRecord({
     rawUpload: loan.rawUpload,
     rawLoanRecord: loan.rawLoanRecord,
     validationSnapshot,
-    reviewAction: loan.reviewActions[0] || null,
+    reviewAction: latestReviewAction,
     reviewerId: validUserId,
     reviewerNote,
     aiRecommendationId,
@@ -219,8 +239,8 @@ async function createVerifiedLoanRecord({
     },
     create: {
       loanId: loan.id,
-      canonicalJson,
       recordHash,
+      canonicalJson,
       verifiedByUserId: validUserId,
       verifiedAt,
       version: 1,
@@ -233,19 +253,21 @@ async function createVerifiedLoanRecord({
     data: { status: 'VERIFIED' },
   });
 
-  // 7. Write Audit Log for verification
+  // 7. Write immutable audit log
   await logAudit(
     {
       actor: validUserId,
-      actionType: 'VERIFIED',
+      actionType: 'VERIFY',
       entityType: 'VerifiedLoan',
       entityId: verifiedRecord.id,
       details: {
         loanId: loan.id,
         loanIdentifier: loan.loanIdentifier,
         recordHash,
-        sourceUploadId: loan.rawUploadId,
         version: verifiedRecord.version,
+        reviewActionId: latestReviewAction?.id || null,
+        validationRulesPassed: validationSnapshot.filter((r) => r.passed).length,
+        validationRulesTotal: validationSnapshot.length,
       },
     },
     db
@@ -253,70 +275,76 @@ async function createVerifiedLoanRecord({
 
   return {
     verifiedLoan: verifiedRecord,
-    recordHash,
     canonicalJson,
+    recordHash,
     canonicalDoc,
   };
 }
 
 /**
- * Verifies the integrity of a VerifiedLoan record by independently re-computing the SHA-256 hash
- * from the stored canonical JSON.
+ * Recomputes the SHA-256 record hash from the stored canonical JSON and verifies its integrity.
  *
- * @param {string} verifiedLoanId - The ID of the VerifiedLoan row
- * @returns {Promise<Object>} Tamper verification result
+ * @param {string} verifiedLoanId - ID of the VerifiedLoan
+ * @returns {Promise<Object>} Verification integrity result
  */
 async function verifyRecordHash(verifiedLoanId) {
-  const record = await prisma.verifiedLoan.findUnique({
+  const verifiedLoan = await prisma.verifiedLoan.findUnique({
     where: { id: verifiedLoanId },
     include: {
-      loan: true,
+      loan: {
+        select: {
+          loanIdentifier: true,
+          borrowerName: true,
+          status: true,
+        },
+      },
       verifiedByUser: {
-        select: { id: true, name: true, email: true, role: true },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+        },
       },
     },
   });
 
-  if (!record) {
-    throw new Error(`VerifiedLoan record '${verifiedLoanId}' not found.`);
+  if (!verifiedLoan) {
+    throw new Error(`VerifiedLoan record with ID '${verifiedLoanId}' not found.`);
   }
 
-  const storedHash = record.recordHash;
-  const storedJson = record.canonicalJson;
-
-  let parsedDoc = null;
+  // Parse stored canonical document to verify canonical serialization invariance
+  let storedDoc;
   try {
-    parsedDoc = JSON.parse(storedJson);
+    storedDoc = JSON.parse(verifiedLoan.canonicalJson);
   } catch (err) {
     return {
-      verifiedLoanId: record.id,
-      loanIdentifier: record.loan.loanIdentifier,
+      verifiedLoanId,
       isValid: false,
       tamperDetected: true,
-      reason: 'Stored canonical JSON is corrupt and could not be parsed.',
-      storedHash,
+      error: 'Stored canonical JSON is corrupt and could not be parsed.',
+      storedHash: verifiedLoan.recordHash,
       computedHash: null,
-      verifiedAt: record.verifiedAt,
     };
   }
 
-  // Re-serialize deterministically to verify key sorting independence
-  const { canonicalJson: recomputedJson, recordHash: computedHash } = computeRecordHash(parsedDoc);
-
-  const isValid = storedHash === computedHash;
+  // Re-serialize with recursive deterministic sorting
+  const { canonicalJson: recomputedJson, recordHash: computedHash } = computeRecordHash(storedDoc);
+  const isHashMatch = computedHash.toLowerCase() === verifiedLoan.recordHash.toLowerCase();
 
   return {
-    verifiedLoanId: record.id,
-    loanIdentifier: record.loan.loanIdentifier,
-    isValid,
-    tamperDetected: !isValid,
-    storedHash,
+    verifiedLoanId: verifiedLoan.id,
+    loanId: verifiedLoan.loanId,
+    loanIdentifier: verifiedLoan.loan.loanIdentifier,
+    borrowerName: verifiedLoan.loan.borrowerName,
+    storedHash: verifiedLoan.recordHash,
     computedHash,
-    match: isValid ? 'EXACT_MATCH' : 'HASH_MISMATCH_TAMPER_DETECTED',
-    verifiedAt: record.verifiedAt,
-    verifiedBy: record.verifiedByUser,
-    version: record.version,
-    canonicalData: parsedDoc,
+    match: isHashMatch ? 'EXACT_MATCH' : 'HASH_MISMATCH_TAMPER_DETECTED',
+    isValid: isHashMatch,
+    tamperDetected: !isHashMatch,
+    verifiedAt: verifiedLoan.verifiedAt,
+    verifiedBy: verifiedLoan.verifiedByUser,
+    version: verifiedLoan.version,
   };
 }
 
