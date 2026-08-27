@@ -1,22 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../api';
 import {
-  AlertTriangle,
-  Sparkles,
   CheckCircle2,
   XCircle,
   Edit3,
   Search,
-  Filter,
   Loader2,
   UserCheck,
   BrainCircuit,
   Send,
   ExternalLink,
-  ArrowRight,
   ShieldAlert,
   Info,
-  Clock,
 } from 'lucide-react';
 
 export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQuery = '' }) {
@@ -247,21 +242,20 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
       case 'CRITICAL':
         return 'badge-critical';
       case 'HIGH':
-        return 'badge-high';
       case 'MEDIUM':
         return 'badge-warning';
       default:
-        return 'badge-info';
+        return 'badge-navy';
     }
   };
 
   return (
     <div className="space-y-6">
-      {/* Top Banner */}
+      {/* Top Section Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1 border-b border-border">
         <div>
-          <h2 className="text-sm font-bold uppercase tracking-wider text-content-primary">
-            Underwriter Exception Adjudication
+          <h2 className="text-sm font-semibold tracking-tight text-content-primary">
+            Underwriting Review Workspace
           </h2>
           <p className="text-xs text-content-secondary mt-0.5">
             Adjudicate validation rule violations, inspect forensic source discrepancies, and log permanent decisions.
@@ -270,24 +264,24 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
         <div className="flex items-center space-x-2 text-xs font-mono text-content-muted">
           <span>Active Queue: {exceptions.length}</span>
           <span>•</span>
-          <span>Role: REVIEWER</span>
+          <span>Signer: David Chen (REVIEWER)</span>
         </div>
       </div>
 
-      {/* Master / Detail Grid Layout */}
+      {/* Master / Detail Grid Layout (33% Left / 67% Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* ========================================================================= */}
-        {/* LEFT COLUMN: Exception Queue (~35% width -> 4 or 5 cols)                  */}
+        {/* LEFT COLUMN: Exception Queue (~33% width -> 4 cols)                        */}
         {/* ========================================================================= */}
         <div className="lg:col-span-4 panel-institutional p-4 space-y-3">
           <div className="flex items-center justify-between border-b border-border pb-2.5">
             <div className="flex items-center space-x-2">
-              <ShieldAlert className="w-4 h-4 text-semantic-high" />
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-content-primary">
+              <ShieldAlert className="w-4 h-4 text-semantic-warning" />
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-content-primary font-mono">
                 Exception Queue
               </h3>
             </div>
-            <span className="text-[10px] font-mono text-content-muted bg-surface-secondary px-1.5 py-0.5 rounded border border-border">
+            <span className="text-[10px] font-mono text-content-muted bg-surface-secondary px-1.5 py-0.5 rounded-xs border border-border">
               {exceptions.length} Open
             </span>
           </div>
@@ -338,10 +332,10 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
           {/* Queue List Rows */}
           {loadingList ? (
             <div className="py-16 flex justify-center text-content-muted">
-              <Loader2 className="w-5 h-5 animate-spin text-brand" />
+              <Loader2 className="w-5 h-5 animate-spin text-brand-navy" />
             </div>
           ) : listError ? (
-            <div className="p-3 bg-semantic-critical-bg border border-semantic-critical-border rounded text-semantic-critical text-xs">
+            <div className="p-3 bg-semantic-critical-bg border border-semantic-critical-border rounded-sm text-semantic-critical text-xs font-mono">
               {listError}
             </div>
           ) : exceptions.length === 0 ? (
@@ -356,14 +350,14 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                   <div
                     key={e.id}
                     onClick={() => setSelectedExceptionId(e.id)}
-                    className={`p-3 rounded border transition-colors cursor-pointer text-left ${
+                    className={`p-3 rounded-sm border transition-colors cursor-pointer text-left ${
                       isSelected
-                        ? 'bg-surface-secondary border-content-primary shadow-subtle'
-                        : 'bg-surface border-border hover:bg-surface-secondary/50'
+                        ? 'bg-brand-navy-subtle border-l-2 border-brand-navy border-t-border border-r-border border-b-border'
+                        : 'bg-surface border-border hover:bg-surface-secondary/60'
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2 mb-1">
-                      <span className="font-mono font-bold text-xs text-content-primary truncate">
+                      <span className="font-mono font-bold text-xs text-brand-navy truncate">
                         {e.loan?.loanIdentifier || '(Missing ID)'}
                       </span>
                       <span className={getSeverityBadgeClass(e.severity)}>
@@ -377,7 +371,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
 
                     <div className="text-[11px] text-content-secondary mt-1 flex items-center justify-between font-sans">
                       <span className="truncate max-w-[140px]">{e.loan?.borrowerName || 'Borrower'}</span>
-                      <span className="font-mono font-medium text-content-primary">
+                      <span className="font-mono font-medium text-content-primary tabular-nums">
                         ${e.loan?.currentBalance?.toLocaleString() ?? '0.00'}
                       </span>
                     </div>
@@ -389,16 +383,16 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
         </div>
 
         {/* ========================================================================= */}
-        {/* RIGHT COLUMN: Underwriting Workspace & Adjudication (~65% -> 8 cols)      */}
+        {/* RIGHT COLUMN: Underwriting Workspace & Adjudication (~67% -> 8 cols)      */}
         {/* ========================================================================= */}
         <div className="lg:col-span-8 space-y-5">
           {loadingDetail ? (
             <div className="panel-institutional p-16 flex flex-col items-center justify-center text-content-muted">
-              <Loader2 className="w-6 h-6 animate-spin text-brand mb-2" />
+              <Loader2 className="w-6 h-6 animate-spin text-brand-navy mb-2" />
               <span className="text-xs font-medium">Fetching loan exception dossier...</span>
             </div>
           ) : detailError ? (
-            <div className="panel-institutional p-6 bg-semantic-critical-bg border-semantic-critical-border text-semantic-critical text-xs">
+            <div className="panel-institutional p-6 bg-semantic-critical-bg border-semantic-critical-border text-semantic-critical text-xs font-mono">
               {detailError}
             </div>
           ) : !exceptionDetail ? (
@@ -407,13 +401,13 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
             </div>
           ) : (
             <>
-              {/* 1. Loan Summary & Failure Diagnostic Card */}
+              {/* 1. Loan Header & Diagnostic Summary */}
               <div className="panel-institutional p-5 space-y-4">
                 {/* Header & Rule Title */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-border">
                   <div>
                     <div className="flex items-center space-x-2">
-                      <span className="font-mono font-bold text-sm text-content-primary">
+                      <span className="font-mono font-bold text-sm text-brand-navy">
                         {exceptionDetail.loan?.loanIdentifier || '(Missing ID)'}
                       </span>
                       <span className={getSeverityBadgeClass(exceptionDetail.severity)}>
@@ -437,9 +431,11 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                   </button>
                 </div>
 
-                {/* Failure Reason */}
-                <div className="p-3 bg-semantic-critical-bg/60 border border-semantic-critical-border rounded text-xs text-semantic-critical">
-                  <span className="font-semibold block mb-0.5">Violation Diagnostic:</span>
+                {/* Violation Reason Box */}
+                <div className="p-3 bg-semantic-critical-bg/60 border border-semantic-critical-border rounded-sm text-xs text-semantic-critical">
+                  <span className="font-semibold block mb-0.5 font-mono uppercase text-[10px]">
+                    Violation Diagnostic:
+                  </span>
                   <p className="font-sans leading-relaxed">
                     {exceptionDetail.details
                       ? JSON.parse(exceptionDetail.details).message
@@ -447,26 +443,26 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                   </p>
                 </div>
 
-                {/* Financial Overview Strip (Typographic Aligned Columns) */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-surface-secondary/60 p-3 rounded border border-border text-xs">
+                {/* Financial Facts Strip */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-surface-secondary/70 p-3 rounded-sm border border-border text-xs">
                   <div>
-                    <span className="text-[10px] uppercase font-semibold text-content-muted block">
+                    <span className="text-[10px] font-mono uppercase font-semibold text-content-muted block">
                       Original Principal
                     </span>
-                    <span className="font-mono font-bold text-content-primary text-xs">
+                    <span className="font-mono font-bold text-content-primary text-xs tabular-nums">
                       ${exceptionDetail.loan?.originalPrincipal?.toLocaleString() ?? '—'}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] uppercase font-semibold text-content-muted block">
+                    <span className="text-[10px] font-mono uppercase font-semibold text-content-muted block">
                       Current Balance
                     </span>
-                    <span className="font-mono font-bold text-content-primary text-xs">
+                    <span className="font-mono font-bold text-content-primary text-xs tabular-nums">
                       ${exceptionDetail.loan?.currentBalance?.toLocaleString() ?? '—'}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] uppercase font-semibold text-content-muted block">
+                    <span className="text-[10px] font-mono uppercase font-semibold text-content-muted block">
                       Servicing Status / DPD
                     </span>
                     <span className="font-sans font-medium text-content-primary text-xs">
@@ -474,7 +470,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] uppercase font-semibold text-content-muted block">
+                    <span className="text-[10px] font-mono uppercase font-semibold text-content-muted block">
                       State / Term
                     </span>
                     <span className="font-sans font-medium text-content-primary text-xs">
@@ -484,23 +480,23 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                 </div>
               </div>
 
-              {/* 2. FORENSIC RAW SOURCE vs NORMALIZED RECORD COMPARISON */}
+              {/* 2. FORENSIC SOURCE COMPARISON (TWO STRUCTURED PANES) */}
               <div className="panel-institutional p-5 space-y-3">
                 <div className="flex items-center justify-between border-b border-border pb-2">
                   <div className="flex items-center space-x-2">
                     <Info className="w-4 h-4 text-content-secondary" />
-                    <h3 className="text-xs font-semibold uppercase tracking-wider text-content-primary">
-                      Forensic Data Discrepancy Inspector
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-content-primary font-mono">
+                      Forensic Source Comparison
                     </h3>
                   </div>
                   <span className="text-[10px] text-content-muted font-mono">Row #{exceptionDetail.loan?.rawLoanRecord?.rowNumber ?? '—'}</span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
-                  {/* Raw Ingested CSV Row */}
-                  <div className="bg-surface-secondary/80 border border-border rounded p-3 space-y-1.5">
+                  {/* Raw Source Tape */}
+                  <div className="bg-surface-secondary/80 border border-border rounded-sm p-3 space-y-1.5">
                     <span className="text-[10px] uppercase font-semibold text-content-muted tracking-wider block font-sans border-b border-border/60 pb-1">
-                      Raw Source Tape (Verbatim)
+                      Raw Source Tape (Verbatim CSV)
                     </span>
                     {rawJsonObj ? (
                       <div className="space-y-1 text-[11px] text-content-primary">
@@ -518,7 +514,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                   </div>
 
                   {/* Normalized Database Record */}
-                  <div className="bg-surface-secondary/80 border border-border rounded p-3 space-y-1.5">
+                  <div className="bg-surface-secondary/80 border border-border rounded-sm p-3 space-y-1.5">
                     <span className="text-[10px] uppercase font-semibold text-content-muted tracking-wider block font-sans border-b border-border/60 pb-1">
                       Normalized Database Record
                     </span>
@@ -535,17 +531,17 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                 </div>
               </div>
 
-              {/* 3. AI REVIEW ASSIST PANEL (RESTRAINED MUTED VIOLET / ADVISORY ONLY) */}
-              <div className="bg-semantic-ai-bg/40 border border-semantic-ai-border rounded p-4 space-y-3">
+              {/* 3. AI REVIEW ASSIST (COMPACT, ADVISORY ONLY, PLUM/VIOLET) */}
+              <div className="bg-semantic-ai-bg border border-semantic-ai-border rounded-sm p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <BrainCircuit className="w-4 h-4 text-semantic-ai" />
                     <div>
-                      <span className="text-xs font-bold text-semantic-ai uppercase tracking-wider block leading-none">
+                      <span className="text-xs font-bold text-semantic-ai uppercase tracking-wider block font-mono leading-none">
                         AI Review Assist (Advisory Only)
                       </span>
                       <span className="text-[11px] text-content-secondary mt-0.5 block leading-none">
-                        Non-binding advisory recommendation. Human underwriter review is mandatory.
+                        Non-binding advisory proposal. Human underwriter review is mandatory.
                       </span>
                     </div>
                   </div>
@@ -555,7 +551,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                       type="button"
                       onClick={handleRequestAiExplain}
                       disabled={loadingAiExplain}
-                      className="px-2.5 py-1 bg-surface border border-semantic-ai-border hover:bg-surface-secondary text-semantic-ai rounded text-xs font-medium transition-colors disabled:opacity-50"
+                      className="px-2.5 py-1 bg-surface border border-semantic-ai-border hover:bg-surface-secondary text-semantic-ai rounded-sm text-xs font-medium transition-colors disabled:opacity-50"
                     >
                       {loadingAiExplain ? <Loader2 className="w-3 h-3 animate-spin inline" /> : 'Explain'}
                     </button>
@@ -563,7 +559,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                       type="button"
                       onClick={handleRequestAiSuggest}
                       disabled={loadingAiSuggest}
-                      className="px-2.5 py-1 bg-semantic-ai text-white hover:bg-semantic-ai/90 rounded text-xs font-medium transition-colors disabled:opacity-50"
+                      className="px-2.5 py-1 bg-semantic-ai text-white hover:bg-semantic-ai/90 rounded-sm text-xs font-medium transition-colors disabled:opacity-50"
                     >
                       {loadingAiSuggest ? <Loader2 className="w-3 h-3 animate-spin inline" /> : 'Suggest Fix'}
                     </button>
@@ -571,16 +567,16 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                 </div>
 
                 {aiError && (
-                  <div className="p-2.5 bg-semantic-critical-bg border border-semantic-critical-border rounded text-xs text-semantic-critical">
+                  <div className="p-2.5 bg-semantic-critical-bg border border-semantic-critical-border rounded-sm text-xs text-semantic-critical font-mono">
                     {aiError}
                   </div>
                 )}
 
                 {/* AI Explanation Text */}
                 {aiExplanation && (
-                  <div className="bg-surface border border-semantic-ai-border/80 rounded p-3 text-xs space-y-1">
+                  <div className="bg-surface border border-semantic-ai-border/80 rounded-sm p-3 text-xs space-y-1">
                     <div className="flex items-center justify-between text-[10px] text-content-muted">
-                      <span className="font-semibold text-semantic-ai">Diagnostic Analysis</span>
+                      <span className="font-semibold text-semantic-ai font-mono">Diagnostic Analysis</span>
                       <span className="font-mono">
                         Model: {aiExplanation.modelName || 'Anthropic Claude'} • {new Date(aiExplanation.timestamp).toLocaleTimeString()}
                       </span>
@@ -591,21 +587,21 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
 
                 {/* AI Suggested Field Correction Box */}
                 {aiSuggestion && aiSuggestion.suggestion && (
-                  <div className="bg-surface border border-semantic-ai-border/80 rounded p-3 text-xs space-y-2">
+                  <div className="bg-surface border border-semantic-ai-border/80 rounded-sm p-3 text-xs space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-semantic-ai">Proposed Correction Patch</span>
+                      <span className="font-semibold text-semantic-ai font-mono">Proposed Correction Patch</span>
                       <span className="badge-ai font-mono">
                         Confidence: {aiSuggestion.suggestion.confidence || 'HIGH'}
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 bg-surface-secondary p-2 rounded border border-border text-xs">
+                    <div className="grid grid-cols-2 gap-2 bg-surface-secondary p-2 rounded-sm border border-border text-xs">
                       <div>
-                        <span className="text-[10px] text-content-muted block">Target Field</span>
+                        <span className="text-[10px] font-mono text-content-muted block">Target Field</span>
                         <span className="font-mono font-semibold text-content-primary">{aiSuggestion.suggestion.field}</span>
                       </div>
                       <div>
-                        <span className="text-[10px] text-content-muted block">Suggested Value</span>
+                        <span className="text-[10px] font-mono text-content-muted block">Suggested Value</span>
                         <span className="font-mono font-bold text-semantic-verified">
                           {String(aiSuggestion.suggestion.suggestedValue)}
                         </span>
@@ -622,7 +618,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                         onClick={() => handleApplyAiSuggestion(aiSuggestion.suggestion, aiSuggestion.recommendationId)}
                         className="btn-institutional-secondary text-xs"
                       >
-                        <UserCheck className="w-3 h-3 text-brand" />
+                        <UserCheck className="w-3 h-3 text-brand-navy" />
                         <span>Populate Human Review Form</span>
                       </button>
                     </div>
@@ -630,62 +626,62 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                 )}
               </div>
 
-              {/* 4. HUMAN REVIEW DECISION (THE SOLE MUTATION LAYER) */}
+              {/* 4. HUMAN REVIEW DECISION LAYER (THE SOLE MUTATION POINT) */}
               <form
                 onSubmit={handleSubmitDecision}
                 className="panel-institutional p-5 space-y-4"
               >
                 <div className="flex items-center justify-between border-b border-border pb-3">
                   <div className="flex items-center space-x-2">
-                    <UserCheck className="w-4 h-4 text-brand" />
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-content-primary">
+                    <UserCheck className="w-4 h-4 text-brand-navy" />
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-content-primary font-mono">
                       Human Review Decision & Audit Sign-Off
                     </h3>
                   </div>
                   <span className="text-[10px] font-mono text-content-muted">
-                    Sign-off as David Chen (REVIEWER)
+                    Signer: David Chen (REVIEWER)
                   </span>
                 </div>
 
                 {decisionSuccess && (
-                  <div className="p-3 bg-semantic-verified-bg border border-semantic-verified-border rounded text-semantic-verified text-xs flex items-center space-x-2">
+                  <div className="p-3 bg-semantic-verified-bg border border-semantic-verified-border rounded-sm text-semantic-verified text-xs flex items-center space-x-2 font-mono">
                     <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
                     <span>{decisionSuccess}</span>
                   </div>
                 )}
 
                 {decisionError && (
-                  <div className="p-3 bg-semantic-critical-bg border border-semantic-critical-border rounded text-semantic-critical text-xs flex items-center space-x-2">
+                  <div className="p-3 bg-semantic-critical-bg border border-semantic-critical-border rounded-sm text-semantic-critical text-xs flex items-center space-x-2 font-mono">
                     <XCircle className="w-4 h-4 flex-shrink-0" />
                     <span>{decisionError}</span>
                   </div>
                 )}
 
-                {/* Decision Radio Group */}
+                {/* Decision Action Buttons */}
                 <div>
-                  <label className="text-xs font-semibold text-content-primary block mb-2">
+                  <label className="text-xs font-semibold text-content-primary block mb-2 font-mono uppercase text-[10px]">
                     Select Adjudication Action:
                   </label>
                   <div className="grid grid-cols-3 gap-3">
                     <button
                       type="button"
                       onClick={() => setDecisionType('approved')}
-                      className={`p-2.5 rounded border text-xs font-medium flex flex-col items-center justify-center space-y-1 transition-all ${
+                      className={`p-2.5 rounded-sm border text-xs font-medium flex flex-col items-center justify-center space-y-1 transition-all ${
                         decisionType === 'approved'
-                          ? 'bg-semantic-verified-bg border-semantic-verified text-semantic-verified font-bold shadow-subtle'
+                          ? 'bg-semantic-verified text-white border-semantic-verified font-bold shadow-subtle'
                           : 'bg-surface border-border text-content-secondary hover:bg-surface-secondary'
                       }`}
                     >
                       <CheckCircle2 className="w-4 h-4" />
-                      <span>Approve (Override)</span>
+                      <span>Approve Override</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setDecisionType('corrected')}
-                      className={`p-2.5 rounded border text-xs font-medium flex flex-col items-center justify-center space-y-1 transition-all ${
+                      className={`p-2.5 rounded-sm border text-xs font-medium flex flex-col items-center justify-center space-y-1 transition-all ${
                         decisionType === 'corrected'
-                          ? 'bg-semantic-info-bg border-semantic-info text-semantic-info font-bold shadow-subtle'
+                          ? 'bg-brand-navy text-white border-brand-navy font-bold shadow-subtle'
                           : 'bg-surface border-border text-content-secondary hover:bg-surface-secondary'
                       }`}
                     >
@@ -696,9 +692,9 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                     <button
                       type="button"
                       onClick={() => setDecisionType('rejected')}
-                      className={`p-2.5 rounded border text-xs font-medium flex flex-col items-center justify-center space-y-1 transition-all ${
+                      className={`p-2.5 rounded-sm border text-xs font-medium flex flex-col items-center justify-center space-y-1 transition-all ${
                         decisionType === 'rejected'
-                          ? 'bg-semantic-critical-bg border-semantic-critical text-semantic-critical font-bold shadow-subtle'
+                          ? 'bg-semantic-critical text-white border-semantic-critical font-bold shadow-subtle'
                           : 'bg-surface border-border text-content-secondary hover:bg-surface-secondary'
                       }`}
                     >
@@ -711,14 +707,14 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                 {/* If "corrected" selected, show JSON editor for editedFields */}
                 {decisionType === 'corrected' && (
                   <div>
-                    <label className="text-xs font-semibold text-content-primary block mb-1">
+                    <label className="text-xs font-semibold text-content-primary block mb-1 font-mono uppercase text-[10px]">
                       Corrected Fields Payload (JSON):
                     </label>
                     <textarea
                       rows={3}
                       value={editedFieldsJson}
                       onChange={(e) => setEditedFieldsJson(e.target.value)}
-                      className="input-institutional w-full font-mono text-xs text-brand"
+                      className="input-institutional w-full font-mono text-xs text-brand-navy"
                     />
                     {appliedAiRecId && (
                       <span className="text-[10px] text-semantic-ai mt-1 block font-mono">
@@ -730,7 +726,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
 
                 {/* Required Reviewer Note */}
                 <div>
-                  <label className="text-xs font-semibold text-content-primary block mb-1">
+                  <label className="text-xs font-semibold text-content-primary block mb-1 font-mono uppercase text-[10px]">
                     Underwriting Rationale / Compliance Justification <span className="text-semantic-critical">*</span>:
                   </label>
                   <textarea
@@ -746,12 +742,12 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                 {/* Submit Action */}
                 <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-border">
                   <span className="text-[11px] text-content-muted">
-                    This decision will be permanently recorded in the immutable audit trail.
+                    This decision will be permanently recorded in the audit trail.
                   </span>
                   <button
                     type="submit"
                     disabled={submittingDecision}
-                    className="btn-institutional-primary text-xs self-end"
+                    className="btn-navy text-xs self-end"
                   >
                     {submittingDecision ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                     <span>Record Human Decision</span>

@@ -2,18 +2,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../api';
 import {
   ShieldCheck,
-  ShieldAlert,
-  Download,
   CheckCircle2,
   AlertTriangle,
-  History,
-  Calculator,
-  RefreshCw,
   Loader2,
   FileJson,
   FileSpreadsheet,
-  Lock,
-  ExternalLink,
   Flame,
   Check,
 } from 'lucide-react';
@@ -143,11 +136,11 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
       {/* Top Header Strip */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1 border-b border-border">
         <div>
-          <h2 className="text-sm font-bold uppercase tracking-wider text-content-primary">
-            Verification & Cryptographic Attestation Portal
+          <h2 className="text-sm font-semibold tracking-tight text-content-primary">
+            Verification Portal
           </h2>
           <p className="text-xs text-content-secondary mt-0.5">
-            Verify the integrity, source-of-truth provenance, and tamper-evidence of loan portfolio records.
+            Cryptographic integrity, data quality scoring and audit attestation
           </p>
         </div>
 
@@ -155,7 +148,7 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
           <button
             onClick={() => handleExport('json')}
             disabled={exporting}
-            className="btn-institutional-primary text-xs"
+            className="btn-navy text-xs"
           >
             <FileJson className="w-3.5 h-3.5" />
             <span>Export Bundle (JSON)</span>
@@ -176,14 +169,14 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
-              <ShieldCheck className="w-5 h-5 text-brand" />
+              <ShieldCheck className="w-5 h-5 text-semantic-verified" />
               <h3 className="text-sm font-semibold text-content-primary">
                 Portfolio Data Quality & Verification Index
               </h3>
             </div>
 
             {/* FORMULA (GRADABLE CRITERIA) */}
-            <div className="bg-surface-secondary px-3 py-1.5 rounded border border-border text-[11px] font-mono text-content-primary inline-flex items-center space-x-2">
+            <div className="bg-surface-secondary px-3 py-1.5 rounded-sm border border-border text-[11px] font-mono text-content-primary inline-flex items-center space-x-2">
               <span className="text-content-muted">Formula:</span>
               <span>(verified_records / total_ingested_records) × 100</span>
             </div>
@@ -194,30 +187,30 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
           </div>
 
           {/* Metric Tiles Strip */}
-          <div className="flex items-center space-x-6 bg-surface-secondary/80 p-4 rounded border border-border">
+          <div className="flex items-center space-x-6 bg-surface-secondary/80 p-4 rounded-sm border border-border">
             <div className="text-left">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-content-muted block">
-                Verification Ratio
+              <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-content-muted block">
+                Verification Rate
               </span>
-              <span className="text-2xl font-bold font-mono text-brand">
+              <span className="text-2xl font-bold font-mono text-semantic-verified tabular-nums">
                 {verifiedRatio}%
               </span>
             </div>
             <div className="h-8 w-px bg-border"></div>
             <div className="text-left">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-content-muted block">
+              <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-content-muted block">
                 Verified / Total
               </span>
-              <span className="text-sm font-mono font-bold text-content-primary">
+              <span className="text-sm font-mono font-bold text-content-primary tabular-nums">
                 {summary?.verifiedLoansCount?.toLocaleString() ?? 0} / {summary?.totalLoans?.toLocaleString() ?? 0}
               </span>
             </div>
             <div className="h-8 w-px bg-border"></div>
             <div className="text-left">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-content-muted block">
+              <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-content-muted block">
                 Avg Exceptions
               </span>
-              <span className="text-sm font-mono font-bold text-semantic-high">
+              <span className="text-sm font-mono font-bold text-semantic-warning tabular-nums">
                 {summary?.dataQualityScore?.avgExceptionsPerLoan ?? 0.0}
               </span>
             </div>
@@ -226,9 +219,9 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
       </div>
 
       {tamperAlertMessage && (
-        <div className="p-3 bg-semantic-high-bg border border-semantic-high-border rounded text-semantic-high text-xs flex items-center justify-between">
+        <div className="p-3 bg-semantic-warning-bg border border-semantic-warning-border rounded-sm text-semantic-warning text-xs flex items-center justify-between font-mono">
           <div className="flex items-center space-x-2">
-            <Flame className="w-4 h-4 flex-shrink-0 text-semantic-high" />
+            <Flame className="w-4 h-4 flex-shrink-0 text-semantic-warning" />
             <span>{tamperAlertMessage}</span>
           </div>
           <button
@@ -244,8 +237,8 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
       <div className="panel-institutional p-5 space-y-4">
         <div className="flex items-center justify-between border-b border-border pb-3">
           <div>
-            <h3 className="text-xs font-semibold text-content-primary uppercase tracking-wider">
-              Cryptographically Verified Records Ledger
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-content-primary font-mono">
+              Verified Records Ledger
             </h3>
             <span className="text-[11px] text-content-secondary">
               Immutable SHA-256 digests over recursively sorted canonical JSON payloads.
@@ -258,10 +251,10 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
 
         {loadingVerified ? (
           <div className="py-16 flex justify-center text-content-muted">
-            <Loader2 className="w-6 h-6 animate-spin text-brand" />
+            <Loader2 className="w-6 h-6 animate-spin text-brand-navy" />
           </div>
         ) : verifiedError ? (
-          <div className="p-3 bg-semantic-critical-bg border border-semantic-critical-border rounded text-semantic-critical text-xs">
+          <div className="p-3 bg-semantic-critical-bg border border-semantic-critical-border rounded-sm text-semantic-critical text-xs font-mono">
             {verifiedError}
           </div>
         ) : filteredVerified.length === 0 ? (
@@ -272,7 +265,7 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="border-b border-border text-[10px] text-content-muted font-semibold uppercase tracking-wider">
+                <tr className="border-b border-border text-[10px] text-content-muted font-mono font-semibold uppercase tracking-wider">
                   <th className="pb-2.5">Loan Identifier</th>
                   <th className="pb-2.5">Borrower & Amount</th>
                   <th className="pb-2.5">SHA-256 Digest</th>
@@ -288,7 +281,7 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
                   return (
                     <tr key={v.id} className="hover:bg-surface-secondary/40 transition-colors">
                       <td className="py-3 pr-2">
-                        <span className="font-mono font-bold text-content-primary block">
+                        <span className="font-mono font-bold text-brand-navy block">
                           {v.loan?.loanIdentifier}
                         </span>
                         <span className="text-[10px] text-content-muted font-mono">
@@ -300,13 +293,13 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
                         <span className="text-content-primary block font-medium">
                           {v.loan?.borrowerName || 'Borrower'}
                         </span>
-                        <span className="text-content-secondary font-mono text-[11px]">
+                        <span className="text-content-secondary font-mono text-[11px] tabular-nums">
                           ${v.loan?.originalPrincipal?.toLocaleString() ?? 0} • {v.loan?.paymentStatus}
                         </span>
                       </td>
 
                       <td className="py-3 font-mono text-[11px]">
-                        <span className="bg-surface-secondary text-content-primary px-2 py-0.5 rounded border border-border block truncate max-w-[210px]" title={v.recordHash}>
+                        <span className="bg-surface-secondary text-content-primary px-2 py-0.5 rounded-xs border border-border block truncate max-w-[210px]" title={v.recordHash}>
                           {v.recordHash}
                         </span>
                       </td>
@@ -341,7 +334,7 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
 
                         <button
                           onClick={() => handleSimulateTamper(v.id)}
-                          className="btn-institutional-ghost text-semantic-critical text-[11px] py-1"
+                          className="btn-institutional-ghost text-semantic-critical text-[11px] py-1 font-mono"
                           title="Simulate database modification for live judge demo"
                         >
                           Demo Tamper

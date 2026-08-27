@@ -2,12 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../api';
 import {
   X,
-  History,
-  ShieldCheck,
-  FileCheck2,
-  AlertTriangle,
-  UserCheck,
-  BrainCircuit,
   Loader2,
   ChevronDown,
   ChevronUp,
@@ -53,7 +47,7 @@ export default function AuditTrailModal({ loanId, onClose }) {
         return <span className="badge-verified">VERIFY</span>;
       case 'MANUAL_EDIT':
       case 'OVERRIDE_APPROVE':
-        return <span className="badge-info">{actionType}</span>;
+        return <span className="badge-navy">{actionType}</span>;
       case 'REJECT':
       case 'EXCEPTION_CREATED':
         return <span className="badge-critical">{actionType}</span>;
@@ -66,19 +60,19 @@ export default function AuditTrailModal({ loanId, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#171918]/40 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-[#171817]/30 backdrop-blur-[2px] flex items-center justify-center p-4">
       <div
-        className="bg-surface border border-border rounded shadow-modal w-full max-w-4xl max-h-[90vh] flex flex-col text-content-primary animate-in fade-in zoom-in-95 duration-150"
+        className="bg-surface border border-border rounded-sm shadow-modal w-full max-w-4xl max-h-[90vh] flex flex-col text-content-primary animate-in fade-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
         <div className="px-6 py-4 border-b border-border flex items-center justify-between flex-shrink-0">
           <div>
             <div className="flex items-center space-x-2">
-              <h3 className="font-mono font-bold text-base text-content-primary">
+              <h3 className="font-mono font-bold text-base text-brand-navy">
                 {trail?.loanIdentifier || 'Audit Event Ledger'}
               </h3>
-              <span className="text-[10px] font-mono uppercase bg-surface-secondary px-2 py-0.5 rounded border border-border text-content-secondary">
+              <span className="text-[10px] font-mono uppercase bg-surface-secondary px-2 py-0.5 rounded-xs border border-border text-content-secondary">
                 Immutable Ledger
               </span>
             </div>
@@ -89,7 +83,7 @@ export default function AuditTrailModal({ loanId, onClose }) {
 
           <button
             onClick={onClose}
-            className="p-1 text-content-muted hover:text-content-primary rounded hover:bg-surface-secondary"
+            className="p-1 text-content-muted hover:text-content-primary rounded-sm hover:bg-surface-secondary"
           >
             <X className="w-5 h-5" />
           </button>
@@ -99,11 +93,11 @@ export default function AuditTrailModal({ loanId, onClose }) {
         <div className="p-6 overflow-y-auto space-y-4 flex-1 text-xs">
           {loading ? (
             <div className="py-24 flex flex-col items-center justify-center text-content-muted">
-              <Loader2 className="w-6 h-6 animate-spin text-brand mb-2" />
+              <Loader2 className="w-6 h-6 animate-spin text-brand-navy mb-2" />
               <span>Retrieving immutable audit events...</span>
             </div>
           ) : error ? (
-            <div className="p-4 bg-semantic-critical-bg border border-semantic-critical-border rounded text-semantic-critical">
+            <div className="p-4 bg-semantic-critical-bg border border-semantic-critical-border rounded-sm text-semantic-critical font-mono">
               {error}
             </div>
           ) : !trail || trail.timeline?.length === 0 ? (
@@ -112,11 +106,12 @@ export default function AuditTrailModal({ loanId, onClose }) {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="border-b border-border text-[10px] text-content-muted font-semibold uppercase tracking-wider">
-                    <th className="pb-2">Timestamp</th>
-                    <th className="pb-2">Event Action</th>
-                    <th className="pb-2">Actor / Signer</th>
-                    <th className="pb-2">Summary Details</th>
+                  <tr className="border-b border-border text-[10px] text-content-muted font-mono font-semibold uppercase tracking-wider">
+                    <th className="pb-2">Time</th>
+                    <th className="pb-2">Action</th>
+                    <th className="pb-2">Actor</th>
+                    <th className="pb-2">Entity</th>
+                    <th className="pb-2">Details</th>
                     <th className="pb-2 text-right">Payload</th>
                   </tr>
                 </thead>
@@ -135,13 +130,16 @@ export default function AuditTrailModal({ loanId, onClose }) {
                           <td className="py-2.5 font-sans font-medium text-content-primary">
                             {event.actor}
                           </td>
+                          <td className="py-2.5 font-mono text-[11px] text-content-secondary">
+                            {event.entityType}:{event.entityId ? event.entityId.slice(0, 8) : '—'}
+                          </td>
                           <td className="py-2.5 text-content-secondary max-w-xs truncate">
                             {event.details?.notes || event.details?.message || event.details?.decision || `Executed ${event.actionType}`}
                           </td>
                           <td className="py-2.5 text-right">
                             <button
                               onClick={() => toggleExpand(idx)}
-                              className="text-brand hover:underline font-mono text-[11px] inline-flex items-center space-x-1"
+                              className="text-brand-navy hover:underline font-mono text-[11px] inline-flex items-center space-x-1"
                             >
                               <span>{isExpanded ? 'Hide' : 'Inspect'}</span>
                               {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -151,8 +149,8 @@ export default function AuditTrailModal({ loanId, onClose }) {
 
                         {isExpanded && (
                           <tr className="bg-surface-secondary/60">
-                            <td colSpan={5} className="p-3 border-b border-border">
-                              <div className="bg-surface border border-border rounded p-2.5 font-mono text-[11px] text-content-primary overflow-x-auto">
+                            <td colSpan={6} className="p-3 border-b border-border">
+                              <div className="bg-surface border border-border rounded-sm p-2.5 font-mono text-[11px] text-content-primary overflow-x-auto">
                                 <pre>{JSON.stringify(event.details, null, 2)}</pre>
                               </div>
                             </td>
