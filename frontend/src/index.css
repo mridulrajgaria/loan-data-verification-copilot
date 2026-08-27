@@ -3,12 +3,13 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    background-color: #EDF2EB;
+  html, body, #root {
+    background-color: #E7EFE5 !important;
     color: #131D1B;
     font-family: "Figtree", -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'tnum';
     -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
   }
 
   /* Custom Scrollbar */
@@ -17,259 +18,277 @@
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: #E2E9E0;
+    background: #DCE5DA;
   }
   ::-webkit-scrollbar-thumb {
-    background: #B4C2B1;
+    background: #A6B8A2;
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #8FA28C;
+    background: #80967C;
   }
 }
 
-@layer components {
-  /* High-Contrast Badges */
-  .badge-base {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 0.15rem 0.45rem;
-    font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: 0.03em;
-    border-radius: 4px;
-    border-width: 1px;
-    border-style: solid;
-    text-transform: uppercase;
-    transition: all 150ms;
-    font-family: "IBM Plex Mono", monospace;
-  }
+/* Explicit, Guaranteed High-Contrast Color Classes */
+.bg-canvas-sage {
+  background-color: #E7EFE5 !important;
+}
 
-  .badge-critical {
-    background-color: #FEF3F2;
-    color: #B42318;
-    border-color: #FECDCA;
-  }
+.bg-teal-anchor {
+  background-color: #204E4C !important;
+  color: #FFFFFF !important;
+}
 
-  .badge-warning {
-    background-color: #FFF4DF;
-    color: #8C4A00;
-    border-color: #FDE3B2;
-  }
+.bg-lime-block {
+  background-color: #CDE78C !important;
+  color: #1C3806 !important;
+}
 
-  .badge-verified {
-    background-color: #EDFDF4;
-    color: #087443;
-    border-color: #AAF0C4;
-  }
+.bg-periwinkle-block {
+  background-color: #C1D8FF !important;
+  color: #0D2754 !important;
+}
 
-  .badge-lime {
-    background-color: #CDE78C;
-    color: #1C3806;
-    border-color: #B3D463;
-  }
+.bg-yellow-block {
+  background-color: #FFEB8C !important;
+  color: #453800 !important;
+}
 
-  .badge-coral {
-    background-color: #FEECEB;
-    color: #7A1D18;
-    border-color: #F9C3BF;
-  }
+.bg-coral-block {
+  background-color: #FEECEB !important;
+  color: #7A1D18 !important;
+}
 
-  .badge-teal {
-    background-color: #204E4C;
-    color: #FFFFFF;
-    border-color: #163B39;
-  }
+/* Segmented Topbar Buttons */
+.role-btn-active {
+  background-color: #204E4C !important;
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15) !important;
+}
 
-  .badge-periwinkle {
-    background-color: #EEF4FF;
-    color: #0D2754;
-    border-color: #9DC0FB;
-  }
+.role-btn-inactive {
+  background-color: transparent !important;
+  color: #495B56 !important;
+  font-weight: 600 !important;
+}
+.role-btn-inactive:hover {
+  background-color: #D3DDD0 !important;
+  color: #131D1B !important;
+}
 
-  .badge-neutral {
-    background-color: #E2E9E0;
-    color: #495B56;
-    border-color: #CDD7CB;
-  }
+/* High-Contrast Badges */
+.badge-critical {
+  background-color: #FEF3F2 !important;
+  color: #B42318 !important;
+  border: 1px solid #FECDCA !important;
+  font-weight: 700 !important;
+  font-family: "IBM Plex Mono", monospace !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  font-size: 10.5px !important;
+}
 
-  /* Section-Level Color Information Blocks */
-  .block-teal {
-    background-color: #204E4C;
-    color: #FFFFFF;
-    border: 1px solid #163B39;
-    border-radius: 8px;
-  }
+.badge-warning {
+  background-color: #FFF4DF !important;
+  color: #8C4A00 !important;
+  border: 1px solid #FDE3B2 !important;
+  font-weight: 700 !important;
+  font-family: "IBM Plex Mono", monospace !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  font-size: 10.5px !important;
+}
 
-  .block-lime {
-    background-color: #CDE78C;
-    color: #1C3806;
-    border: 1px solid #B3D463;
-    border-radius: 8px;
-  }
+.badge-verified {
+  background-color: #EDFDF4 !important;
+  color: #087443 !important;
+  border: 1px solid #AAF0C4 !important;
+  font-weight: 700 !important;
+  font-family: "IBM Plex Mono", monospace !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  font-size: 10.5px !important;
+}
 
-  .block-periwinkle {
-    background-color: #C1D8FF;
-    color: #0D2754;
-    border: 1px solid #9DC0FB;
-    border-radius: 8px;
-  }
+.badge-lime {
+  background-color: #CDE78C !important;
+  color: #1C3806 !important;
+  border: 1px solid #B3D463 !important;
+  font-weight: 700 !important;
+  font-family: "IBM Plex Mono", monospace !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  font-size: 10.5px !important;
+}
 
-  .block-yellow {
-    background-color: #FFEB8C;
-    color: #453800;
-    border: 1px solid #F0D452;
-    border-radius: 8px;
-  }
+.badge-coral {
+  background-color: #FEECEB !important;
+  color: #7A1D18 !important;
+  border: 1px solid #F9C3BF !important;
+  font-weight: 700 !important;
+  font-family: "IBM Plex Mono", monospace !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  font-size: 10.5px !important;
+}
 
-  .block-coral {
-    background-color: #FEECEB;
-    color: #7A1D18;
-    border: 1px solid #F9C3BF;
-    border-radius: 8px;
-  }
+.badge-teal {
+  background-color: #204E4C !important;
+  color: #FFFFFF !important;
+  border: 1px solid #163B39 !important;
+  font-weight: 700 !important;
+  font-family: "IBM Plex Mono", monospace !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  font-size: 10.5px !important;
+}
 
-  /* Form Controls */
-  .input-institutional {
-    background-color: #FFFFFF;
-    color: #131D1B;
-    border: 1px solid #CDD7CB;
-    border-radius: 4px;
-    padding: 0.4rem 0.75rem;
-    font-size: 0.75rem;
-    transition: all 150ms;
-    font-family: "Figtree", sans-serif;
-  }
-  .input-institutional:focus {
-    outline: none;
-    border-color: #204E4C;
-    box-shadow: 0 0 0 2px rgba(32, 78, 76, 0.15);
-  }
+.badge-periwinkle {
+  background-color: #EEF4FF !important;
+  color: #0D2754 !important;
+  border: 1px solid #9DC0FB !important;
+  font-weight: 700 !important;
+  font-family: "IBM Plex Mono", monospace !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  font-size: 10.5px !important;
+}
 
-  .select-institutional {
-    background-color: #FFFFFF;
-    color: #131D1B;
-    border: 1px solid #CDD7CB;
-    border-radius: 4px;
-    padding: 0.4rem 0.6rem;
-    font-size: 0.75rem;
-    transition: all 150ms;
-    font-family: "Figtree", sans-serif;
-  }
-  .select-institutional:focus {
-    outline: none;
-    border-color: #204E4C;
-    box-shadow: 0 0 0 2px rgba(32, 78, 76, 0.15);
-  }
+/* Color Blocks */
+.block-teal {
+  background-color: #204E4C !important;
+  color: #FFFFFF !important;
+  border: 1px solid #163B39 !important;
+  border-radius: 8px !important;
+}
 
-  /* Buttons */
-  .btn-teal {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.375rem;
-    padding: 0.4rem 0.85rem;
-    background-color: #204E4C;
-    color: #FFFFFF;
-    font-size: 0.75rem;
-    font-weight: 600;
-    border-radius: 4px;
-    border: 1px solid #204E4C;
-    transition: background-color 150ms;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  }
-  .btn-teal:hover {
-    background-color: #163B39;
-  }
-  .btn-teal:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+.block-lime {
+  background-color: #CDE78C !important;
+  color: #1C3806 !important;
+  border: 1px solid #B3D463 !important;
+  border-radius: 8px !important;
+}
 
-  .btn-lime {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.375rem;
-    padding: 0.4rem 0.85rem;
-    background-color: #CDE78C;
-    color: #1C3806;
-    font-size: 0.75rem;
-    font-weight: 700;
-    border-radius: 4px;
-    border: 1px solid #B3D463;
-    transition: background-color 150ms;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  }
-  .btn-lime:hover {
-    background-color: #bddb72;
-  }
+.block-periwinkle {
+  background-color: #C1D8FF !important;
+  color: #0D2754 !important;
+  border: 1px solid #9DC0FB !important;
+  border-radius: 8px !important;
+}
 
-  .btn-institutional-secondary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.375rem;
-    padding: 0.4rem 0.85rem;
-    background-color: #FFFFFF;
-    color: #131D1B;
-    font-size: 0.75rem;
-    font-weight: 600;
-    border-radius: 4px;
-    border: 1px solid #CDD7CB;
-    transition: background-color 150ms;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
-  }
-  .btn-institutional-secondary:hover {
-    background-color: #E2E9E0;
-  }
-  .btn-institutional-secondary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+.block-yellow {
+  background-color: #FFEB8C !important;
+  color: #453800 !important;
+  border: 1px solid #F0D452 !important;
+  border-radius: 8px !important;
+}
 
-  .btn-institutional-ghost {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.25rem;
-    padding: 0.25rem 0.5rem;
-    color: #495B56;
-    font-size: 0.75rem;
-    font-weight: 600;
-    border-radius: 4px;
-    transition: all 150ms;
-  }
-  .btn-institutional-ghost:hover {
-    background-color: #E2E9E0;
-    color: #131D1B;
-  }
+.block-coral {
+  background-color: #FEECEB !important;
+  color: #7A1D18 !important;
+  border: 1px solid #F9C3BF !important;
+  border-radius: 8px !important;
+}
 
-  /* Un-Carded Section Band */
-  .section-band {
-    background-color: #FFFFFF;
-    border: 1px solid #CDD7CB;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
-  }
+/* White Data Surface on Sage Canvas */
+.section-band {
+  background-color: #FFFFFF !important;
+  border: 1px solid #CDD7CB !important;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
 
-  /* Forensic Field Discrepancy Highlighting */
-  .diff-discrepancy {
-    background-color: #FEF3F2;
-    color: #B42318;
-    border: 1px solid #FECDCA;
-    padding: 0.125rem 0.375rem;
-    border-radius: 3px;
-    font-family: "IBM Plex Mono", monospace;
-    font-weight: 700;
-  }
+/* Buttons */
+.btn-teal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.45rem 0.9rem;
+  background-color: #204E4C !important;
+  color: #FFFFFF !important;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 6px;
+  border: 1px solid #163B39;
+  transition: all 150ms;
+}
+.btn-teal:hover {
+  background-color: #163B39 !important;
+}
 
-  .diff-matched {
-    background-color: #E2E9E0;
-    color: #131D1B;
-    padding: 0.125rem 0.375rem;
-    border-radius: 3px;
-    font-family: "IBM Plex Mono", monospace;
-  }
+.btn-lime {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.45rem 0.9rem;
+  background-color: #CDE78C !important;
+  color: #1C3806 !important;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 6px;
+  border: 1px solid #B3D463;
+  transition: all 150ms;
+}
+.btn-lime:hover {
+  background-color: #bddb72 !important;
+}
+
+.btn-institutional-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.45rem 0.9rem;
+  background-color: #FFFFFF !important;
+  color: #131D1B !important;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid #CDD7CB;
+  transition: all 150ms;
+}
+.btn-institutional-secondary:hover {
+  background-color: #E2E9E0 !important;
+}
+
+.btn-institutional-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  color: #204E4C !important;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 4px;
+  transition: all 150ms;
+}
+.btn-institutional-ghost:hover {
+  background-color: #DDE7DB !important;
+}
+
+.input-institutional {
+  background-color: #FFFFFF !important;
+  color: #131D1B !important;
+  border: 1px solid #CDD7CB !important;
+  border-radius: 6px !important;
+  padding: 0.45rem 0.75rem !important;
+  font-size: 0.75rem !important;
+}
+.input-institutional:focus {
+  outline: none;
+  border-color: #204E4C !important;
+  box-shadow: 0 0 0 2px rgba(32, 78, 76, 0.15) !important;
+}
+
+.select-institutional {
+  background-color: #FFFFFF !important;
+  color: #131D1B !important;
+  border: 1px solid #CDD7CB !important;
+  border-radius: 6px !important;
+  padding: 0.45rem 0.6rem !important;
+  font-size: 0.75rem !important;
 }
