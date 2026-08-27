@@ -118,6 +118,53 @@ router.get(
 );
 
 /**
+ * GET /api/verified-loans/:id
+ * Retrieve a single verified loan record with canonical payload.
+ */
+router.get(
+  '/verified-loans/:id',
+  authenticateUser,
+  validateRequest({ params: idParamSchema }),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const record = await prisma.verifiedLoan.findFirst({
+        where: {
+          OR: [{ id }, { loanId: id }, { loan: { loanIdentifier: id } }],
+        },
+        include: {
+          loan: true,
+          verifiedByUser: {
+            select: { id: true, name: true, email: true, role: true },
+          },
+        },
+      });
+
+      if (!record) {
+        return res.status(404).json({ success: false, error: `VerifiedLoan '${id}' not found.` });
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          id: record.id,
+          loanId: record.loanId,
+          loanIdentifier: record.loan.loanIdentifier,
+          recordHash: record.recordHash,
+          verifiedAt: record.verifiedAt,
+          version: record.version,
+          verifiedBy: record.verifiedByUser,
+          canonicalPayload: JSON.parse(record.canonicalJson || '{}'),
+        },
+      });
+    } catch (error) {
+      console.error('[GET_VERIFIED_LOAN_DETAIL_ERROR]', error);
+      return res.status(500).json({ success: false, error: 'Failed to fetch verified loan detail.' });
+    }
+  }
+);
+
+/**
  * GET /api/verified-loans/:id/verify-hash
  * Independently recomputes SHA-256 hash from stored canonical data.
  */

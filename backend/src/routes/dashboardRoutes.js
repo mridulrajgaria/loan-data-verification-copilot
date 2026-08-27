@@ -191,23 +191,27 @@ router.get(
 );
 
 /**
- * GET /api/loans/:id/audit-trail
+ * GET /api/loans/:id/audit-trail or GET /api/audit/:loanId
  * Interactive chronological timeline for a single loan.
  */
 router.get(
-  '/loans/:id/audit-trail',
+  ['/loans/:id/audit-trail', '/audit/:id'],
   authenticateUser,
   validateRequest({ params: idParamSchema }),
   async (req, res) => {
     try {
       const { id } = req.params;
-      const loan = await prisma.normalizedLoan.findUnique({ where: { id } });
+      const loan = await prisma.normalizedLoan.findFirst({
+        where: {
+          OR: [{ id }, { loanIdentifier: id }],
+        },
+      });
       if (!loan) {
         return res.status(404).json({ success: false, error: `Loan '${id}' not found.` });
       }
 
       const exceptions = await prisma.exception.findMany({
-        where: { loanId: id },
+        where: { loanId: loan.id },
         select: { id: true },
       });
       const exceptionIds = exceptions.map((e) => e.id);
@@ -215,7 +219,7 @@ router.get(
       const auditLogs = await prisma.auditLog.findMany({
         where: {
           OR: [
-            { entityId: id },
+            { entityId: loan.id },
             { entityId: loan.rawUploadId },
             { entityId: { in: exceptionIds } },
           ],
