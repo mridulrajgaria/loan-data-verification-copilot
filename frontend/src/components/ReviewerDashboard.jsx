@@ -273,7 +273,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
         <div className="flex items-center space-x-2 text-xs font-mono text-[#768883]">
           <span className="badge-warning">Queue: {exceptions.length} Open</span>
           <span>•</span>
-          <span className="font-bold text-[#131D1B]">Signer: David Chen (REVIEWER)</span>
+          <span className="font-bold text-[#131D1B]">Signer: Mridul Rajgaria (REVIEWER)</span>
         </div>
       </div>
 
@@ -676,7 +676,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                     style={{ backgroundColor: '#CDE78C', color: '#204E4C' }}
                     className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-md"
                   >
-                    Signer: David Chen (REVIEWER)
+                    Signer: Mridul Rajgaria (REVIEWER)
                   </span>
                 </div>
 

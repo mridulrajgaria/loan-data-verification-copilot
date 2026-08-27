@@ -29,25 +29,25 @@ export default function App() {
   // Three Demo Personas per Challenge Specification
   const personas = {
     operator: {
-      name: 'Elena Rostova',
+      name: 'Priya Sharma',
       title: 'Data Operations Specialist',
       role: 'OPERATOR',
       userId: 'usr-operator-01',
-      initials: 'ER',
+      initials: 'PS',
     },
     reviewer: {
-      name: 'David Chen',
-      title: 'Senior Underwriter',
+      name: 'Mridul Rajgaria',
+      title: 'Lead Underwriter',
       role: 'REVIEWER',
       userId: 'usr-reviewer-01',
-      initials: 'DC',
+      initials: 'MR',
     },
     consumer: {
-      name: 'Marcus Lee',
+      name: 'Rohan Mehta',
       title: 'Verification Auditor',
       role: 'AUDITOR',
       userId: 'usr-auditor-01',
-      initials: 'ML',
+      initials: 'RM',
     },
   };
 
