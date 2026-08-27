@@ -390,61 +390,234 @@ Write a concise, professional executive briefing in markdown format.`;
 // DETERMINISTIC FALLBACK GENERATORS (Ensures 100% uptime if offline/no API key)
 // =============================================================================
 
+const STATE_NAME_MAP = {
+  'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR', 'california': 'CA',
+  'colorado': 'CO', 'connecticut': 'CT', 'delaware': 'DE', 'florida': 'FL', 'georgia': 'GA',
+  'hawaii': 'HI', 'idaho': 'ID', 'illinois': 'IL', 'indiana': 'IN', 'iowa': 'IA',
+  'kansas': 'KS', 'kentucky': 'KY', 'louisiana': 'LA', 'maine': 'ME', 'maryland': 'MD',
+  'massachusetts': 'MA', 'michigan': 'MI', 'minnesota': 'MN', 'mississippi': 'MS', 'missouri': 'MO',
+  'montana': 'MT', 'nebraska': 'NE', 'nevada': 'NV', 'new hampshire': 'NH', 'new jersey': 'NJ',
+  'new mexico': 'NM', 'new york': 'NY', 'north carolina': 'NC', 'north dakota': 'ND', 'ohio': 'OH',
+  'oklahoma': 'OK', 'oregon': 'OR', 'pennsylvania': 'PA', 'rhode island': 'RI', 'south carolina': 'SC',
+  'south dakota': 'SD', 'tennessee': 'TN', 'texas': 'TX', 'utah': 'UT', 'vermont': 'VT',
+  'virginia': 'VA', 'washington': 'WA', 'west virginia': 'WV', 'wisconsin': 'WI', 'wyoming': 'WY',
+  'district of columbia': 'DC', 'dc': 'DC', 'puerto rico': 'PR',
+  'calif': 'CA', 'calif.': 'CA', 'tex': 'TX', 'tex.': 'TX', 'penn': 'PA', 'penna': 'PA',
+  'fla': 'FL', 'fla.': 'FL', 'ill': 'IL', 'ill.': 'IL', 'wash': 'WA', 'wash.': 'WA',
+  'mass': 'MA', 'mass.': 'MA', 'conn': 'CT', 'conn.': 'CT', 'ariz': 'AZ', 'ariz.': 'AZ',
+  'mich': 'MI', 'mich.': 'MI', 'minn': 'MN', 'minn.': 'MN', 'colo': 'CO', 'colo.': 'CO',
+};
+
 function generateFallbackExplanation(exception, details) {
-  const code = exception.rule.ruleCode;
+  const code = exception.rule?.ruleCode;
   const loan = exception.loan;
 
   switch (code) {
+    case 'RULE_REQUIRED_FIELDS': {
+      const missing = details?.missingFields || details?.details?.missingFields || [];
+      const missingList = missing.length > 0 ? missing.join(', ') : 'core loan attributes';
+      return `Missing mandatory loan attribute(s): [${missingList}]. Core metadata must be fully populated before asset pooling.`;
+    }
+    case 'RULE_VALID_DATES': {
+      const invalid = details?.invalidFields || details?.details?.invalidFields || [];
+      const invalidList = invalid.length > 0 ? invalid.join(', ') : 'calendar date fields';
+      return `Invalid calendar date format detected for [${invalidList}]. Dates must strictly conform to ISO 8601 calendar bounds (YYYY-MM-DD).`;
+    }
+    case 'RULE_MATURITY_AFTER_ORIGINATION': {
+      const origStr = loan?.originationDate ? new Date(loan.originationDate).toISOString().split('T')[0] : 'N/A';
+      const matStr = loan?.maturityDate ? new Date(loan.maturityDate).toISOString().split('T')[0] : 'N/A';
+      return `Maturity date (${matStr}) is chronologically on or before origination date (${origStr}). In amortizing credit facilities, maturity must strictly succeed origination by the amortization term.`;
+    }
     case 'RULE_NON_NEGATIVE_PRINCIPAL':
-      return `Loan ${loan?.loanIdentifier} failed validation because the recorded original principal ($${loan?.originalPrincipal}) is negative. Principal amounts must represent positive disbursed capital.`;
+      return `Loan ${loan?.loanIdentifier || ''} carries a negative balance/principal value (Original: $${loan?.originalPrincipal?.toLocaleString() || '0'}, Balance: $${loan?.currentBalance?.toLocaleString() || '0'}). Principal amounts must represent positive disbursed capital.`;
     case 'RULE_BALANCE_LE_PRINCIPAL':
-      return `Current balance ($${loan?.currentBalance?.toLocaleString()}) exceeds the original principal ($${loan?.originalPrincipal?.toLocaleString()}). Standard amortizing loans cannot increase balance without negative amortization terms.`;
+      return `Current outstanding balance ($${loan?.currentBalance?.toLocaleString() || '0'}) exceeds original disbursed principal ($${loan?.originalPrincipal?.toLocaleString() || '0'}). Standard amortizing loans cannot increase balance without negative amortization terms.`;
+    case 'RULE_INTEREST_RATE_RANGE':
+      return `The recorded interest rate of ${loan?.interestRate}% violates statutory bounds (0.50% - 35.00%) and acceptable underwriting yield parameters.`;
+    case 'RULE_VALID_PAYMENT_STATUS':
+      return `Payment status '${loan?.paymentStatus}' is not a standardized servicing enumeration (CURRENT, LATE_30, LATE_60, LATE_90, DEFAULT, PAID_OFF).`;
     case 'RULE_PAYMENT_STATUS_DPD_CONSISTENCY':
-      return `Servicing status '${loan?.paymentStatus}' contradicts the recorded ${loan?.daysPastDue} days past due. A status of '${loan?.paymentStatus}' requires alignment with standard delinquency buckets.`;
-    case 'RULE_CLOSED_LOAN_POSITIVE_BALANCE':
-      return `Loan is marked '${loan?.paymentStatus}' (terminal status) but carries an active balance of $${loan?.currentBalance?.toLocaleString()}. Closed/paid-off loans must have a zero ledger balance.`;
+      return `Servicing status '${loan?.paymentStatus}' contradicts the recorded ${loan?.daysPastDue} days past due (DPD). A status of '${loan?.paymentStatus}' requires alignment with standard delinquency buckets.`;
+    case 'RULE_DUPLICATE_LOAN_ID': {
+      const collisionDetail = details?.details?.reason || details?.message || 'Identical identifier appears multiple times in batch or portfolio registry';
+      return `Primary loan identifier '${loan?.loanIdentifier}' collision detected: ${collisionDetail}. Primary identifiers must be globally unique across the portfolio to prevent asset double-pledging.`;
+    }
+    case 'RULE_DUPLICATE_BORROWER_TRIPLET': {
+      const origStr = loan?.originationDate ? new Date(loan.originationDate).toISOString().split('T')[0] : 'N/A';
+      return `Borrower origination triplet collision: Borrower '${loan?.borrowerId || loan?.borrowerName || 'N/A'}' with principal $${loan?.originalPrincipal?.toLocaleString() || '0'} originated on ${origStr} appears multiple times in the tape, indicating potential duplicate loan booking.`;
+    }
+    case 'RULE_REQUIRED_DOCUMENT_STATUS':
+      return `Document custody status is missing or unassigned ('${loan?.documentStatus || 'NULL'}'). Mortgage compliance requires verified custody tracking (VERIFIED, PENDING, REJECTED, EXPIRED).`;
+    case 'RULE_STALE_RECORD': {
+      const lastUp = loan?.lastUpdatedAt ? new Date(loan.lastUpdatedAt).toISOString().split('T')[0] : 'N/A';
+      return `Tape record last updated on ${lastUp} exceeds the maximum allowable freshness threshold of 180 days. Outdated servicing telemetry increases portfolio valuation risk.`;
+    }
     case 'RULE_VALID_STATE_CODE':
       return `Borrower state code '${loan?.borrowerState}' is not a recognized 2-letter US postal jurisdiction code.`;
-    case 'RULE_INTEREST_RATE_RANGE':
-      return `The recorded interest rate of ${loan?.interestRate}% violates statutory bounds and acceptable underwriting yield parameters.`;
-    case 'RULE_MATURITY_AFTER_ORIGINATION':
-      return `The maturity date occurs on or before the origination date, representing an invalid chronological term.`;
-    case 'RULE_CROSS_SOURCE_CONFLICT':
-      return `Discrepancy detected between primary tape and external servicer feed: ${details?.discrepancies?.join(', ') || 'Conflicting servicing records'}.`;
+    case 'RULE_CLOSED_LOAN_POSITIVE_BALANCE':
+      return `Loan is marked '${loan?.paymentStatus}' (terminal status) but carries an active balance of $${loan?.currentBalance?.toLocaleString() || '0'}. Closed/paid-off loans must have a zero ledger balance.`;
+    case 'RULE_CROSS_SOURCE_CONFLICT': {
+      const conflictList = details?.details?.discrepancies?.join(', ') || details?.discrepancies?.join(', ') || details?.message || 'Conflicting servicing records';
+      return `Discrepancy detected between primary tape and external servicer feed: ${conflictList}. Tape records must reconcile against servicer ledger.`;
+    }
     default:
-      return details?.message || `Loan ${loan?.loanIdentifier} failed compliance check for rule ${exception.rule.name}.`;
+      return details?.message || `Loan ${loan?.loanIdentifier || ''} failed compliance check for rule ${exception.rule?.name || code}.`;
   }
 }
 
 function generateFallbackCorrection(exception, details) {
-  const code = exception.rule.ruleCode;
+  const code = exception.rule?.ruleCode;
   const loan = exception.loan;
 
   switch (code) {
-    case 'RULE_NON_NEGATIVE_PRINCIPAL':
-      return {
-        field: 'originalPrincipal',
-        currentValue: loan?.originalPrincipal,
-        suggestedValue: loan?.originalPrincipal ? Math.abs(loan.originalPrincipal) : 0,
-        confidence: 'HIGH',
-        justification: 'Invert negative sign to restore positive principal amount indicated by origination tape.',
+    case 'RULE_REQUIRED_FIELDS': {
+      const missing = details?.missingFields || details?.details?.missingFields || [];
+      const primaryMissing = missing[0] || 'loan_id';
+      const fieldMap = {
+        loan_id: 'loanIdentifier',
+        borrower_id: 'borrowerId',
+        original_principal: 'originalPrincipal',
+        interest_rate: 'interestRate',
+        loan_type: 'loanType',
+        term_months: 'termMonths',
       };
-    case 'RULE_CLOSED_LOAN_POSITIVE_BALANCE':
+      const targetField = fieldMap[primaryMissing] || primaryMissing;
+      return {
+        field: targetField,
+        currentValue: loan?.[targetField] || null,
+        suggestedValue: null,
+        confidence: 'LOW',
+        justification: `Populate missing mandatory attribute '${targetField}' from verified promissory note and origination schedule.`,
+      };
+    }
+    case 'RULE_VALID_DATES': {
+      const invalid = details?.invalidFields || details?.details?.invalidFields || [];
+      const primaryInvalid = invalid[0] || 'origination_date';
+      const targetField = primaryInvalid === 'maturity_date' ? 'maturityDate' : 'originationDate';
+      return {
+        field: targetField,
+        currentValue: loan?.[targetField] ? new Date(loan[targetField]).toISOString().split('T')[0] : null,
+        suggestedValue: null,
+        confidence: 'LOW',
+        justification: `Verify and enter valid ISO calendar date (YYYY-MM-DD) for '${targetField}' from closing disclosure.`,
+      };
+    }
+    case 'RULE_MATURITY_AFTER_ORIGINATION': {
+      if (loan?.originationDate && loan?.termMonths) {
+        const d = new Date(loan.originationDate);
+        d.setMonth(d.getMonth() + Number(loan.termMonths));
+        const suggestedMaturity = !isNaN(d.getTime()) ? d.toISOString().split('T')[0] : null;
+        if (suggestedMaturity) {
+          return {
+            field: 'maturityDate',
+            currentValue: loan?.maturityDate ? new Date(loan.maturityDate).toISOString().split('T')[0] : null,
+            suggestedValue: suggestedMaturity,
+            confidence: 'HIGH',
+            justification: `Recompute maturity date by adding loan term (${loan.termMonths} months) to origination date.`,
+          };
+        }
+      }
+      return {
+        field: 'maturityDate',
+        currentValue: loan?.maturityDate ? new Date(loan.maturityDate).toISOString().split('T')[0] : null,
+        suggestedValue: null,
+        confidence: 'MEDIUM',
+        justification: 'Correct maturity date to succeed origination date in accordance with the credit agreement schedule.',
+      };
+    }
+    case 'RULE_NON_NEGATIVE_PRINCIPAL': {
+      const isPrincipalNeg = loan?.originalPrincipal !== null && loan?.originalPrincipal < 0;
+      const field = isPrincipalNeg ? 'originalPrincipal' : 'currentBalance';
+      const currentVal = loan?.[field];
+      return {
+        field,
+        currentValue: currentVal,
+        suggestedValue: currentVal ? Math.abs(currentVal) : 0,
+        confidence: 'HIGH',
+        justification: `Invert negative sign to restore positive ${field === 'originalPrincipal' ? 'principal' : 'balance'} amount indicated by origination tape.`,
+      };
+    }
+    case 'RULE_BALANCE_LE_PRINCIPAL':
       return {
         field: 'currentBalance',
         currentValue: loan?.currentBalance,
-        suggestedValue: 0.0,
-        confidence: 'HIGH',
-        justification: 'Zero out current balance to align with verified PAID_OFF / CLOSED terminal status.',
+        suggestedValue: loan?.originalPrincipal || 0,
+        confidence: 'MEDIUM',
+        justification: 'Cap current balance at original disbursed principal pending amortized schedule audit.',
       };
-    case 'RULE_PAYMENT_STATUS_DPD_CONSISTENCY':
-      if (loan?.paymentStatus === 'CURRENT' && (loan?.daysPastDue || 0) >= 30) {
+    case 'RULE_INTEREST_RATE_RANGE': {
+      if (loan?.interestRate !== null && loan?.interestRate < 0) {
+        return {
+          field: 'interestRate',
+          currentValue: loan?.interestRate,
+          suggestedValue: Math.abs(loan.interestRate),
+          confidence: 'HIGH',
+          justification: 'Invert negative sign to restore positive statutory note interest rate.',
+        };
+      }
+      if (loan?.interestRate !== null && loan?.interestRate > 35) {
+        const scaledRate = Number((loan.interestRate / 100).toFixed(4));
+        if (scaledRate >= 0.5 && scaledRate <= 35) {
+          return {
+            field: 'interestRate',
+            currentValue: loan?.interestRate,
+            suggestedValue: scaledRate,
+            confidence: 'MEDIUM',
+            justification: `Rescale interest rate entered in basis points (${loan.interestRate} bps -> ${scaledRate}%).`,
+          };
+        }
+      }
+      return {
+        field: 'interestRate',
+        currentValue: loan?.interestRate,
+        suggestedValue: 6.5,
+        confidence: 'LOW',
+        justification: 'Adjust interest rate to standard conforming benchmark pending note inspection.',
+      };
+    }
+    case 'RULE_VALID_PAYMENT_STATUS': {
+      const statusAliases = {
+        'PERFORMING': 'CURRENT',
+        'ACTIVE': 'CURRENT',
+        'DELINQUENT_30': 'LATE_30',
+        '30_DAYS': 'LATE_30',
+        'DELINQUENT_60': 'LATE_60',
+        '60_DAYS': 'LATE_60',
+        'DELINQUENT_90': 'LATE_90',
+        '90_DAYS': 'LATE_90',
+        'CHARGED_OFF': 'DEFAULT',
+        'DEFAULTED': 'DEFAULT',
+        'CLOSED': 'PAID_OFF',
+        'SETTLED': 'PAID_OFF',
+      };
+      const rawStatus = String(loan?.paymentStatus || '').trim().toUpperCase();
+      const mappedStatus = statusAliases[rawStatus];
+      if (mappedStatus) {
         return {
           field: 'paymentStatus',
           currentValue: loan?.paymentStatus,
-          suggestedValue: loan.daysPastDue >= 90 ? 'LATE_90' : loan.daysPastDue >= 60 ? 'LATE_60' : 'LATE_30',
+          suggestedValue: mappedStatus,
           confidence: 'HIGH',
-          justification: `Update status to match the ${loan.daysPastDue} days past due delinquency window.`,
+          justification: `Standardize non-standard status string '${loan?.paymentStatus}' to canonical status '${mappedStatus}'.`,
+        };
+      }
+      return {
+        field: 'paymentStatus',
+        currentValue: loan?.paymentStatus,
+        suggestedValue: 'CURRENT',
+        confidence: 'LOW',
+        justification: 'Map unknown payment status to CURRENT pending servicer confirmation.',
+      };
+    }
+    case 'RULE_PAYMENT_STATUS_DPD_CONSISTENCY':
+      if (loan?.paymentStatus === 'CURRENT' && (loan?.daysPastDue || 0) >= 30) {
+        const suggested = loan.daysPastDue >= 90 ? 'LATE_90' : loan.daysPastDue >= 60 ? 'LATE_60' : 'LATE_30';
+        return {
+          field: 'paymentStatus',
+          currentValue: loan?.paymentStatus,
+          suggestedValue: suggested,
+          confidence: 'HIGH',
+          justification: `Update status to '${suggested}' to match the recorded ${loan.daysPastDue} days past due delinquency window.`,
         };
       }
       return {
@@ -454,22 +627,85 @@ function generateFallbackCorrection(exception, details) {
         confidence: 'MEDIUM',
         justification: 'Reset days past due to 0 to align with CURRENT servicing status.',
       };
-    case 'RULE_VALID_STATE_CODE':
+    case 'RULE_DUPLICATE_LOAN_ID':
+      return {
+        field: 'status',
+        currentValue: loan?.status,
+        suggestedValue: 'REJECTED',
+        confidence: 'HIGH',
+        justification: `Reject duplicate tape record for '${loan?.loanIdentifier}' to eliminate asset double-counting and preserve single-source portfolio registry.`,
+      };
+    case 'RULE_DUPLICATE_BORROWER_TRIPLET':
+      return {
+        field: 'status',
+        currentValue: loan?.status,
+        suggestedValue: 'REJECTED',
+        confidence: 'HIGH',
+        justification: 'Reject duplicate loan booking sharing identical borrower ID, principal amount, and origination date.',
+      };
+    case 'RULE_REQUIRED_DOCUMENT_STATUS':
+      return {
+        field: 'documentStatus',
+        currentValue: loan?.documentStatus,
+        suggestedValue: 'PENDING',
+        confidence: 'HIGH',
+        justification: 'Assign custody status PENDING to initiate document trailing tracking with custodian.',
+      };
+    case 'RULE_STALE_RECORD':
+      return {
+        field: 'lastUpdatedAt',
+        currentValue: loan?.lastUpdatedAt ? new Date(loan.lastUpdatedAt).toISOString().split('T')[0] : null,
+        suggestedValue: new Date().toISOString().split('T')[0],
+        confidence: 'MEDIUM',
+        justification: 'Update record timestamp upon receiving fresh monthly servicing feed reconciliation.',
+      };
+    case 'RULE_VALID_STATE_CODE': {
+      const rawState = String(loan?.borrowerState || '').trim().toLowerCase();
+      const mappedCode = STATE_NAME_MAP[rawState];
+      if (mappedCode) {
+        return {
+          field: 'borrowerState',
+          currentValue: loan?.borrowerState,
+          suggestedValue: mappedCode,
+          confidence: 'HIGH',
+          justification: `Standardize recognized state name '${loan?.borrowerState}' to official 2-letter postal abbreviation '${mappedCode}'.`,
+        };
+      }
       return {
         field: 'borrowerState',
         currentValue: loan?.borrowerState,
-        suggestedValue: loan?.borrowerState === 'California' ? 'CA' : 'CA',
-        confidence: 'MEDIUM',
-        justification: 'Standardize full state name or corrupt identifier into 2-letter uppercase postal abbreviation.',
+        suggestedValue: null,
+        confidence: 'LOW',
+        justification: `State input '${loan?.borrowerState}' cannot be unambiguously mapped. Underwriter must verify borrower jurisdiction from origination documents.`,
       };
-    case 'RULE_CROSS_SOURCE_CONFLICT':
+    }
+    case 'RULE_CLOSED_LOAN_POSITIVE_BALANCE':
       return {
         field: 'currentBalance',
         currentValue: loan?.currentBalance,
-        suggestedValue: details?.servicer?.current_balance ? parseFloat(details.servicer.current_balance) : loan?.currentBalance,
-        confidence: 'MEDIUM',
-        justification: 'Adopt latest reconciled balance from verified external servicer feed.',
+        suggestedValue: 0.0,
+        confidence: 'HIGH',
+        justification: 'Zero out current balance to align with verified PAID_OFF / CLOSED terminal status.',
       };
+    case 'RULE_CROSS_SOURCE_CONFLICT': {
+      const servicerBal = details?.details?.servicer?.current_balance ?? details?.servicer?.current_balance;
+      if (servicerBal !== undefined && servicerBal !== null) {
+        return {
+          field: 'currentBalance',
+          currentValue: loan?.currentBalance,
+          suggestedValue: parseFloat(servicerBal),
+          confidence: 'MEDIUM',
+          justification: 'Adopt latest reconciled balance from verified external servicer feed.',
+        };
+      }
+      return {
+        field: 'status',
+        currentValue: loan?.status,
+        suggestedValue: 'IN_REVIEW',
+        confidence: 'MEDIUM',
+        justification: 'Hold loan in review pending servicer discrepancy investigation.',
+      };
+    }
     default:
       return {
         field: 'status',

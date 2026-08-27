@@ -219,6 +219,7 @@ async function createVerifiedLoanRecord({
   }
 
   // 3. Build canonical document payload
+  const latestReviewAction = loan.reviewActions && loan.reviewActions.length > 0 ? loan.reviewActions[0] : null;
   const verifiedAt = new Date();
   const canonicalDoc = buildCanonicalDocument({
     loan,
