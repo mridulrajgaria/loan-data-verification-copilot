@@ -8,10 +8,16 @@
  * - ADMIN: Unrestricted access across all domains
  */
 
+const VALID_ROLES = ['OPERATOR', 'REVIEWER', 'AUDITOR', 'ADMIN'];
+
 function authenticateUser(req, res, next) {
   // Extract user identity and role from headers or session
   const userId = req.headers['x-user-id'] || 'system';
-  const role = (req.headers['x-user-role'] || 'REVIEWER').toUpperCase(); // default role for mock testing
+  let role = (req.headers['x-user-role'] || 'REVIEWER').toUpperCase();
+
+  if (!VALID_ROLES.includes(role)) {
+    role = 'REVIEWER';
+  }
 
   req.user = {
     id: String(userId),

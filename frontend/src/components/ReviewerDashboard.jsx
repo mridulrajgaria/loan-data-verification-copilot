@@ -449,9 +449,16 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                     Violation Diagnostic:
                   </span>
                   <p className="font-sans leading-relaxed font-bold text-xs">
-                    {exceptionDetail.details
-                      ? JSON.parse(exceptionDetail.details).message
-                      : 'Validation rule condition failed.'}
+                    {(() => {
+                      if (!exceptionDetail.details) return 'Validation rule condition failed.';
+                      if (typeof exceptionDetail.details === 'object') return exceptionDetail.details.message || 'Validation rule condition failed.';
+                      try {
+                        const parsed = JSON.parse(exceptionDetail.details);
+                        return parsed.message || parsed.ruleName || 'Validation rule condition failed.';
+                      } catch {
+                        return String(exceptionDetail.details);
+                      }
+                    })()}
                   </p>
                 </div>
 

@@ -276,7 +276,28 @@ router.post(
         userId = defaultUser.id;
       }
 
-      // 2. Capture snapshots for beforeState and afterState
+      // 1. Guard against double-resolution of closed exceptions
+      if (exception.status !== 'OPEN') {
+        return res.status(400).json({
+          success: false,
+          error: `Exception '${id}' is already resolved with status '${exception.status}' (${exception.resolution || 'CLOSED'}).`,
+        });
+      }
+
+      // 2. Validate AI recommendation ID belongs to this exception if supplied
+      if (acceptedAiRecommendationId) {
+        const matchingAiRec = await prisma.aIRecommendation.findFirst({
+          where: { id: acceptedAiRecommendationId, exceptionId: exception.id },
+        });
+        if (!matchingAiRec) {
+          return res.status(400).json({
+            success: false,
+            error: `AI recommendation ID '${acceptedAiRecommendationId}' does not belong to exception '${id}'.`,
+          });
+        }
+      }
+
+      // 3. Capture Point-in-Time Before State for Audit Lineage
       const beforeState = {
         exception: {
           id: exception.id,
@@ -291,7 +312,7 @@ router.post(
         },
       };
 
-      // 3. Execute State-Changing Mutations inside an atomic transaction
+      // 4. Execute State-Changing Mutations inside an atomic transaction
       const result = await prisma.$transaction(async (tx) => {
         // A. Update Exception status
         const updatedException = await tx.exception.update({
@@ -305,7 +326,7 @@ router.post(
 
         // B. If human accepted an AI recommendation, link and update it
         if (acceptedAiRecommendationId) {
-          await tx.aIRecommendation.updateMany({
+          await tx.aIRecommendation.update({
             where: { id: acceptedAiRecommendationId },
             data: {
               acceptedByReviewer: true,
@@ -342,11 +363,23 @@ router.post(
           for (const [key, val] of Object.entries(editedFields)) {
             if (allowedLoanFields.includes(key)) {
               if (key.includes('Date') && val) {
-                sanitizedUpdate[key] = new Date(val);
+                const parsedDate = new Date(val);
+                if (isNaN(parsedDate.getTime())) {
+                  throw new Error(`Invalid date format for field '${key}': '${val}'`);
+                }
+                sanitizedUpdate[key] = parsedDate;
               } else if (['originalPrincipal', 'currentBalance', 'interestRate'].includes(key) && val !== null) {
-                sanitizedUpdate[key] = parseFloat(val);
+                const parsedNum = Number(val);
+                if (isNaN(parsedNum) || !isFinite(parsedNum)) {
+                  throw new Error(`Invalid numeric value for field '${key}': '${val}'`);
+                }
+                sanitizedUpdate[key] = parsedNum;
               } else if (['termMonths', 'daysPastDue'].includes(key) && val !== null) {
-                sanitizedUpdate[key] = parseInt(val, 10);
+                const parsedInt = Number(val);
+                if (isNaN(parsedInt) || !Number.isInteger(parsedInt)) {
+                  throw new Error(`Invalid integer value for field '${key}': '${val}'`);
+                }
+                sanitizedUpdate[key] = parsedInt;
               } else {
                 sanitizedUpdate[key] = val;
               }

@@ -65,8 +65,14 @@ function normalizeFloat(val, fieldName, unparsedAccumulator) {
   const str = String(val).trim().replace(/[$,]/g, '');
   if (str === '') return null;
 
-  const num = parseFloat(str);
-  if (isNaN(num)) {
+  // Strict numeric regex: must only contain optional negative sign, digits, and optional decimal point
+  if (!/^-?\d+(\.\d+)?$/.test(str)) {
+    unparsedAccumulator[fieldName] = str;
+    return null;
+  }
+
+  const num = Number(str);
+  if (!isFinite(num)) {
     unparsedAccumulator[fieldName] = str;
     return null;
   }
@@ -74,7 +80,7 @@ function normalizeFloat(val, fieldName, unparsedAccumulator) {
 }
 
 /**
- * Coerces an integer field.
+ * Coerces an integer field strictly.
  */
 function normalizeInt(val, fieldName, unparsedAccumulator) {
   if (val === null || val === undefined || val === '') {
@@ -83,8 +89,14 @@ function normalizeInt(val, fieldName, unparsedAccumulator) {
   const str = String(val).trim().replace(/[,]/g, '');
   if (str === '') return null;
 
-  const num = parseInt(str, 10);
-  if (isNaN(num)) {
+  // Strict integer regex: must only contain optional negative sign and digits
+  if (!/^-?\d+$/.test(str)) {
+    unparsedAccumulator[fieldName] = str;
+    return null;
+  }
+
+  const num = Number(str);
+  if (!isFinite(num) || !Number.isInteger(num)) {
     unparsedAccumulator[fieldName] = str;
     return null;
   }

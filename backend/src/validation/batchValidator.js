@@ -134,7 +134,10 @@ async function runBatchValidation({ rawUploadId, servicerUpdates = [], documentM
     if (failingResults.length > 0) {
       loansWithViolations++;
       totalViolations += failingResults.length;
-      loanStatus = 'FLAGGED';
+      // Clear prior OPEN exceptions on this loan to ensure batch revalidation idempotency
+      await prisma.exception.deleteMany({
+        where: { loanId: loan.id, status: 'OPEN' },
+      });
 
       // Insert individual Exception record per failing rule
       for (const fail of failingResults) {

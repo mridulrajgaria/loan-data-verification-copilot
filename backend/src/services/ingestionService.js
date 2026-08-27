@@ -133,116 +133,125 @@ async function processLoanTapeUpload({ fileBuffer, filename, fileSize, userId = 
     },
   });
 
-  // 5. Transform and persist raw rows and normalized entities inside a database transaction
-  const failedImportRows = [];
-  const normalizedLoanInputs = [];
-  const rawRecordsToInsert = [];
+  try {
+    // 5. Transform and persist raw rows and normalized entities inside a database transaction
+    const failedImportRows = [];
+    const normalizedLoanInputs = [];
+    const rawRecordsToInsert = [];
 
-  for (const item of parsedRows) {
-    const { rowNumber, data: rawRow } = item;
-    const rawContentStr = JSON.stringify(rawRow);
+    for (const item of parsedRows) {
+      const { rowNumber, data: rawRow } = item;
+      const rawContentStr = JSON.stringify(rawRow);
 
-    // Run structural normalization
-    const normResult = normalizeLoanRecord(rawRow, rowNumber);
+      // Run structural normalization
+      const normResult = normalizeLoanRecord(rawRow, rowNumber);
 
-    if (!normResult.success) {
-      failedImportRows.push({
-        rowNumber,
-        rawData: rawRow,
-        reason: normResult.error || 'Structural parsing error',
-      });
-      // Still persist raw record for complete audit lineage
-      rawRecordsToInsert.push({
-        rawUploadId: rawUpload.id,
-        rowNumber,
-        rawContent: rawContentStr,
-        normalizedData: null,
-      });
-    } else {
-      rawRecordsToInsert.push({
-        rawUploadId: rawUpload.id,
-        rowNumber,
-        rawContent: rawContentStr,
-        normalizedData: normResult.data,
-      });
-    }
-  }
-
-  // Execute chunked atomic writes to SQLite to maintain speed and avoid transaction timeouts
-  let successfullyNormalizedCount = 0;
-
-  // Insert RawLoanRecords and NormalizedLoans in sequence
-  // We use batch chunks of 200 to stay well within SQLite variable limits
-  const CHUNK_SIZE = 200;
-  for (let i = 0; i < rawRecordsToInsert.length; i += CHUNK_SIZE) {
-    const chunk = rawRecordsToInsert.slice(i, i + CHUNK_SIZE);
-
-    await prisma.$transaction(async (tx) => {
-      for (const record of chunk) {
-        const createdRaw = await tx.rawLoanRecord.create({
-          data: {
-            rawUploadId: record.rawUploadId,
-            rowNumber: record.rowNumber,
-            rawContent: record.rawContent,
-          },
+      if (!normResult.success) {
+        failedImportRows.push({
+          rowNumber,
+          rawData: rawRow,
+          reason: normResult.error || 'Structural parsing error',
         });
+        // Still persist raw record for complete audit lineage
+        rawRecordsToInsert.push({
+          rawUploadId: rawUpload.id,
+          rowNumber,
+          rawContent: rawContentStr,
+          normalizedData: null,
+        });
+      } else {
+        rawRecordsToInsert.push({
+          rawUploadId: rawUpload.id,
+          rowNumber,
+          rawContent: rawContentStr,
+          normalizedData: normResult.data,
+        });
+      }
+    }
 
-        if (record.normalizedData) {
-          await tx.normalizedLoan.create({
+    // Execute chunked atomic writes to SQLite to maintain speed and avoid transaction timeouts
+    let successfullyNormalizedCount = 0;
+
+    // Insert RawLoanRecords and NormalizedLoans in sequence
+    // We use batch chunks of 200 to stay well within SQLite variable limits
+    const CHUNK_SIZE = 200;
+    for (let i = 0; i < rawRecordsToInsert.length; i += CHUNK_SIZE) {
+      const chunk = rawRecordsToInsert.slice(i, i + CHUNK_SIZE);
+
+      await prisma.$transaction(async (tx) => {
+        for (const record of chunk) {
+          const createdRaw = await tx.rawLoanRecord.create({
             data: {
-              ...record.normalizedData,
-              rawUploadId: rawUpload.id,
-              rawLoanRecordId: createdRaw.id,
+              rawUploadId: record.rawUploadId,
+              rowNumber: record.rowNumber,
+              rawContent: record.rawContent,
             },
           });
-          successfullyNormalizedCount++;
+
+          if (record.normalizedData) {
+            await tx.normalizedLoan.create({
+              data: {
+                rawLoanRecordId: createdRaw.id,
+                rawUploadId: record.rawUploadId,
+                status: 'VALID',
+                ...record.normalizedData,
+              },
+            });
+            successfullyNormalizedCount++;
+          }
         }
-      }
+      });
+    }
+
+    // 6. Update RawUpload final status
+    const finalStatus = failedImportRows.length === 0 ? 'COMPLETED' : 'COMPLETED_WITH_ERRORS';
+    await prisma.rawUpload.update({
+      where: { id: rawUpload.id },
+      data: {
+        status: finalStatus,
+        rowCount: totalRows,
+      },
     });
-  }
 
-  // 6. Update RawUpload final status
-  const finalStatus = failedImportRows.length === 0 ? 'COMPLETED' : 'COMPLETED_WITH_ERRORS';
-  await prisma.rawUpload.update({
-    where: { id: rawUpload.id },
-    data: {
-      status: finalStatus,
-      rowCount: totalRows,
-    },
-  });
+    const failedCount = failedImportRows.length;
+    const successRate = ((successfullyNormalizedCount / totalRows) * 100).toFixed(2);
+    const failedRate = ((failedCount / totalRows) * 100).toFixed(2);
 
-  const failedCount = failedImportRows.length;
-  const successRate = ((successfullyNormalizedCount / totalRows) * 100).toFixed(2);
-  const failedRate = ((failedCount / totalRows) * 100).toFixed(2);
+    // 7. Audit Log 2: Import Completion Event
+    await logAudit({
+      actor: userId,
+      actionType: 'IMPORT',
+      entityType: 'RawUpload',
+      entityId: rawUpload.id,
+      details: {
+        totalRows,
+        successfullyNormalized: successfullyNormalizedCount,
+        failedToParse: failedCount,
+        successRatePercentage: `${successRate}%`,
+        failedRatePercentage: `${failedRate}%`,
+        status: finalStatus,
+      },
+    });
 
-  // 7. Audit Log 2: Import Completion Event
-  await logAudit({
-    actor: userId,
-    actionType: 'IMPORT',
-    entityType: 'RawUpload',
-    entityId: rawUpload.id,
-    details: {
+    return {
+      uploadId: rawUpload.id,
+      filename,
+      fileHash,
       totalRows,
       successfullyNormalized: successfullyNormalizedCount,
       failedToParse: failedCount,
       successRatePercentage: `${successRate}%`,
       failedRatePercentage: `${failedRate}%`,
       status: finalStatus,
-    },
-  });
-
-  return {
-    uploadId: rawUpload.id,
-    filename,
-    fileHash,
-    totalRows,
-    successfullyNormalized: successfullyNormalizedCount,
-    failedToParse: failedCount,
-    successRatePercentage: `${successRate}%`,
-    failedRatePercentage: `${failedRate}%`,
-    status: finalStatus,
-    failedImportRows,
-  };
+      failedImportRows,
+    };
+  } catch (err) {
+    await prisma.rawUpload.update({
+      where: { id: rawUpload.id },
+      data: { status: 'FAILED' },
+    });
+    throw err;
+  }
 }
 
 module.exports = {

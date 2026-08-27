@@ -5,15 +5,15 @@
 
 const API_BASE = '/api';
 
-// Active Mock Authentication Context (Synchronized with Header Role Switcher)
+// Active Mock Authentication Context (Synchronized with default Reviewer Persona)
 let currentAuth = {
-  userId: 'usr-operator-01',
-  userRole: 'OPERATOR',
+  userId: 'usr-reviewer-01',
+  userRole: 'REVIEWER',
 };
 
 export function setAuthUser(userId, userRole) {
   currentAuth = {
-    userId: String(userId || 'system'),
+    userId: String(userId || 'usr-reviewer-01'),
     userRole: String(userRole || 'REVIEWER').toUpperCase(),
   };
 }
@@ -42,77 +42,67 @@ async function request(endpoint, options = {}) {
       headers,
     });
 
-    // Check if CSV download
-    const contentType = response.headers.get('content-type');
-    if (contentType && contentType.includes('text/csv')) {
-      const text = await response.text();
-      return text;
-    }
-
-    const data = await response.json().catch(() => ({}));
+    const isJson = response.headers.get('content-type')?.includes('application/json');
+    const data = isJson ? await response.json() : await response.text();
 
     if (!response.ok) {
-      const errorMessage = data.error || data.message || `Request failed with status ${response.status}`;
-      throw new Error(errorMessage);
+      const errorMsg = isJson && data.error ? data.error : `HTTP ${response.status}: ${response.statusText}`;
+      throw new Error(errorMsg);
     }
 
     return data;
-  } catch (error) {
-    console.error(`[API_ERROR] ${endpoint}:`, error);
-    throw error;
+  } catch (err) {
+    console.error(`API Error on [${options.method || 'GET'}] ${endpoint}:`, err);
+    throw err;
   }
 }
 
 export const api = {
-  // Mock Auth Configuration
   setAuthUser,
   getAuthUser,
 
-  // Master Summary
+  // Health / Status
+  getHealth: () => request('/health'),
   getSummary: () => request('/summary'),
 
-  // Ingestion & Uploads
+  // Uploads (Data Operations)
+  uploadLoanTape: (formData) => request('/upload', { method: 'POST', body: formData }),
   getUploads: () => request('/uploads'),
-  uploadLoanTape: (formData) => request('/uploads', {
-    method: 'POST',
-    body: formData,
-  }),
+  getUploadDetail: (id) => request(`/uploads/${id}`),
 
-  // Exceptions & AI
-  getExceptions: (params = {}) => {
-    const query = new URLSearchParams(params).toString();
-    return request(`/exceptions${query ? `?${query}` : ''}`);
-  },
-  getExceptionDetail: (id) => request(`/exceptions/${id}`),
-  aiExplainException: (id) => request(`/exceptions/${id}/ai-explain`, { method: 'POST' }),
-  aiSuggestCorrection: (id) => request(`/exceptions/${id}/ai-suggest`, { method: 'POST' }),
-  aiSummarizeExceptions: (filterCriteria = {}) => request('/exceptions/ai-summary', {
-    method: 'POST',
-    body: filterCriteria,
-  }),
-  submitDecision: (id, payload) => request(`/exceptions/${id}/decision`, {
-    method: 'POST',
-    body: payload,
-  }),
-
-  // Loans & Lineage
+  // Loans (Lineage & Entities)
   getLoans: (params = {}) => {
     const query = new URLSearchParams(params).toString();
     return request(`/loans${query ? `?${query}` : ''}`);
   },
   getLoanDetail: (id) => request(`/loans/${id}`),
   getLoanAuditTrail: (id) => request(`/loans/${id}/audit-trail`),
-  verifyLoan: (id, payload = {}) => request(`/loans/${id}/verify`, {
-    method: 'POST',
-    body: payload,
-  }),
 
-  // Verified Records & Hashing
+  // Exceptions (Underwriting Review)
+  getExceptions: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return request(`/exceptions${query ? `?${query}` : ''}`);
+  },
+  getExceptionDetail: (id) => request(`/exceptions/${id}`),
+  submitDecision: (id, payload) =>
+    request(`/exceptions/${id}/decision`, {
+      method: 'POST',
+      body: payload,
+    }),
+
+  // AI Assistant (Advisory Layer)
+  aiExplainException: (id) => request(`/exceptions/${id}/ai-explain`, { method: 'POST' }),
+  aiSuggestCorrection: (id) => request(`/exceptions/${id}/ai-suggest`, { method: 'POST' }),
+
+  // Verification Portal (Cryptographic Attestation)
   getVerifiedLoans: (params = {}) => {
     const query = new URLSearchParams(params).toString();
     return request(`/verified-loans${query ? `?${query}` : ''}`);
   },
+  getVerifiedLoanDetail: (id) => request(`/verified-loans/${id}`),
   verifyRecordHash: (id) => request(`/verified-loans/${id}/verify-hash`),
   simulateTamper: (id) => request(`/verified-loans/${id}/simulate-tamper`, { method: 'POST' }),
+
+  // Exports
   exportVerified: (format = 'json') => request(`/export?format=${format}`),
 };

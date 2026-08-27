@@ -200,14 +200,22 @@ async function createVerifiedLoanRecord({
   // 2. Evaluate point-in-time validation snapshot
   const validationSnapshot = validateLoan(loan);
 
-  // Guard against uncorrected critical failures unless explicitly covered by policy override
-  const latestReviewAction = loan.reviewActions[0] || null;
-  const isOverride = latestReviewAction?.actionType === 'OVERRIDE_APPROVE';
+  // Guard: Check if there are any unresolved OPEN critical exceptions on this loan
+  const openCriticalExceptions = (loan.exceptions || []).filter(
+    (e) => e.status === 'OPEN' && e.severity === 'CRITICAL'
+  );
+  if (openCriticalExceptions.length > 0) {
+    throw new Error(`Cannot verify loan '${loan.loanIdentifier}': ${openCriticalExceptions.length} unresolved CRITICAL exception(s) remain open.`);
+  }
 
+  // Guard against uncorrected critical failures unless explicitly covered by policy override
   const criticalFailures = validationSnapshot.filter((r) => !r.passed && r.severity === 'CRITICAL');
-  if (criticalFailures.length > 0 && !isOverride) {
-    const failedMsg = criticalFailures.map((f) => `${f.name}: ${f.message}`).join(' | ');
-    throw new Error(`Cannot verify defective loan '${loan.loanIdentifier}': uncorrected CRITICAL validation failure(s) detected [${failedMsg}].`);
+  if (criticalFailures.length > 0) {
+    const hasOverride = (loan.reviewActions || []).some((ra) => ra.actionType === 'OVERRIDE_APPROVE');
+    if (!hasOverride) {
+      const failedMsg = criticalFailures.map((f) => `${f.name}: ${f.message}`).join(' | ');
+      throw new Error(`Cannot verify defective loan '${loan.loanIdentifier}': uncorrected CRITICAL validation failure(s) detected [${failedMsg}].`);
+    }
   }
 
   // 3. Build canonical document payload
