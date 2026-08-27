@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import OperatorDashboard from './components/OperatorDashboard';
 import ReviewerDashboard from './components/ReviewerDashboard';
 import ConsumerDashboard from './components/ConsumerDashboard';
@@ -53,6 +53,10 @@ export default function App() {
 
   const currentPersona = personas[activeTab] || personas.reviewer;
 
+  useEffect(() => {
+    api.setAuthUser(currentPersona.userId, currentPersona.role);
+  }, [currentPersona.userId, currentPersona.role]);
+
   const handleTabChange = (tabId) => {
     setActiveTab(tabId);
     const persona = personas[tabId] || personas.reviewer;
@@ -86,7 +90,7 @@ export default function App() {
       <aside className="hidden lg:flex lg:flex-col w-72 border-r border-[#E2E8F0] bg-white flex-shrink-0 justify-between">
         <div className="flex flex-col">
           {/* Institutional Brand Header (FinFox Clean Style: White Background + Bold Green Logo) */}
-          <div className="h-18 border-b border-[#E2E8F0] px-6 flex items-center bg-white">
+          <div className="h-16 border-b border-[#E2E8F0] px-6 flex items-center bg-white flex-shrink-0">
             <div className="flex items-center space-x-3.5">
               {/* FinFox-Inspired Hexagonal Fintech Icon */}
               <div className="w-9 h-9 bg-[#16433F] rounded-xl flex items-center justify-center shadow-sm relative flex-shrink-0">

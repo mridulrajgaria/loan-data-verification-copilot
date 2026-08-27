@@ -19,6 +19,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
   const [severityFilter, setSeverityFilter] = useState('');
   const [ruleFilter, setRuleFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState(searchQuery);
+  const [appliedSearchTerm, setAppliedSearchTerm] = useState(searchQuery);
 
   // Exception list state
   const [exceptions, setExceptions] = useState([]);
@@ -54,6 +55,14 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
     }
   }, [searchQuery]);
 
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setAppliedSearchTerm(searchTerm);
+    }, 250);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [searchTerm]);
+
   // Fetch Exception Queue
   const fetchExceptionList = useCallback(async () => {
     setLoadingList(true);
@@ -66,12 +75,12 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
       const items = res.data?.items || [];
 
       // Filter locally for search term
-      const filtered = searchTerm
+      const filtered = appliedSearchTerm
         ? items.filter(
             (e) =>
-              e.loan?.loanIdentifier?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              e.loan?.borrowerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              e.rule?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+              e.loan?.loanIdentifier?.toLowerCase().includes(appliedSearchTerm.toLowerCase()) ||
+              e.loan?.borrowerName?.toLowerCase().includes(appliedSearchTerm.toLowerCase()) ||
+              e.rule?.name?.toLowerCase().includes(appliedSearchTerm.toLowerCase())
           )
         : items;
 
@@ -84,7 +93,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
     } finally {
       setLoadingList(false);
     }
-  }, [severityFilter, ruleFilter, searchTerm, selectedExceptionId]);
+  }, [severityFilter, ruleFilter, appliedSearchTerm, selectedExceptionId]);
 
   useEffect(() => {
     fetchExceptionList();
