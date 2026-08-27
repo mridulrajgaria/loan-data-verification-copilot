@@ -1,192 +1,242 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { api } from '../api';
-import { X, FileCode, CheckCircle, AlertTriangle, ShieldCheck, User, Database, Loader2 } from 'lucide-react';
+import {
+  X,
+  ShieldCheck,
+  AlertTriangle,
+  FileSpreadsheet,
+  History,
+  Loader2,
+  Database,
+  ExternalLink,
+  Info,
+} from 'lucide-react';
 
 export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
+  const [loan, setLoan] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [loan, setLoan] = useState(null);
 
   useEffect(() => {
     if (!loanId) return;
     setLoading(true);
     setError(null);
+
     api.getLoanDetail(loanId)
       .then((res) => setLoan(res.data))
-      .catch((err) => setError(err.message || 'Failed to fetch loan details.'))
+      .catch((err) => setError(err.message || 'Failed to load loan record lineage.'))
       .finally(() => setLoading(false));
   }, [loanId]);
 
+  // Handle ESC key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  let rawJsonObj = null;
+  if (loan?.rawLoanRecord?.rawContent) {
+    try {
+      rawJsonObj = JSON.parse(loan.rawLoanRecord.rawContent);
+    } catch {}
+  }
+
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-700 rounded-xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
-        {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/50">
+    <div className="fixed inset-0 z-50 bg-[#171918]/40 backdrop-blur-sm flex items-center justify-center p-4">
+      <div
+        className="bg-surface border border-border rounded shadow-modal w-full max-w-4xl max-h-[90vh] flex flex-col text-content-primary animate-in fade-in zoom-in-95 duration-150"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Modal Header */}
+        <div className="px-6 py-4 border-b border-border flex items-center justify-between flex-shrink-0">
           <div className="flex items-center space-x-3">
-            <div className="p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-400">
-              <Database className="w-5 h-5" />
-            </div>
             <div>
-              <h3 className="font-semibold text-white text-lg flex items-center space-x-2">
-                <span>Loan Provenance & Integrity View</span>
-                <span className="font-mono text-xs px-2 py-0.5 rounded bg-blue-950 text-blue-400 border border-blue-800">
-                  {loan?.loanIdentifier || loanId}
-                </span>
-              </h3>
-              <p className="text-xs text-slate-400">
-                Uploaded via: <span className="text-slate-300 font-mono">{loan?.rawUpload?.filename}</span> • Status: <strong className="text-white">{loan?.status}</strong>
+              <div className="flex items-center space-x-2">
+                <h3 className="font-mono font-bold text-base text-content-primary">
+                  {loan?.loanIdentifier || 'Loan Inspection'}
+                </h3>
+                {loan && (
+                  <span
+                    className={
+                      loan.status === 'VERIFIED'
+                        ? 'badge-verified'
+                        : loan.status === 'FLAGGED'
+                        ? 'badge-high'
+                        : 'badge-neutral'
+                    }
+                  >
+                    {loan.status}
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-content-secondary mt-0.5">
+                Forensic Lineage, Ingested CSV Raw Provenance & Entity Snapshot
               </p>
             </div>
           </div>
+
           <div className="flex items-center space-x-2">
-            {onOpenAudit && (
-              <button
-                onClick={() => onOpenAudit(loanId)}
-                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 rounded-lg border border-slate-700 transition-colors"
-              >
-                View Audit Trail
-              </button>
-            )}
+            <button
+              onClick={() => onOpenAudit && onOpenAudit(loanId)}
+              className="btn-institutional-secondary text-xs"
+            >
+              <History className="w-3.5 h-3.5 text-content-secondary" />
+              <span>Audit Trail</span>
+            </button>
             <button
               onClick={onClose}
-              className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
+              className="p-1 text-content-muted hover:text-content-primary rounded hover:bg-surface-secondary"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
         </div>
 
-        {/* Body */}
-        <div className="p-6 overflow-y-auto flex-1 space-y-6">
-          {loading && (
-            <div className="flex flex-col items-center justify-center py-16 text-slate-400">
-              <Loader2 className="w-8 h-8 animate-spin text-blue-500 mb-3" />
-              <p className="text-sm">Loading normalized entity and provenance records...</p>
+        {/* Modal Body */}
+        <div className="p-6 overflow-y-auto space-y-6 flex-1 text-xs">
+          {loading ? (
+            <div className="py-24 flex flex-col items-center justify-center text-content-muted">
+              <Loader2 className="w-6 h-6 animate-spin text-brand mb-2" />
+              <span>Fetching loan provenance dossier...</span>
             </div>
-          )}
-
-          {error && (
-            <div className="p-4 bg-red-950/50 border border-red-800 rounded-lg text-red-300 text-sm">
+          ) : error ? (
+            <div className="p-4 bg-semantic-critical-bg border border-semantic-critical-border rounded text-semantic-critical">
               {error}
             </div>
-          )}
-
-          {!loading && !error && loan && (
+          ) : !loan ? (
+            <div className="text-center py-12 text-content-muted">Loan record not found.</div>
+          ) : (
             <>
-              {/* Grid of Normalized Values */}
-              <div>
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">
-                  Normalized Underwriting Fields
-                </h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-slate-950/60 p-4 rounded-xl border border-slate-800 text-xs">
-                  <div>
-                    <span className="text-slate-500 block">Original Principal</span>
-                    <strong className="text-slate-200 text-sm">${loan.originalPrincipal?.toLocaleString() ?? '—'}</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block">Current Balance</span>
-                    <strong className="text-slate-200 text-sm">${loan.currentBalance?.toLocaleString() ?? '—'}</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block">Interest Rate</span>
-                    <strong className="text-slate-200 text-sm">{loan.interestRate ? `${loan.interestRate}%` : '—'}</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block">Loan Type</span>
-                    <strong className="text-slate-200 text-sm">{loan.loanType || '—'}</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block">Borrower ID / Name</span>
-                    <strong className="text-slate-200">{loan.borrowerId || loan.borrowerName || '—'}</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block">Borrower State</span>
-                    <strong className="text-slate-200">{loan.borrowerState || '—'}</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block">Payment Status</span>
-                    <strong className="text-slate-200">{loan.paymentStatus || '—'}</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block">Days Past Due (DPD)</span>
-                    <strong className="text-slate-200">{loan.daysPastDue ?? '—'}</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block">Origination Date</span>
-                    <strong className="text-slate-200">{loan.originationDate ? new Date(loan.originationDate).toISOString().split('T')[0] : '—'}</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block">Maturity Date</span>
-                    <strong className="text-slate-200">{loan.maturityDate ? new Date(loan.maturityDate).toISOString().split('T')[0] : '—'}</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block">Document Custody</span>
-                    <strong className="text-slate-200">{loan.documentStatus || '—'}</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block">Record Version</span>
-                    <strong className="text-slate-200 font-mono">v{loan.currentVersion}</strong>
-                  </div>
+              {/* 1. Core Financial Attributes Strip */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-surface-secondary/80 p-4 rounded border border-border">
+                <div>
+                  <span className="text-[10px] uppercase font-semibold text-content-muted block">
+                    Original Principal
+                  </span>
+                  <span className="font-mono font-bold text-content-primary text-sm">
+                    ${loan.originalPrincipal?.toLocaleString() ?? '—'}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase font-semibold text-content-muted block">
+                    Current Balance
+                  </span>
+                  <span className="font-mono font-bold text-content-primary text-sm">
+                    ${loan.currentBalance?.toLocaleString() ?? '—'}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase font-semibold text-content-muted block">
+                    Interest Rate / Term
+                  </span>
+                  <span className="font-sans font-medium text-content-primary text-xs">
+                    {loan.interestRate}% • {loan.termMonths} months
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase font-semibold text-content-muted block">
+                    Payment Status / DPD
+                  </span>
+                  <span className="font-sans font-medium text-content-primary text-xs">
+                    {loan.paymentStatus} ({loan.daysPastDue} DPD)
+                  </span>
                 </div>
               </div>
 
-              {/* Source-of-Truth Raw CSV Row Lineage */}
-              <div>
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 flex items-center space-x-2">
-                  <FileCode className="w-4 h-4 text-blue-400" />
-                  <span>Immutable Source-Of-Truth Raw CSV Row (Row #{loan.rawLoanRecord?.rowNumber})</span>
-                </h4>
-                <div className="bg-slate-950 p-3 rounded-lg border border-slate-800 font-mono text-xs text-slate-300 overflow-x-auto">
-                  <pre className="whitespace-pre-wrap">
-                    {loan.rawLoanRecord?.rawContent ? JSON.stringify(JSON.parse(loan.rawLoanRecord.rawContent), null, 2) : 'No raw record content available.'}
-                  </pre>
+              {/* 2. Side-by-Side Forensic Comparison (Raw CSV vs Normalized) */}
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <Info className="w-4 h-4 text-content-secondary" />
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-content-primary">
+                    Raw Tape Source vs Normalized Database Entity
+                  </h4>
                 </div>
-              </div>
 
-              {/* Open Exceptions */}
-              <div>
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 flex items-center space-x-2">
-                  <AlertTriangle className="w-4 h-4 text-amber-400" />
-                  <span>Validation Exceptions ({loan.exceptions?.length || 0})</span>
-                </h4>
-                {loan.exceptions?.length === 0 ? (
-                  <div className="p-3 bg-emerald-950/30 border border-emerald-800/40 rounded-lg text-xs text-emerald-300 flex items-center space-x-2">
-                    <CheckCircle className="w-4 h-4" />
-                    <span>No open validation violations on this loan.</span>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {loan.exceptions.map((e) => (
-                      <div key={e.id} className="p-3 bg-slate-950 border border-slate-800 rounded-lg text-xs">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="font-semibold text-white">{e.rule?.name || e.rule?.ruleCode}</span>
-                          <span className={`badge-${e.severity?.toLowerCase() || 'high'}`}>{e.severity}</span>
-                        </div>
-                        <p className="text-slate-400">
-                          {e.details ? JSON.parse(e.details).message : 'Validation rule flagged.'}
-                        </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono text-xs">
+                  {/* Raw Ingested Row */}
+                  <div className="bg-surface-secondary/80 border border-border rounded p-4 space-y-2">
+                    <span className="text-[10px] uppercase font-semibold text-content-muted tracking-wider block font-sans border-b border-border/60 pb-1">
+                      Raw Source CSV (Verbatim)
+                    </span>
+                    {rawJsonObj ? (
+                      <div className="space-y-1 text-[11px] text-content-primary">
+                        <div><span className="text-content-muted">loan_id:</span> "{rawJsonObj.loan_id}"</div>
+                        <div><span className="text-content-muted">borrower_id:</span> "{rawJsonObj.borrower_id}"</div>
+                        <div><span className="text-content-muted">origination_date:</span> "{rawJsonObj.origination_date}"</div>
+                        <div><span className="text-content-muted">maturity_date:</span> "{rawJsonObj.maturity_date}"</div>
+                        <div><span className="text-content-muted">original_principal:</span> "{rawJsonObj.original_principal}"</div>
+                        <div><span className="text-content-muted">current_balance:</span> "{rawJsonObj.current_balance}"</div>
+                        <div><span className="text-content-muted">payment_status:</span> "{rawJsonObj.payment_status}"</div>
+                        <div><span className="text-content-muted">days_past_due:</span> "{rawJsonObj.days_past_due}"</div>
+                        <div><span className="text-content-muted">borrower_state:</span> "{rawJsonObj.borrower_state}"</div>
+                        <div><span className="text-content-muted">servicer_name:</span> "{rawJsonObj.servicer_name}"</div>
                       </div>
-                    ))}
+                    ) : (
+                      <p className="text-content-muted font-sans">Raw CSV source content loaded.</p>
+                    )}
                   </div>
-                )}
-              </div>
 
-              {/* Cryptographic Verification State */}
-              {loan.verifiedLoan && (
-                <div className="p-4 bg-emerald-950/20 border border-emerald-800/50 rounded-xl">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <ShieldCheck className="w-5 h-5 text-emerald-400" />
-                    <h4 className="text-sm font-semibold text-emerald-300">Cryptographically Locked & Verified</h4>
-                  </div>
-                  <div className="text-xs text-slate-300 space-y-1 font-mono">
-                    <p>SHA-256 Hash: <strong className="text-emerald-400 break-all">{loan.verifiedLoan.recordHash}</strong></p>
-                    <p>Verified At: {new Date(loan.verifiedLoan.verifiedAt).toLocaleString()}</p>
-                    <p>Verified By: {loan.verifiedLoan.verifiedByUser?.name || loan.verifiedLoan.verifiedByUserId}</p>
+                  {/* Normalized Database Entity */}
+                  <div className="bg-surface-secondary/80 border border-border rounded p-4 space-y-2">
+                    <span className="text-[10px] uppercase font-semibold text-content-muted tracking-wider block font-sans border-b border-border/60 pb-1">
+                      Normalized Database Record
+                    </span>
+                    <div className="space-y-1 text-[11px] text-content-primary">
+                      <div><span className="text-content-muted">loanIdentifier:</span> {loan.loanIdentifier || 'null'}</div>
+                      <div><span className="text-content-muted">borrowerId:</span> {loan.borrowerId || 'null'}</div>
+                      <div><span className="text-content-muted">originationDate:</span> {loan.originationDate ? new Date(loan.originationDate).toISOString().split('T')[0] : 'null'}</div>
+                      <div><span className="text-content-muted">maturityDate:</span> {loan.maturityDate ? new Date(loan.maturityDate).toISOString().split('T')[0] : 'null'}</div>
+                      <div><span className="text-content-muted">originalPrincipal:</span> {loan.originalPrincipal}</div>
+                      <div><span className="text-content-muted">currentBalance:</span> {loan.currentBalance}</div>
+                      <div><span className="text-content-muted">paymentStatus:</span> {loan.paymentStatus}</div>
+                      <div><span className="text-content-muted">daysPastDue:</span> {loan.daysPastDue}</div>
+                      <div><span className="text-content-muted">borrowerState:</span> {loan.borrowerState}</div>
+                      <div><span className="text-content-muted">servicerName:</span> {loan.servicerName}</div>
+                    </div>
                   </div>
                 </div>
-              )}
+              </div>
+
+              {/* 3. Source Lineage Provenance Box */}
+              <div className="panel-institutional p-4 space-y-2 text-xs">
+                <span className="text-[10px] uppercase font-semibold text-content-muted tracking-wider block">
+                  Cryptographic Lineage Provenance
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px]">
+                  <div>
+                    <span className="text-content-muted block">Source File:</span>
+                    <span className="font-semibold text-content-primary">{loan.rawUpload?.filename || 'loan_tape.csv'}</span>
+                  </div>
+                  <div>
+                    <span className="text-content-muted block">Source Row Index:</span>
+                    <span className="font-mono font-semibold text-content-primary">Row #{loan.rawLoanRecord?.rowNumber ?? '—'}</span>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <span className="text-content-muted block">Raw File SHA-256 Digest:</span>
+                    <span className="font-mono text-content-primary bg-surface-secondary px-2 py-0.5 rounded border border-border block truncate" title={loan.rawUpload?.fileHash}>
+                      {loan.rawUpload?.fileHash || 'unhashed'}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </>
           )}
+        </div>
+
+        {/* Modal Footer */}
+        <div className="px-6 py-3 border-t border-border bg-surface-secondary/40 flex items-center justify-between flex-shrink-0">
+          <span className="text-[11px] text-content-muted font-mono">
+            Lineage ID: {loan?.id || '—'}
+          </span>
+          <button
+            onClick={onClose}
+            className="btn-institutional-secondary text-xs"
+          >
+            Close Inspector
+          </button>
         </div>
       </div>
     </div>

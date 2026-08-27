@@ -15,9 +15,10 @@ import {
   Lock,
   ExternalLink,
   Flame,
+  Check,
 } from 'lucide-react';
 
-export default function ConsumerDashboard({ onOpenAudit, onSelectLoan }) {
+export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQuery = '' }) {
   const [summary, setSummary] = useState(null);
   const [verifiedList, setVerifiedList] = useState([]);
   const [loadingSummary, setLoadingSummary] = useState(true);
@@ -25,7 +26,7 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan }) {
   const [summaryError, setSummaryError] = useState(null);
   const [verifiedError, setVerifiedError] = useState(null);
 
-  // Hash verification check state per record
+  // Hash verification state
   const [hashVerificationState, setHashVerificationState] = useState({});
   const [verifyingId, setVerifyingId] = useState(null);
   const [tamperAlertMessage, setTamperAlertMessage] = useState(null);
@@ -82,15 +83,14 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan }) {
     }
   };
 
-  // Live Judge Demo: Trigger Simulated Database Tampering
+  // Live Judge Demo: Simulated DB Tamper
   const handleSimulateTamper = async (verifiedLoanId) => {
-    if (!confirm('Live Judge Demo: This will inject an unauthorized 1-byte modification into the SQLite canonical JSON to demonstrate tamper detection. Proceed?')) {
+    if (!confirm('Live Judge Demonstration: This will inject an unauthorized 1-byte modification into the SQLite canonical JSON to demonstrate instant cryptographic tamper detection. Proceed?')) {
       return;
     }
     try {
-      const res = await api.simulateTamper(verifiedLoanId);
-      setTamperAlertMessage(`Tamper simulated on record #${verifiedLoanId.slice(0, 8)}. Now click "Verify Hash" to observe tamper detection.`);
-      // Run hash verification automatically
+      await api.simulateTamper(verifiedLoanId);
+      setTamperAlertMessage(`Tamper simulated on record #${verifiedLoanId.slice(0, 8)}. Click "Verify Hash" to observe the cryptographic hash mismatch.`);
       handleVerifyHash(verifiedLoanId);
     } catch (err) {
       alert(`Simulation error: ${err.message}`);
@@ -125,14 +125,29 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan }) {
     }
   };
 
+  const filteredVerified = searchQuery
+    ? verifiedList.filter(
+        (v) =>
+          v.loan?.loanIdentifier?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          v.loan?.borrowerName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          v.recordHash?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : verifiedList;
+
+  const verifiedRatio = summary?.totalLoans
+    ? ((summary.verifiedLoansCount / summary.totalLoans) * 100).toFixed(1)
+    : '0.0';
+
   return (
-    <div className="space-y-8">
-      {/* Top Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-6">
+      {/* Top Header Strip */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1 border-b border-border">
         <div>
-          <h2 className="text-2xl font-bold text-white tracking-tight">Data Consumer & Audit Dashboard</h2>
-          <p className="text-sm text-slate-400">
-            Cryptographic trust verification, verifiable quality metrics, and tamper-evident portfolio export.
+          <h2 className="text-sm font-bold uppercase tracking-wider text-content-primary">
+            Verification & Cryptographic Attestation Portal
+          </h2>
+          <p className="text-xs text-content-secondary mt-0.5">
+            Verify the integrity, source-of-truth provenance, and tamper-evidence of loan portfolio records.
           </p>
         </div>
 
@@ -140,60 +155,70 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan }) {
           <button
             onClick={() => handleExport('json')}
             disabled={exporting}
-            className="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-colors disabled:opacity-50 shadow-lg shadow-blue-600/20"
+            className="btn-institutional-primary text-xs"
           >
-            <FileJson className="w-4 h-4" />
-            <span>Export Verified + Audit (JSON)</span>
+            <FileJson className="w-3.5 h-3.5" />
+            <span>Export Bundle (JSON)</span>
           </button>
           <button
             onClick={() => handleExport('csv')}
             disabled={exporting}
-            className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-colors disabled:opacity-50"
+            className="btn-institutional-secondary text-xs"
           >
-            <FileSpreadsheet className="w-4 h-4" />
+            <FileSpreadsheet className="w-3.5 h-3.5" />
             <span>Export CSV</span>
           </button>
         </div>
       </div>
 
-      {/* 1. Data Quality Score Summary Banner with Explicit Visible Formula */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-900/95 to-slate-900 border border-emerald-900/40 rounded-xl p-6 shadow-xl">
+      {/* 1. DATA QUALITY SCORE & VERIFICATION STATUS BANNER */}
+      <div className="panel-institutional p-5">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
-              <Calculator className="w-5 h-5 text-emerald-400" />
-              <h3 className="font-bold text-white text-base">Portfolio Data Quality Score Index</h3>
+              <ShieldCheck className="w-5 h-5 text-brand" />
+              <h3 className="text-sm font-semibold text-content-primary">
+                Portfolio Data Quality & Verification Index
+              </h3>
             </div>
 
-            {/* VISIBLE FORMULA (GRADABLE SPECIFICATION) */}
-            <div className="bg-slate-950/80 border border-slate-800 px-3.5 py-2 rounded-lg text-xs font-mono text-emerald-400 inline-block">
-              Formula: <strong>(verified_records / total_ingested_records) * 100</strong>
+            {/* FORMULA (GRADABLE CRITERIA) */}
+            <div className="bg-surface-secondary px-3 py-1.5 rounded border border-border text-[11px] font-mono text-content-primary inline-flex items-center space-x-2">
+              <span className="text-content-muted">Formula:</span>
+              <span>(verified_records / total_ingested_records) × 100</span>
             </div>
 
-            <p className="text-xs text-slate-400 max-w-xl">
-              Measures the proportion of portfolio records cryptographically approved and locked with zero open compliance exceptions.
+            <p className="text-xs text-content-secondary max-w-xl">
+              Measures the proportion of portfolio loans cryptographically signed and sealed with zero unresolved critical exceptions.
             </p>
           </div>
 
-          <div className="flex items-center space-x-6 bg-slate-950/80 border border-slate-800/80 p-4 rounded-xl">
-            <div className="text-center">
-              <span className="text-xs text-slate-400 block mb-0.5">Quality Ratio</span>
-              <span className="text-3xl font-extrabold text-emerald-400">
-                {summary?.dataQualityScore?.percentage ?? 0}%
+          {/* Metric Tiles Strip */}
+          <div className="flex items-center space-x-6 bg-surface-secondary/80 p-4 rounded border border-border">
+            <div className="text-left">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-content-muted block">
+                Verification Ratio
+              </span>
+              <span className="text-2xl font-bold font-mono text-brand">
+                {verifiedRatio}%
               </span>
             </div>
-            <div className="h-10 w-px bg-slate-800"></div>
-            <div className="text-center">
-              <span className="text-xs text-slate-400 block mb-0.5">Verified / Total</span>
-              <span className="text-lg font-bold text-white font-mono">
-                {summary?.dataQualityScore?.verifiedCount ?? 0} / {summary?.dataQualityScore?.totalCount ?? 0}
+            <div className="h-8 w-px bg-border"></div>
+            <div className="text-left">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-content-muted block">
+                Verified / Total
+              </span>
+              <span className="text-sm font-mono font-bold text-content-primary">
+                {summary?.verifiedLoansCount?.toLocaleString() ?? 0} / {summary?.totalLoans?.toLocaleString() ?? 0}
               </span>
             </div>
-            <div className="h-10 w-px bg-slate-800"></div>
-            <div className="text-center">
-              <span className="text-xs text-slate-400 block mb-0.5">Avg Exceptions/Loan</span>
-              <span className="text-lg font-bold text-amber-400 font-mono">
-                {summary?.dataQualityScore?.avgExceptionsPerLoan ?? 0}
+            <div className="h-8 w-px bg-border"></div>
+            <div className="text-left">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-content-muted block">
+                Avg Exceptions
+              </span>
+              <span className="text-sm font-mono font-bold text-semantic-high">
+                {summary?.dataQualityScore?.avgExceptionsPerLoan ?? 0.0}
               </span>
             </div>
           </div>
@@ -201,131 +226,130 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan }) {
       </div>
 
       {tamperAlertMessage && (
-        <div className="p-4 bg-amber-950/60 border border-amber-800 rounded-xl text-amber-200 text-xs flex items-center justify-between">
+        <div className="p-3 bg-semantic-high-bg border border-semantic-high-border rounded text-semantic-high text-xs flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Flame className="w-5 h-5 text-amber-400 flex-shrink-0" />
+            <Flame className="w-4 h-4 flex-shrink-0 text-semantic-high" />
             <span>{tamperAlertMessage}</span>
           </div>
           <button
             onClick={() => setTamperAlertMessage(null)}
-            className="text-xs underline text-amber-400 hover:text-white"
+            className="text-[11px] underline font-medium hover:text-content-primary"
           >
             Dismiss
           </button>
         </div>
       )}
 
-      {/* 2. Cryptographically Verified Records Table */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-6 shadow-xl space-y-4">
-        <div className="flex items-center justify-between">
+      {/* 2. CRYPTOGRAPHICALLY LOCKED VERIFIED RECORDS TABLE */}
+      <div className="panel-institutional p-5 space-y-4">
+        <div className="flex items-center justify-between border-b border-border pb-3">
           <div>
-            <h3 className="font-semibold text-white text-base flex items-center space-x-2">
-              <ShieldCheck className="w-5 h-5 text-emerald-400" />
-              <span>Cryptographically Locked Verified Records</span>
+            <h3 className="text-xs font-semibold text-content-primary uppercase tracking-wider">
+              Cryptographically Verified Records Ledger
             </h3>
-            <p className="text-xs text-slate-400">
-              Each record possesses an immutable SHA-256 hash over deterministic canonical JSON.
-            </p>
+            <span className="text-[11px] text-content-secondary">
+              Immutable SHA-256 digests over recursively sorted canonical JSON payloads.
+            </span>
           </div>
-          <span className="text-xs text-slate-400 font-mono bg-slate-800 px-2.5 py-1 rounded">
-            {verifiedList.length} Verified Records
+          <span className="badge-verified font-mono">
+            {filteredVerified.length} Sealed Records
           </span>
         </div>
 
         {loadingVerified ? (
-          <div className="py-16 flex justify-center text-slate-400">
-            <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+          <div className="py-16 flex justify-center text-content-muted">
+            <Loader2 className="w-6 h-6 animate-spin text-brand" />
           </div>
         ) : verifiedError ? (
-          <div className="p-4 bg-red-950/40 border border-red-800 rounded text-red-300 text-xs">
+          <div className="p-3 bg-semantic-critical-bg border border-semantic-critical-border rounded text-semantic-critical text-xs">
             {verifiedError}
           </div>
-        ) : verifiedList.length === 0 ? (
-          <div className="py-12 text-center text-slate-500 text-xs">
-            No loans have been verified yet. Use the Reviewer Dashboard to approve and verify flagged records.
+        ) : filteredVerified.length === 0 ? (
+          <div className="py-12 text-center text-xs text-content-muted">
+            No verified loan records match criteria.
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+            <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="border-b border-slate-800 text-slate-400 font-semibold uppercase tracking-wider">
-                  <th className="pb-3">Loan Identifier</th>
-                  <th className="pb-3">Borrower & Amount</th>
-                  <th className="pb-3">SHA-256 Record Hash</th>
-                  <th className="pb-3">Integrity Proof</th>
-                  <th className="pb-3 text-right">Actions</th>
+                <tr className="border-b border-border text-[10px] text-content-muted font-semibold uppercase tracking-wider">
+                  <th className="pb-2.5">Loan Identifier</th>
+                  <th className="pb-2.5">Borrower & Amount</th>
+                  <th className="pb-2.5">SHA-256 Digest</th>
+                  <th className="pb-2.5">Integrity Attestation</th>
+                  <th className="pb-2.5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
-                {verifiedList.map((v) => {
+              <tbody className="divide-y divide-border/60">
+                {filteredVerified.map((v) => {
                   const check = hashVerificationState[v.id];
                   const isVerifying = verifyingId === v.id;
 
                   return (
-                    <tr key={v.id} className="hover:bg-slate-800/40 transition-colors">
-                      <td className="py-3.5 pr-2">
-                        <span className="font-mono font-bold text-white text-sm block">
+                    <tr key={v.id} className="hover:bg-surface-secondary/40 transition-colors">
+                      <td className="py-3 pr-2">
+                        <span className="font-mono font-bold text-content-primary block">
                           {v.loan?.loanIdentifier}
                         </span>
-                        <span className="text-[10px] text-slate-500 font-mono">
+                        <span className="text-[10px] text-content-muted font-mono">
                           Verified: {new Date(v.verifiedAt).toLocaleDateString()}
                         </span>
                       </td>
 
-                      <td className="py-3.5">
-                        <span className="text-slate-200 block font-medium">
+                      <td className="py-3">
+                        <span className="text-content-primary block font-medium">
                           {v.loan?.borrowerName || 'Borrower'}
                         </span>
-                        <span className="text-slate-400 font-mono text-[11px]">
+                        <span className="text-content-secondary font-mono text-[11px]">
                           ${v.loan?.originalPrincipal?.toLocaleString() ?? 0} • {v.loan?.paymentStatus}
                         </span>
                       </td>
 
-                      <td className="py-3.5 font-mono text-[11px]">
-                        <span className="text-emerald-400 bg-emerald-950/60 px-2 py-1 rounded border border-emerald-800/60 block truncate max-w-[200px]">
+                      <td className="py-3 font-mono text-[11px]">
+                        <span className="bg-surface-secondary text-content-primary px-2 py-0.5 rounded border border-border block truncate max-w-[210px]" title={v.recordHash}>
                           {v.recordHash}
                         </span>
                       </td>
 
-                      {/* Integrity Verification Live Badge */}
-                      <td className="py-3.5">
+                      {/* Live Cryptographic Proof Badge */}
+                      <td className="py-3">
                         {check ? (
                           check.isValid ? (
-                            <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
-                              <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                              <span>Exact Match (Unmodified)</span>
+                            <span className="badge-verified">
+                              <Check className="w-3 h-3" />
+                              <span>Exact Match</span>
                             </span>
                           ) : (
-                            <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-[10px] font-bold bg-red-950 text-red-300 border border-red-800 animate-pulse">
-                              <AlertTriangle className="w-3 h-3 text-red-400" />
-                              <span>TAMPER DETECTED (Mismatch)</span>
+                            <span className="badge-critical animate-pulse">
+                              <AlertTriangle className="w-3 h-3" />
+                              <span>TAMPER DETECTED</span>
                             </span>
                           )
                         ) : (
-                          <span className="text-slate-500 text-[11px] italic">Not verified this session</span>
+                          <span className="text-[11px] text-content-muted italic">Ready for verification</span>
                         )}
                       </td>
 
-                      <td className="py-3.5 text-right space-x-2">
+                      <td className="py-3 text-right space-x-2">
                         <button
                           onClick={() => handleVerifyHash(v.id)}
                           disabled={isVerifying}
-                          className="px-2.5 py-1 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 rounded text-xs font-semibold transition-colors disabled:opacity-50"
+                          className="btn-institutional-secondary text-[11px] py-1"
                         >
                           {isVerifying ? <Loader2 className="w-3 h-3 animate-spin inline" /> : 'Verify Hash'}
                         </button>
 
                         <button
                           onClick={() => handleSimulateTamper(v.id)}
-                          className="px-2 py-1 bg-red-950/40 hover:bg-red-900/40 text-red-400 border border-red-800/60 rounded text-[11px] font-medium transition-colors"
-                          title="Simulate database tampering for judge demo"
+                          className="btn-institutional-ghost text-semantic-critical text-[11px] py-1"
+                          title="Simulate database modification for live judge demo"
                         >
                           Demo Tamper
                         </button>
 
                         <button
                           onClick={() => onOpenAudit && onOpenAudit(v.loanId)}
-                          className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded text-[11px] font-medium transition-colors"
+                          className="btn-institutional-ghost text-[11px] py-1"
                         >
                           Audit Trail
                         </button>

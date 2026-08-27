@@ -4,49 +4,95 @@
 
 @layer base {
   body {
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    @apply bg-canvas text-content-primary antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /* Compact institutional custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #F1F2EF;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #D9DCD6;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #B8BCB4;
   }
 }
 
-/* Custom glassmorphism and subtle animations */
-.glass-panel {
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(51, 65, 85, 0.5);
-}
+@layer components {
+  /* Understated, high-contrast institutional badges */
+  .badge-base {
+    @apply inline-flex items-center gap-1.5 px-2 py-0.5 text-[11px] font-medium tracking-tight rounded-sm border uppercase transition-colors;
+    font-feature-settings: 'tnum';
+  }
 
-.ai-glow {
-  box-shadow: 0 0 25px -5px rgba(168, 85, 247, 0.25);
-}
+  .badge-critical {
+    @apply badge-base bg-semantic-critical-bg text-semantic-critical border-semantic-critical-border;
+  }
 
-.badge-critical {
-  @apply bg-red-950/80 text-red-400 border border-red-800/60 px-2 py-0.5 rounded text-xs font-semibold uppercase tracking-wider;
-}
-.badge-high {
-  @apply bg-amber-950/80 text-amber-400 border border-amber-800/60 px-2 py-0.5 rounded text-xs font-semibold uppercase tracking-wider;
-}
-.badge-medium {
-  @apply bg-yellow-950/80 text-yellow-400 border border-yellow-800/60 px-2 py-0.5 rounded text-xs font-semibold uppercase tracking-wider;
-}
-.badge-warning {
-  @apply bg-blue-950/80 text-blue-400 border border-blue-800/60 px-2 py-0.5 rounded text-xs font-semibold uppercase tracking-wider;
-}
-.badge-verified {
-  @apply bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 px-2 py-0.5 rounded text-xs font-semibold uppercase tracking-wider;
-}
+  .badge-high {
+    @apply badge-base bg-semantic-high-bg text-semantic-high border-semantic-high-border;
+  }
 
-/* Custom scrollbars */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #020617;
-}
-::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  .badge-warning {
+    @apply badge-base bg-semantic-warning-bg text-semantic-warning border-semantic-warning-border;
+  }
+
+  .badge-verified {
+    @apply badge-base bg-semantic-verified-bg text-semantic-verified border-semantic-verified-border;
+  }
+
+  .badge-info {
+    @apply badge-base bg-semantic-info-bg text-semantic-info border-semantic-info-border;
+  }
+
+  .badge-ai {
+    @apply badge-base bg-semantic-ai-bg text-semantic-ai border-semantic-ai-border;
+  }
+
+  .badge-neutral {
+    @apply badge-base bg-surface-secondary text-content-secondary border-border;
+  }
+
+  /* Institutional Form Controls */
+  .input-institutional {
+    @apply bg-surface text-content-primary border border-border rounded px-3 py-1.5 text-xs placeholder:text-content-muted focus:outline-none focus:border-content-primary focus:ring-1 focus:ring-content-primary/10 transition-all;
+  }
+
+  .select-institutional {
+    @apply bg-surface text-content-primary border border-border rounded px-2.5 py-1.5 text-xs focus:outline-none focus:border-content-primary focus:ring-1 focus:ring-content-primary/10 transition-all;
+  }
+
+  /* Standard Institutional Buttons */
+  .btn-institutional-primary {
+    @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-brand hover:bg-brand-hover text-white text-xs font-medium rounded shadow-subtle border border-brand transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-institutional-secondary {
+    @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-surface hover:bg-surface-secondary text-content-primary text-xs font-medium rounded shadow-subtle border border-border transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-institutional-ghost {
+    @apply inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 hover:bg-surface-secondary text-content-secondary hover:text-content-primary text-xs font-medium rounded transition-colors;
+  }
+
+  /* Institutional Panel / Card */
+  .panel-institutional {
+    @apply bg-surface border border-border rounded shadow-card;
+  }
+
+  /* Forensic Field Discrepancy Highlighting */
+  .diff-discrepancy {
+    @apply bg-semantic-critical-bg text-semantic-critical border border-semantic-critical-border px-1.5 py-0.5 rounded font-mono font-medium;
+  }
+
+  .diff-matched {
+    @apply bg-surface-secondary text-content-primary px-1.5 py-0.5 rounded font-mono;
+  }
 }
