@@ -582,7 +582,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                     <div className="flex items-center justify-between text-[10px] text-content-muted">
                       <span className="font-semibold text-semantic-ai">Diagnostic Analysis</span>
                       <span className="font-mono">
-                        Model: {aiExplanation.modelName || 'claude-3-5-sonnet'} • {new Date(aiExplanation.timestamp).toLocaleTimeString()}
+                        Model: {aiExplanation.modelName || 'Anthropic Claude'} • {new Date(aiExplanation.timestamp).toLocaleTimeString()}
                       </span>
                     </div>
                     <p className="text-content-primary leading-relaxed">{aiExplanation.explanation}</p>

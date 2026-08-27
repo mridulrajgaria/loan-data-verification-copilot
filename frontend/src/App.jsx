@@ -119,9 +119,9 @@ export default function App() {
           <div className="flex items-center justify-between text-xs px-1">
             <span className="flex items-center space-x-1.5 text-[11px] text-content-secondary">
               <span className="w-2 h-2 rounded-full bg-semantic-verified"></span>
-              <span>Production Engine</span>
+              <span>Verification Engine</span>
             </span>
-            <span className="text-[10px] font-mono text-content-muted">OCC-2011-12</span>
+            <span className="text-[10px] font-mono text-content-muted">Ready</span>
           </div>
 
           {/* User Badge */}
@@ -216,7 +216,7 @@ export default function App() {
 
             <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] bg-brand-subtle text-brand border border-brand-border font-medium">
               <span className="w-1.5 h-1.5 rounded-full bg-semantic-verified"></span>
-              Live Sync
+              Connected
             </span>
           </div>
         </header>
@@ -259,7 +259,7 @@ export default function App() {
           </div>
 
           <div className="flex items-center space-x-2 text-[11px] font-mono text-content-muted">
-            <span>Env: Production</span>
+            <span>Workspace: Active Tape</span>
             <span>•</span>
             <span>Dataset: 2,000 Records</span>
           </div>
@@ -317,8 +317,8 @@ export default function App() {
             Intain Campus FinTech Challenge 2026 • Full-Stack Track • Loan Data Verification Copilot
           </div>
           <div className="flex items-center space-x-4 font-mono text-[10px]">
-            <span>OCC Bulletin 2011-12 Compliant</span>
-            <span>SHA-256 Attestation</span>
+            <span>Human-in-the-Loop Governance</span>
+            <span>SHA-256 Record Hashing</span>
           </div>
         </footer>
       </div>
