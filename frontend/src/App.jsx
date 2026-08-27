@@ -171,6 +171,7 @@ export default function App() {
           <div className="flex items-center space-x-3">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
               className="lg:hidden p-1.5 text-content-secondary hover:text-content-primary rounded-xs hover:bg-surface-secondary"
             >
               {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -192,6 +193,7 @@ export default function App() {
                 placeholder="Search loan ID, borrower, exception..."
                 value={globalSearch}
                 onChange={(e) => setGlobalSearch(e.target.value)}
+                aria-label="Search loan ID, borrower, or exception"
                 className="w-full bg-surface-secondary/70 border border-border rounded-xs pl-8 pr-3 py-1.5 text-xs text-content-primary placeholder:text-content-muted focus:outline-none focus:bg-surface focus:border-ref-teal transition-all font-sans"
               />
             </div>

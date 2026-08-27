@@ -43,6 +43,9 @@ export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
     <div className="fixed inset-0 z-50 bg-[#151817]/30 backdrop-blur-[2px] flex justify-end">
       {/* Right-Side Forensic Slide-Out Drawer */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="loan-drawer-title"
         className="bg-surface border-l border-border shadow-drawer w-full max-w-2xl h-full flex flex-col text-content-primary animate-in slide-in-from-right duration-200"
         onClick={(e) => e.stopPropagation()}
       >
@@ -50,7 +53,7 @@ export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
         <div className="px-6 py-4 border-b border-border flex items-center justify-between flex-shrink-0 bg-ref-teal text-white">
           <div>
             <div className="flex items-center space-x-2">
-              <h3 className="font-mono font-bold text-base text-white">
+              <h3 id="loan-drawer-title" className="font-mono font-bold text-base text-white">
                 {loan?.loanIdentifier || 'Loan Inspection'}
               </h3>
               {loan && (
@@ -75,6 +78,7 @@ export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
           <div className="flex items-center space-x-2">
             <button
               onClick={() => onOpenAudit && onOpenAudit(loanId)}
+              aria-label="View chronological audit history for this loan"
               className="px-2.5 py-1 bg-white/10 hover:bg-white/20 text-white rounded-xs text-xs font-mono border border-white/20"
             >
               <History className="w-3.5 h-3.5 inline mr-1 text-ref-lime" />
@@ -82,6 +86,7 @@ export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
             </button>
             <button
               onClick={onClose}
+              aria-label="Close loan inspection drawer"
               className="p-1 text-white/80 hover:text-white rounded-xs hover:bg-white/10"
             >
               <X className="w-4 h-4" />
@@ -232,6 +237,7 @@ export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
           </span>
           <button
             onClick={onClose}
+            aria-label="Close drawer"
             className="btn-institutional-secondary text-xs"
           >
             Close Drawer

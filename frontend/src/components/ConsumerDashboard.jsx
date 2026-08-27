@@ -9,6 +9,7 @@ import {
   FileSpreadsheet,
   Flame,
   Check,
+  X,
 } from 'lucide-react';
 
 export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQuery = '' }) {
@@ -23,7 +24,9 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
   const [hashVerificationState, setHashVerificationState] = useState({});
   const [verifyingId, setVerifyingId] = useState(null);
   const [tamperAlertMessage, setTamperAlertMessage] = useState(null);
+  const [confirmingTamperId, setConfirmingTamperId] = useState(null);
   const [exporting, setExporting] = useState(false);
+  const [actionError, setActionError] = useState(null);
 
   const fetchSummary = useCallback(async () => {
     setLoadingSummary(true);
@@ -63,6 +66,7 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
   // Run Independent Hash Verification
   const handleVerifyHash = async (verifiedLoanId) => {
     setVerifyingId(verifiedLoanId);
+    setActionError(null);
     try {
       const res = await api.verifyRecordHash(verifiedLoanId);
       setHashVerificationState((prev) => ({
@@ -70,49 +74,55 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
         [verifiedLoanId]: res.data,
       }));
     } catch (err) {
-      alert(`Hash verification error: ${err.message}`);
+      setActionError(`Hash verification failed: ${err.message}`);
     } finally {
       setVerifyingId(null);
     }
   };
 
-  // Live Judge Demo: Simulated DB Tamper
-  const handleSimulateTamper = async (verifiedLoanId) => {
-    if (!confirm('Live Judge Demonstration: This will inject an unauthorized 1-byte modification into the SQLite canonical JSON to demonstrate instant cryptographic tamper detection. Proceed?')) {
-      return;
-    }
+  // Live Judge Demo: Simulated DB Tamper execution
+  const executeSimulateTamper = async (verifiedLoanId) => {
+    setConfirmingTamperId(null);
+    setActionError(null);
     try {
       await api.simulateTamper(verifiedLoanId);
       setTamperAlertMessage(`Tamper simulated on record #${verifiedLoanId.slice(0, 8)}. Click "Verify Hash" to observe the cryptographic hash mismatch.`);
       handleVerifyHash(verifiedLoanId);
     } catch (err) {
-      alert(`Simulation error: ${err.message}`);
+      setActionError(`Simulation error: ${err.message}`);
     }
   };
 
-  // Handle Export (JSON / CSV)
+  // Handle Export (JSON / CSV) with memory leak prevention (revokeObjectURL)
   const handleExport = async (format = 'json') => {
     setExporting(true);
+    setActionError(null);
     try {
       const data = await api.exportVerified(format);
       if (format === 'csv') {
-        const blob = new Blob([data], { type: 'text/csv' });
+        const blob = new Blob([data], { type: 'text/csv;charset=utf-8;' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
         a.download = `verified_loan_tape_${Date.now()}.csv`;
+        document.body.appendChild(a);
         a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
       } else {
         const jsonStr = JSON.stringify(data, null, 2);
-        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8;' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
         a.download = `verified_portfolio_with_audit_trail_${Date.now()}.json`;
+        document.body.appendChild(a);
         a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
       }
     } catch (err) {
-      alert(`Export failed: ${err.message}`);
+      setActionError(`Export failed: ${err.message}`);
     } finally {
       setExporting(false);
     }
@@ -148,6 +158,7 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
           <button
             onClick={() => handleExport('json')}
             disabled={exporting}
+            aria-label="Export verification bundle as JSON"
             className="btn-teal text-xs font-mono"
           >
             <FileJson className="w-3.5 h-3.5 text-ref-lime" />
@@ -156,6 +167,7 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
           <button
             onClick={() => handleExport('csv')}
             disabled={exporting}
+            aria-label="Export verified loan tape as CSV"
             className="btn-institutional-secondary text-xs font-mono"
           >
             <FileSpreadsheet className="w-3.5 h-3.5 text-content-secondary" />
@@ -163,6 +175,22 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
           </button>
         </div>
       </div>
+
+      {actionError && (
+        <div className="p-3 bg-semantic-critical-bg border border-semantic-critical-border rounded-xs text-semantic-critical text-xs flex items-center justify-between font-mono">
+          <div className="flex items-center space-x-2">
+            <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+            <span>{actionError}</span>
+          </div>
+          <button
+            onClick={() => setActionError(null)}
+            aria-label="Dismiss error"
+            className="p-1 hover:text-content-primary"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* 1. DATA QUALITY SCORE & VERIFICATION STATUS (LARGE PALE LIME BLOCK SURFACE #CDE78C) */}
       <div className="block-lime p-6 shadow-subtle">
@@ -226,10 +254,47 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
           </div>
           <button
             onClick={() => setTamperAlertMessage(null)}
+            aria-label="Dismiss tamper notice"
             className="text-[11px] underline font-medium hover:text-content-primary"
           >
             Dismiss
           </button>
+        </div>
+      )}
+
+      {/* Inline Non-Blocking Tamper Confirmation Banner */}
+      {confirmingTamperId && (
+        <div className="p-4 bg-white border-2 border-semantic-critical rounded-xs shadow-modal space-y-2 font-mono text-xs">
+          <div className="flex items-center justify-between text-semantic-critical font-bold">
+            <div className="flex items-center space-x-2">
+              <AlertTriangle className="w-4 h-4" />
+              <span>Live Judge Demo: Confirm Simulated Database Tampering</span>
+            </div>
+            <button
+              onClick={() => setConfirmingTamperId(null)}
+              aria-label="Cancel tamper demonstration"
+              className="text-content-muted hover:text-content-primary"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          <p className="text-content-secondary font-sans text-xs">
+            This action will inject an unauthorized 1-byte modification into the SQLite canonical JSON for record <strong className="font-mono text-content-primary">#{confirmingTamperId.slice(0, 8)}</strong> to demonstrate instant cryptographic hash mismatch detection.
+          </p>
+          <div className="pt-2 flex items-center justify-end space-x-2">
+            <button
+              onClick={() => setConfirmingTamperId(null)}
+              className="btn-institutional-secondary text-xs"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => executeSimulateTamper(confirmingTamperId)}
+              className="btn-critical text-xs"
+            >
+              Inject 1-Byte Tamper
+            </button>
+          </div>
         </div>
       )}
 
@@ -327,13 +392,15 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
                         <button
                           onClick={() => handleVerifyHash(v.id)}
                           disabled={isVerifying}
+                          aria-label={`Verify SHA-256 hash for loan ${v.loan?.loanIdentifier}`}
                           className="btn-institutional-secondary text-[11px] py-1"
                         >
                           {isVerifying ? <Loader2 className="w-3 h-3 animate-spin inline" /> : 'Verify Hash'}
                         </button>
 
                         <button
-                          onClick={() => handleSimulateTamper(v.id)}
+                          onClick={() => setConfirmingTamperId(v.id)}
+                          aria-label={`Simulate database modification on loan ${v.loan?.loanIdentifier} for demonstration`}
                           className="btn-institutional-ghost text-semantic-critical text-[11px] py-1"
                           title="Simulate database modification for live judge demo"
                         >
@@ -342,6 +409,7 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
 
                         <button
                           onClick={() => onOpenAudit && onOpenAudit(v.loanId)}
+                          aria-label={`View audit trail for loan ${v.loan?.loanIdentifier}`}
                           className="btn-institutional-ghost text-[11px] py-1 font-sans"
                         >
                           Audit Trail

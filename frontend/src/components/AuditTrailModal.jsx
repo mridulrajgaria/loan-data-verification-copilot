@@ -62,6 +62,9 @@ export default function AuditTrailModal({ loanId, onClose }) {
   return (
     <div className="fixed inset-0 z-50 bg-[#151817]/30 backdrop-blur-[2px] flex items-center justify-center p-4">
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="audit-modal-title"
         className="bg-surface border border-border rounded-xs shadow-modal w-full max-w-4xl max-h-[90vh] flex flex-col text-content-primary animate-in fade-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
@@ -69,7 +72,7 @@ export default function AuditTrailModal({ loanId, onClose }) {
         <div className="px-6 py-4 border-b border-border flex items-center justify-between flex-shrink-0 bg-ref-teal text-white">
           <div>
             <div className="flex items-center space-x-2">
-              <h3 className="font-mono font-bold text-base text-white">
+              <h3 id="audit-modal-title" className="font-mono font-bold text-base text-white">
                 {trail?.loanIdentifier || 'Audit Event Ledger'}
               </h3>
               <span className="text-[10px] font-mono uppercase bg-ref-lime text-ref-teal px-2 py-0.5 rounded-xs font-bold">
@@ -83,6 +86,7 @@ export default function AuditTrailModal({ loanId, onClose }) {
 
           <button
             onClick={onClose}
+            aria-label="Close audit ledger"
             className="p-1 text-white/80 hover:text-white rounded-xs hover:bg-white/10"
           >
             <X className="w-4 h-4" />
@@ -139,6 +143,7 @@ export default function AuditTrailModal({ loanId, onClose }) {
                           <td className="py-2.5 text-right">
                             <button
                               onClick={() => toggleExpand(idx)}
+                              aria-label={`${isExpanded ? 'Hide' : 'Inspect'} payload for event ${idx + 1}`}
                               className="text-ref-teal hover:underline font-mono text-[11px] inline-flex items-center space-x-1"
                             >
                               <span>{isExpanded ? 'Hide' : 'Inspect'}</span>
@@ -172,6 +177,7 @@ export default function AuditTrailModal({ loanId, onClose }) {
           </span>
           <button
             onClick={onClose}
+            aria-label="Close audit ledger"
             className="btn-institutional-secondary text-xs"
           >
             Close Ledger
