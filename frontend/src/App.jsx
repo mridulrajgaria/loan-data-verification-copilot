@@ -162,18 +162,18 @@ export default function App() {
             </span>
           </div>
 
-          {/* Dynamic User Persona Card */}
-          <div className="pt-2.5 border-t border-[#E2E8F0] flex items-center justify-between">
-            <div className="flex items-center space-x-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#16433F] text-white flex items-center justify-center text-xs font-bold font-mono">
+          {/* Dynamic User Persona Profile Card */}
+          <div className="bg-white p-3 rounded-xl border border-[#E2E8F0] shadow-xs flex items-center justify-between gap-3">
+            <div className="flex items-center space-x-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-lg bg-[#16433F] text-white flex items-center justify-center text-xs font-bold font-mono shadow-xs flex-shrink-0">
                 {currentPersona.initials}
               </div>
-              <div className="truncate">
-                <div className="text-xs font-bold text-[#0F172A] truncate">{currentPersona.name}</div>
-                <div className="text-[10px] text-[#64748B] uppercase tracking-wider font-mono">{currentPersona.title}</div>
+              <div className="min-w-0 truncate">
+                <div className="text-xs font-bold text-[#0F172A] truncate leading-tight">{currentPersona.name}</div>
+                <div className="text-[10.5px] text-[#64748B] truncate font-sans font-medium mt-0.5 leading-tight">{currentPersona.title}</div>
               </div>
             </div>
-            <span className="text-[9.5px] font-mono font-bold text-[#16433F] bg-[#EEF4FF] px-2 py-0.5 rounded-md border border-[#9DC0FB]">
+            <span className="text-[10px] font-mono font-bold text-[#16433F] bg-[#EEF4FF] px-2 py-0.5 rounded-md border border-[#9DC0FB] flex-shrink-0">
               {currentPersona.role}
             </span>
           </div>
