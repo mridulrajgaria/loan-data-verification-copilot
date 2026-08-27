@@ -8,6 +8,7 @@ import {
   Loader2,
   ArrowUpRight,
   CheckCircle,
+  FileSpreadsheet,
 } from 'lucide-react';
 
 export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQuery = '' }) {
@@ -93,7 +94,7 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
 
     try {
       const res = await api.uploadLoanTape(formData);
-      setUploadMessage(`Ingestion successful: "${res.data.filename}" (${res.data.totalRows?.toLocaleString()} rows parsed with SHA-256 provenance).`);
+      setUploadMessage(`Ingestion completed: "${res.data.filename}" (${res.data.totalRows?.toLocaleString()} rows parsed with SHA-256 provenance).`);
       refreshAll();
     } catch (err) {
       setUploadError(err.message || 'File upload failed. Ensure file is under 10MB and format is compliant.');
@@ -112,12 +113,12 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
 
   return (
     <div className="space-y-6">
-      {/* 1. HORIZONTAL METRIC STRIP (TYPOGRAPHY + VERTICAL DIVIDERS) */}
-      <div className="panel-institutional p-5">
-        <div className="flex items-center justify-between pb-4 mb-4 border-b border-border">
+      {/* 1. HORIZONTAL ANALYTICAL METRIC BAND (TYPOGRAPHY + VERTICAL DIVIDERS) */}
+      <div className="section-band p-5">
+        <div className="flex items-center justify-between pb-3 mb-4 border-b border-border">
           <div>
-            <h2 className="text-sm font-semibold tracking-tight text-content-primary">
-              Data Operations Summary
+            <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-content-primary">
+              Data Control Room Summary
             </h2>
             <p className="text-xs text-content-secondary mt-0.5">
               Portfolio lineage and ingestion metrics across active loan tape batches
@@ -137,13 +138,13 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
           {/* Total Records */}
           <div className="pt-2 sm:pt-0 sm:px-3">
             <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-content-muted block">
-              Loan Records
+              Total Records
             </span>
             <div className="mt-1 flex items-baseline space-x-1.5">
               <span className="text-2xl font-bold tracking-tight text-content-primary font-mono tabular-nums">
                 {loadingSummary ? '—' : summary?.totalLoans?.toLocaleString() ?? 0}
               </span>
-              <span className="text-[11px] text-content-muted">ingested</span>
+              <span className="text-[11px] text-content-muted">loans</span>
             </div>
             <span className="text-[11px] text-content-secondary mt-1 block font-mono">
               {summary?.totalUploads ?? 0} batch file(s)
@@ -168,16 +169,16 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
             </span>
           </div>
 
-          {/* Exceptions */}
+          {/* Open Exceptions */}
           <div className="pt-2 sm:pt-0 sm:px-3">
             <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-semantic-warning block">
-              Exceptions Flagged
+              Open Exceptions
             </span>
             <div className="mt-1 flex items-baseline space-x-1.5">
               <span className="text-2xl font-bold tracking-tight text-semantic-warning font-mono tabular-nums">
                 {loadingSummary ? '—' : summary?.totalOpenExceptions?.toLocaleString() ?? 0}
               </span>
-              <span className="text-[11px] text-content-muted">open</span>
+              <span className="text-[11px] text-content-muted">violations</span>
             </div>
             <span className="text-[11px] text-content-secondary mt-1 block font-mono">
               {summary?.flaggedLoansCount ?? 0} loans affected
@@ -203,17 +204,17 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
       </div>
 
       {summaryError && (
-        <div className="p-3 bg-semantic-critical-bg border border-semantic-critical-border rounded-sm text-semantic-critical text-xs font-mono">
+        <div className="p-3 bg-semantic-critical-bg border border-semantic-critical-border rounded-xs text-semantic-critical text-xs font-mono">
           {summaryError}
         </div>
       )}
 
-      {/* 2. INGEST LOAN TAPE PANEL */}
-      <div className="panel-institutional p-5 space-y-3">
-        <div className="flex items-center justify-between">
+      {/* 2. FILE INTAKE OPERATION PANEL */}
+      <div className="section-band p-5 space-y-3">
+        <div className="flex items-center justify-between border-b border-border pb-2.5">
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-content-primary font-mono">
-              Ingest Loan Tape
+              File Intake Operation
             </h3>
             <p className="text-xs text-content-secondary mt-0.5">
               Streaming RFC-4180 CSV parser with 20,000-row memory protection boundary and SHA-256 raw file hashing.
@@ -235,9 +236,9 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
               handleFileUpload(e.dataTransfer.files[0]);
             }
           }}
-          className={`border border-dashed rounded-sm p-6 text-center transition-colors ${
+          className={`border border-dashed rounded-xs p-6 text-center transition-colors ${
             isDragging
-              ? 'border-brand-navy bg-brand-navy-subtle/60'
+              ? 'border-brand-institutional bg-surface-secondary'
               : 'border-border hover:border-border-strong bg-surface-secondary/40'
           }`}
         >
@@ -254,42 +255,42 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
           />
           <label htmlFor="operatorCsvInput" className="cursor-pointer flex flex-col items-center justify-center">
             {uploading ? (
-              <div className="py-2 flex items-center space-x-3 text-xs text-content-primary">
-                <Loader2 className="w-4 h-4 animate-spin text-brand-navy" />
+              <div className="py-2 flex items-center space-x-3 text-xs text-content-primary font-mono">
+                <Loader2 className="w-4 h-4 animate-spin text-brand-institutional" />
                 <span>Streaming tape, computing SHA-256 hash, and generating NormalizedLoan entities...</span>
               </div>
             ) : (
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <UploadCloud className="w-5 h-5 text-content-secondary" />
+                <UploadCloud className="w-4 h-4 text-content-secondary" />
                 <div className="text-xs text-content-primary">
-                  <span className="font-semibold text-brand-navy underline">Select loan_tape.csv</span> or drag and drop file here
+                  <span className="font-semibold text-brand-institutional underline font-mono">Select loan_tape.csv</span> or drag and drop file here
                 </div>
-                <span className="text-[11px] text-content-muted font-mono">(.csv, UTF-8)</span>
+                <span className="text-[10px] text-content-muted font-mono">(.csv, UTF-8)</span>
               </div>
             )}
           </label>
         </div>
 
         {uploadMessage && (
-          <div className="p-3 bg-semantic-verified-bg border border-semantic-verified-border rounded-sm text-semantic-verified text-xs flex items-center space-x-2">
+          <div className="p-3 bg-semantic-verified-bg border border-semantic-verified-border rounded-xs text-semantic-verified text-xs flex items-center space-x-2 font-mono">
             <CheckCircle className="w-4 h-4 flex-shrink-0" />
             <span>{uploadMessage}</span>
           </div>
         )}
 
         {uploadError && (
-          <div className="p-3 bg-semantic-critical-bg border border-semantic-critical-border rounded-sm text-semantic-critical text-xs flex items-center space-x-2">
+          <div className="p-3 bg-semantic-critical-bg border border-semantic-critical-border rounded-xs text-semantic-critical text-xs flex items-center space-x-2 font-mono">
             <AlertTriangle className="w-4 h-4 flex-shrink-0" />
             <span>{uploadError}</span>
           </div>
         )}
       </div>
 
-      {/* 3. SPLIT WORKSPACE: RECENT TAPE LINEAGE & FLAGGED EXCEPTIONS */}
+      {/* 3. SPLIT CONTROL ROOM: RECENT LINEAGE & WORK QUEUE */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left: Recent Tape Lineage (6 Cols) */}
-        <div className="lg:col-span-6 panel-institutional p-5 space-y-4">
-          <div className="flex items-center justify-between border-b border-border pb-3">
+        <div className="lg:col-span-6 section-band p-5 space-y-3">
+          <div className="flex items-center justify-between border-b border-border pb-2.5">
             <div>
               <h3 className="text-xs font-semibold uppercase tracking-wider text-content-primary font-mono">
                 Recent Tape Lineage
@@ -303,10 +304,10 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
 
           {loadingUploads ? (
             <div className="py-12 flex justify-center text-content-muted">
-              <Loader2 className="w-5 h-5 animate-spin text-brand-navy" />
+              <Loader2 className="w-5 h-5 animate-spin text-brand-institutional" />
             </div>
           ) : uploadsError ? (
-            <div className="p-3 bg-semantic-critical-bg border border-semantic-critical-border rounded-sm text-semantic-critical text-xs font-mono">
+            <div className="p-3 bg-semantic-critical-bg border border-semantic-critical-border rounded-xs text-semantic-critical text-xs font-mono">
               {uploadsError}
             </div>
           ) : uploads.length === 0 ? (
@@ -326,8 +327,8 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
                   {uploads.map((u) => (
                     <tr key={u.id} className="hover:bg-surface-secondary/40 transition-colors">
                       <td className="py-2.5 pr-2">
-                        <div className="font-medium text-content-primary">{u.filename}</div>
-                        <div className="font-mono text-[10px] text-content-muted truncate max-w-[200px]" title={u.fileHash}>
+                        <div className="font-medium text-content-primary font-mono text-[11px]">{u.filename}</div>
+                        <div className="font-mono text-[9.5px] text-content-muted truncate max-w-[200px]" title={u.fileHash}>
                           {u.fileHash}
                         </div>
                       </td>
@@ -350,9 +351,9 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
           )}
         </div>
 
-        {/* Right: Exceptions Requiring Review (6 Cols) */}
-        <div className="lg:col-span-6 panel-institutional p-5 space-y-4">
-          <div className="flex items-center justify-between border-b border-border pb-3">
+        {/* Right: Exceptions Requiring Review Queue (6 Cols) */}
+        <div className="lg:col-span-6 section-band p-5 space-y-3">
+          <div className="flex items-center justify-between border-b border-border pb-2.5">
             <div>
               <h3 className="text-xs font-semibold uppercase tracking-wider text-content-primary font-mono">
                 Exceptions Requiring Review
@@ -369,7 +370,7 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
               <Loader2 className="w-5 h-5 animate-spin text-semantic-warning" />
             </div>
           ) : flaggedError ? (
-            <div className="p-3 bg-semantic-critical-bg border border-semantic-critical-border rounded-sm text-semantic-critical text-xs font-mono">
+            <div className="p-3 bg-semantic-critical-bg border border-semantic-critical-border rounded-xs text-semantic-critical text-xs font-mono">
               {flaggedError}
             </div>
           ) : filteredFlagged.length === 0 ? (
@@ -408,7 +409,7 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
                       <td className="py-2.5 text-right">
                         <button
                           onClick={() => onSelectLoan && onSelectLoan(loan.id)}
-                          className="btn-institutional-ghost text-brand-navy text-[11px] font-semibold"
+                          className="btn-institutional-ghost text-brand-institutional text-[11px] font-semibold font-mono"
                         >
                           <span>Inspect</span>
                           <ArrowUpRight className="w-3 h-3" />

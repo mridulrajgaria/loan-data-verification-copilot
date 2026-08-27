@@ -136,8 +136,8 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
       {/* Top Header Strip */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1 border-b border-border">
         <div>
-          <h2 className="text-sm font-semibold tracking-tight text-content-primary">
-            Verification Portal
+          <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-content-primary">
+            Verification & Cryptographic Attestation Ledger
           </h2>
           <p className="text-xs text-content-secondary mt-0.5">
             Cryptographic integrity, data quality scoring and audit attestation
@@ -148,7 +148,7 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
           <button
             onClick={() => handleExport('json')}
             disabled={exporting}
-            className="btn-navy text-xs"
+            className="btn-institutional text-xs font-mono"
           >
             <FileJson className="w-3.5 h-3.5" />
             <span>Export Bundle (JSON)</span>
@@ -156,7 +156,7 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
           <button
             onClick={() => handleExport('csv')}
             disabled={exporting}
-            className="btn-institutional-secondary text-xs"
+            className="btn-institutional-secondary text-xs font-mono"
           >
             <FileSpreadsheet className="w-3.5 h-3.5" />
             <span>Export CSV</span>
@@ -165,29 +165,29 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
       </div>
 
       {/* 1. DATA QUALITY SCORE & VERIFICATION STATUS BANNER */}
-      <div className="panel-institutional p-5">
+      <div className="section-band p-5">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
-              <ShieldCheck className="w-5 h-5 text-semantic-verified" />
-              <h3 className="text-sm font-semibold text-content-primary">
+              <ShieldCheck className="w-4 h-4 text-semantic-verified" />
+              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-content-primary">
                 Portfolio Data Quality & Verification Index
               </h3>
             </div>
 
             {/* FORMULA (GRADABLE CRITERIA) */}
-            <div className="bg-surface-secondary px-3 py-1.5 rounded-sm border border-border text-[11px] font-mono text-content-primary inline-flex items-center space-x-2">
+            <div className="bg-surface-secondary px-3 py-1.5 rounded-xs border border-border text-[11px] font-mono text-content-primary inline-flex items-center space-x-2">
               <span className="text-content-muted">Formula:</span>
               <span>(verified_records / total_ingested_records) × 100</span>
             </div>
 
-            <p className="text-xs text-content-secondary max-w-xl">
+            <p className="text-xs text-content-secondary max-w-xl font-sans">
               Measures the proportion of portfolio loans cryptographically signed and sealed with zero unresolved critical exceptions.
             </p>
           </div>
 
           {/* Metric Tiles Strip */}
-          <div className="flex items-center space-x-6 bg-surface-secondary/80 p-4 rounded-sm border border-border">
+          <div className="flex items-center space-x-6 bg-surface-secondary/70 p-4 rounded-xs border border-border">
             <div className="text-left">
               <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-content-muted block">
                 Verification Rate
@@ -219,7 +219,7 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
       </div>
 
       {tamperAlertMessage && (
-        <div className="p-3 bg-semantic-warning-bg border border-semantic-warning-border rounded-sm text-semantic-warning text-xs flex items-center justify-between font-mono">
+        <div className="p-3 bg-semantic-warning-bg border border-semantic-warning-border rounded-xs text-semantic-warning text-xs flex items-center justify-between font-mono">
           <div className="flex items-center space-x-2">
             <Flame className="w-4 h-4 flex-shrink-0 text-semantic-warning" />
             <span>{tamperAlertMessage}</span>
@@ -234,13 +234,13 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
       )}
 
       {/* 2. CRYPTOGRAPHICALLY LOCKED VERIFIED RECORDS TABLE */}
-      <div className="panel-institutional p-5 space-y-4">
-        <div className="flex items-center justify-between border-b border-border pb-3">
+      <div className="section-band p-5 space-y-3">
+        <div className="flex items-center justify-between border-b border-border pb-2.5">
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-content-primary font-mono">
               Verified Records Ledger
             </h3>
-            <span className="text-[11px] text-content-secondary">
+            <span className="text-[11px] text-content-secondary font-sans">
               Immutable SHA-256 digests over recursively sorted canonical JSON payloads.
             </span>
           </div>
@@ -251,10 +251,10 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
 
         {loadingVerified ? (
           <div className="py-16 flex justify-center text-content-muted">
-            <Loader2 className="w-6 h-6 animate-spin text-brand-navy" />
+            <Loader2 className="w-6 h-6 animate-spin text-brand-institutional" />
           </div>
         ) : verifiedError ? (
-          <div className="p-3 bg-semantic-critical-bg border border-semantic-critical-border rounded-sm text-semantic-critical text-xs font-mono">
+          <div className="p-3 bg-semantic-critical-bg border border-semantic-critical-border rounded-xs text-semantic-critical text-xs font-mono">
             {verifiedError}
           </div>
         ) : filteredVerified.length === 0 ? (
@@ -281,7 +281,7 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
                   return (
                     <tr key={v.id} className="hover:bg-surface-secondary/40 transition-colors">
                       <td className="py-3 pr-2">
-                        <span className="font-mono font-bold text-brand-navy block">
+                        <span className="font-mono font-bold text-brand-institutional block">
                           {v.loan?.loanIdentifier}
                         </span>
                         <span className="text-[10px] text-content-muted font-mono">
@@ -319,11 +319,11 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
                             </span>
                           )
                         ) : (
-                          <span className="text-[11px] text-content-muted italic">Ready for verification</span>
+                          <span className="text-[11px] text-content-muted italic font-mono">Ready</span>
                         )}
                       </td>
 
-                      <td className="py-3 text-right space-x-2">
+                      <td className="py-3 text-right space-x-2 font-mono">
                         <button
                           onClick={() => handleVerifyHash(v.id)}
                           disabled={isVerifying}
@@ -334,7 +334,7 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
 
                         <button
                           onClick={() => handleSimulateTamper(v.id)}
-                          className="btn-institutional-ghost text-semantic-critical text-[11px] py-1 font-mono"
+                          className="btn-institutional-ghost text-semantic-critical text-[11px] py-1"
                           title="Simulate database modification for live judge demo"
                         >
                           Demo Tamper
@@ -342,7 +342,7 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
 
                         <button
                           onClick={() => onOpenAudit && onOpenAudit(v.loanId)}
-                          className="btn-institutional-ghost text-[11px] py-1"
+                          className="btn-institutional-ghost text-[11px] py-1 font-sans"
                         >
                           Audit Trail
                         </button>

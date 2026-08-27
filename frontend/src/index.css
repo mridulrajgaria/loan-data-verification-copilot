@@ -4,8 +4,9 @@
 
 @layer base {
   body {
-    background-color: #F5F4F0;
-    color: #171817;
+    background-color: #F6F5F1;
+    color: #151817;
+    font-family: "DM Sans", -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'tnum';
     -webkit-font-smoothing: antialiased;
   }
@@ -16,14 +17,14 @@
     height: 5px;
   }
   ::-webkit-scrollbar-track {
-    background: #F0F0EB;
+    background: #F0F0EC;
   }
   ::-webkit-scrollbar-thumb {
-    background: #D9D9D3;
+    background: #D8DAD4;
     border-radius: 2px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #BFC2BB;
+    background: #BFC3BB;
   }
 }
 
@@ -33,110 +34,109 @@
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
-    padding: 0.125rem 0.5rem;
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: -0.01em;
-    border-radius: 3px;
+    padding: 0.125rem 0.375rem;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border-radius: 2px;
     border-width: 1px;
     border-style: solid;
     text-transform: uppercase;
     transition-property: color, background-color, border-color;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     transition-duration: 150ms;
-    font-feature-settings: 'tnum';
+    font-family: "IBM Plex Mono", monospace;
   }
 
   .badge-critical {
-    background-color: #FDECEC;
+    background-color: #FEF3F2;
     color: #B42318;
-    border-color: #F9C8C4;
+    border-color: #FECDCA;
   }
 
   .badge-warning {
-    background-color: #FFF4DF;
-    color: #B56A12;
-    border-color: #FDE3B2;
+    background-color: #FEFBE8;
+    color: #A15C00;
+    border-color: #FEEF85;
   }
 
   .badge-verified {
-    background-color: #E7F3EC;
-    color: #16734B;
-    border-color: #BBE3CD;
+    background-color: #EDFDF4;
+    color: #087443;
+    border-color: #AAF0C4;
   }
 
   .badge-ai {
     background-color: #F5F1FA;
-    color: #6B5A8E;
+    color: #725C91;
     border-color: #E5DEF0;
-    font-family: "IBM Plex Mono", monospace;
   }
 
-  .badge-navy {
-    background-color: #EBF0F5;
-    color: #19324A;
-    border-color: #C4D4E3;
+  .badge-institutional {
+    background-color: #E8EFECE8;
+    color: #163B32;
+    border-color: #C2D5CE;
   }
 
   .badge-neutral {
-    background-color: #F0F0EB;
-    color: #6E716C;
-    border-color: #D9D9D3;
+    background-color: #F0F0EC;
+    color: #626762;
+    border-color: #D8DAD4;
   }
 
   /* Institutional Form Controls */
   .input-institutional {
-    background-color: #FCFCFA;
-    color: #171817;
-    border: 1px solid #D9D9D3;
-    border-radius: 3px;
-    padding: 0.375rem 0.75rem;
+    background-color: #FFFFFF;
+    color: #151817;
+    border: 1px solid #D8DAD4;
+    border-radius: 2px;
+    padding: 0.375rem 0.625rem;
     font-size: 0.75rem;
     transition: all 150ms;
     font-family: "DM Sans", sans-serif;
   }
   .input-institutional:focus {
     outline: none;
-    border-color: #19324A;
-    box-shadow: 0 0 0 1px rgba(25, 50, 74, 0.1);
+    border-color: #163B32;
+    box-shadow: 0 0 0 1px rgba(22, 59, 50, 0.12);
   }
 
   .select-institutional {
-    background-color: #FCFCFA;
-    color: #171817;
-    border: 1px solid #D9D9D3;
-    border-radius: 3px;
-    padding: 0.375rem 0.625rem;
+    background-color: #FFFFFF;
+    color: #151817;
+    border: 1px solid #D8DAD4;
+    border-radius: 2px;
+    padding: 0.375rem 0.5rem;
     font-size: 0.75rem;
     transition: all 150ms;
     font-family: "DM Sans", sans-serif;
   }
   .select-institutional:focus {
     outline: none;
-    border-color: #19324A;
-    box-shadow: 0 0 0 1px rgba(25, 50, 74, 0.1);
+    border-color: #163B32;
+    box-shadow: 0 0 0 1px rgba(22, 59, 50, 0.12);
   }
 
-  /* Institutional Buttons */
-  .btn-navy {
+  /* Institutional Action Buttons */
+  .btn-institutional {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.375rem;
     padding: 0.375rem 0.75rem;
-    background-color: #19324A;
+    background-color: #163B32;
     color: #FFFFFF;
     font-size: 0.75rem;
     font-weight: 500;
-    border-radius: 3px;
-    border: 1px solid #19324A;
+    border-radius: 2px;
+    border: 1px solid #163B32;
     transition: background-color 150ms;
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
   }
-  .btn-navy:hover {
-    background-color: #122436;
+  .btn-institutional:hover {
+    background-color: #102B25;
   }
-  .btn-navy:disabled {
+  .btn-institutional:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
@@ -147,17 +147,17 @@
     justify-content: center;
     gap: 0.375rem;
     padding: 0.375rem 0.75rem;
-    background-color: #FCFCFA;
-    color: #171817;
+    background-color: #FFFFFF;
+    color: #151817;
     font-size: 0.75rem;
     font-weight: 500;
-    border-radius: 3px;
-    border: 1px solid #D9D9D3;
+    border-radius: 2px;
+    border: 1px solid #D8DAD4;
     transition: background-color 150ms;
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
   }
   .btn-institutional-secondary:hover {
-    background-color: #F0F0EB;
+    background-color: #F0F0EC;
   }
   .btn-institutional-secondary:disabled {
     opacity: 0.5;
@@ -168,17 +168,17 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.375rem;
-    padding: 0.25rem 0.625rem;
-    color: #6E716C;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    color: #626762;
     font-size: 0.75rem;
     font-weight: 500;
-    border-radius: 3px;
+    border-radius: 2px;
     transition: all 150ms;
   }
   .btn-institutional-ghost:hover {
-    background-color: #F0F0EB;
-    color: #171817;
+    background-color: #F0F0EC;
+    color: #151817;
   }
 
   .btn-verified {
@@ -187,17 +187,17 @@
     justify-content: center;
     gap: 0.375rem;
     padding: 0.375rem 0.75rem;
-    background-color: #16734B;
+    background-color: #087443;
     color: #FFFFFF;
     font-size: 0.75rem;
     font-weight: 500;
-    border-radius: 3px;
-    border: 1px solid #16734B;
+    border-radius: 2px;
+    border: 1px solid #087443;
     transition: background-color 150ms;
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
   }
   .btn-verified:hover {
-    background-color: #125e3d;
+    background-color: #065b35;
   }
 
   .btn-critical {
@@ -210,7 +210,7 @@
     color: #FFFFFF;
     font-size: 0.75rem;
     font-weight: 500;
-    border-radius: 3px;
+    border-radius: 2px;
     border: 1px solid #B42318;
     transition: background-color 150ms;
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
@@ -219,28 +219,27 @@
     background-color: #931c13;
   }
 
-  /* Institutional Panel / Surface */
-  .panel-institutional {
-    background-color: #FCFCFA;
-    border: 1px solid #D9D9D3;
+  /* Un-Carded Section Band */
+  .section-band {
+    background-color: #FFFFFF;
+    border: 1px solid #D8DAD4;
     border-radius: 3px;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.03), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
   }
 
   /* Forensic Field Discrepancy Highlighting */
   .diff-discrepancy {
-    background-color: #FDECEC;
+    background-color: #FEF3F2;
     color: #B42318;
-    border: 1px solid #F9C8C4;
+    border: 1px solid #FECDCA;
     padding: 0.125rem 0.375rem;
     border-radius: 2px;
     font-family: "IBM Plex Mono", monospace;
-    font-weight: 500;
+    font-weight: 600;
   }
 
   .diff-matched {
-    background-color: #F0F0EB;
-    color: #171817;
+    background-color: #F0F0EC;
+    color: #151817;
     padding: 0.125rem 0.375rem;
     border-radius: 2px;
     font-family: "IBM Plex Mono", monospace;

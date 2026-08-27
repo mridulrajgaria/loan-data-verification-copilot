@@ -13,8 +13,6 @@ import {
   Menu,
   X,
   ChevronRight,
-  User,
-  SlidersHorizontal,
 } from 'lucide-react';
 
 export default function App() {
@@ -58,15 +56,15 @@ export default function App() {
   };
 
   const navItems = [
-    { id: 'operator', label: 'DATA OPERATIONS', icon: Layers, subtitle: 'Ingestion & tape lineage' },
-    { id: 'reviewer', label: 'UNDERWRITING REVIEW', icon: FileCheck2, subtitle: 'Exception adjudication' },
-    { id: 'consumer', label: 'VERIFICATION PORTAL', icon: Shield, subtitle: 'Cryptographic attestation' },
+    { id: 'operator', label: 'DATA OPERATIONS', icon: Layers, descriptor: 'Ingestion & tape lineage' },
+    { id: 'reviewer', label: 'UNDERWRITING REVIEW', icon: FileCheck2, descriptor: 'Exception adjudication' },
+    { id: 'consumer', label: 'VERIFICATION PORTAL', icon: Shield, descriptor: 'Cryptographic attestation' },
   ];
 
   const getPageTitle = () => {
     switch (activeTab) {
       case 'operator':
-        return { title: 'Data Operations', subtitle: 'Loan tape ingestion, validation rule metrics and source lineage' };
+        return { title: 'Data Control Room', subtitle: 'Loan tape ingestion, validation rule metrics and source lineage' };
       case 'reviewer':
         return { title: 'Underwriting Review Workspace', subtitle: 'Adjudicate flagged tape anomalies, inspect forensic discrepancies, and execute binding decisions' };
       case 'consumer':
@@ -84,28 +82,28 @@ export default function App() {
       <aside className="hidden lg:flex lg:flex-col w-64 border-r border-border bg-surface flex-shrink-0 justify-between">
         <div className="flex flex-col">
           {/* Institutional Header */}
-          <div className="h-16 border-b border-border px-5 flex items-center justify-between">
+          <div className="h-14 border-b border-border px-5 flex items-center justify-between">
             <div className="flex items-center space-x-2.5">
-              <div className="w-6 h-6 bg-brand-navy rounded-xs flex items-center justify-center text-white">
-                <Shield className="w-3.5 h-3.5" />
+              <div className="w-5 h-5 bg-brand-institutional rounded-xs flex items-center justify-center text-white">
+                <Shield className="w-3 h-3" />
               </div>
               <div>
-                <span className="text-[13px] font-bold tracking-tight text-brand-navy block leading-none">
+                <span className="text-xs font-bold tracking-tight text-content-primary block leading-none font-mono">
                   INTAIN
                 </span>
-                <span className="text-[10px] uppercase font-semibold tracking-wider text-content-muted block mt-0.5">
-                  Loan Verification
+                <span className="text-[9.5px] uppercase font-semibold tracking-wider text-content-muted block mt-0.5 font-mono">
+                  LOAN VERIFICATION
                 </span>
               </div>
             </div>
-            <span className="inline-flex items-center px-1.5 py-0.5 rounded-xs text-[10px] font-mono font-medium bg-surface-secondary text-content-secondary border border-border">
+            <span className="inline-flex items-center px-1 py-0.5 rounded-xs text-[9px] font-mono font-medium bg-surface-secondary text-content-secondary border border-border">
               v1.0
             </span>
           </div>
 
           {/* Navigation Links */}
-          <div className="p-3 space-y-1">
-            <div className="px-3 pt-2 pb-1.5 text-[10px] font-mono font-semibold uppercase tracking-wider text-content-muted">
+          <div className="p-2.5 space-y-1">
+            <div className="px-2.5 pt-2 pb-1 text-[9.5px] font-mono font-semibold uppercase tracking-wider text-content-muted">
               Workspaces
             </div>
 
@@ -116,18 +114,18 @@ export default function App() {
                 <button
                   key={item.id}
                   onClick={() => handleTabChange(item.id)}
-                  className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-sm text-left transition-colors ${
+                  className={`w-full flex items-center space-x-2.5 px-2.5 py-2 rounded-xs text-left transition-colors ${
                     isActive
-                      ? 'bg-brand-navy-subtle text-brand-navy font-semibold border-l-2 border-brand-navy'
-                      : 'text-content-secondary hover:text-content-primary hover:bg-surface-secondary'
+                      ? 'bg-surface-secondary text-brand-institutional font-semibold border-l-2 border-brand-institutional'
+                      : 'text-content-secondary hover:text-content-primary hover:bg-surface-secondary/70'
                   }`}
                 >
-                  <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-brand-navy' : 'text-content-muted'}`} />
+                  <Icon className={`w-3.5 h-3.5 flex-shrink-0 ${isActive ? 'text-brand-institutional' : 'text-content-muted'}`} />
                   <div className="flex-1 truncate">
-                    <div className="text-xs tracking-tight leading-none">{item.label}</div>
-                    <div className="text-[11px] text-content-muted mt-1 leading-none font-normal">{item.subtitle}</div>
+                    <div className="text-xs font-mono tracking-tight leading-none">{item.label}</div>
+                    <div className="text-[11px] text-content-muted mt-1 leading-none font-normal font-sans">{item.descriptor}</div>
                   </div>
-                  {isActive && <ChevronRight className="w-3.5 h-3.5 text-brand-navy" />}
+                  {isActive && <ChevronRight className="w-3 h-3 text-brand-institutional" />}
                 </button>
               );
             })}
@@ -135,28 +133,28 @@ export default function App() {
         </div>
 
         {/* Sidebar Footer: Active Demo Persona & System Status */}
-        <div className="border-t border-border p-4 bg-surface-secondary/50 space-y-3">
+        <div className="border-t border-border p-3.5 bg-surface-secondary/40 space-y-2.5">
           {/* Operational Status */}
           <div className="flex items-center justify-between text-xs px-0.5">
-            <span className="flex items-center space-x-1.5 text-[11px] text-content-secondary">
+            <span className="flex items-center space-x-1.5 text-[11px] text-content-secondary font-sans">
               <span className="w-1.5 h-1.5 rounded-full bg-semantic-verified"></span>
               <span>Verification Engine</span>
             </span>
-            <span className="text-[10px] font-mono text-content-muted">Active</span>
+            <span className="text-[9.5px] font-mono text-content-muted uppercase">Ready</span>
           </div>
 
           {/* Dynamic User Persona Card */}
           <div className="pt-2 border-t border-border flex items-center justify-between">
-            <div className="flex items-center space-x-2.5">
-              <div className="w-7 h-7 rounded-xs bg-surface border border-border flex items-center justify-center text-brand-navy text-xs font-semibold font-mono">
+            <div className="flex items-center space-x-2">
+              <div className="w-6 h-6 rounded-xs bg-surface border border-border flex items-center justify-center text-brand-institutional text-xs font-semibold font-mono">
                 {currentPersona.initials}
               </div>
               <div className="truncate">
                 <div className="text-xs font-semibold text-content-primary truncate">{currentPersona.name}</div>
-                <div className="text-[10px] text-content-muted uppercase tracking-wider">{currentPersona.title}</div>
+                <div className="text-[9.5px] text-content-muted uppercase tracking-wider font-mono">{currentPersona.title}</div>
               </div>
             </div>
-            <span className="text-[9px] font-mono text-content-muted bg-surface px-1.5 py-0.5 rounded-xs border border-border">
+            <span className="text-[9px] font-mono text-content-muted bg-surface px-1 py-0.5 rounded-xs border border-border">
               {currentPersona.role}
             </span>
           </div>
@@ -171,41 +169,41 @@ export default function App() {
           <div className="flex items-center space-x-3">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-1.5 text-content-secondary hover:text-content-primary rounded-sm hover:bg-surface-secondary"
+              className="lg:hidden p-1.5 text-content-secondary hover:text-content-primary rounded-xs hover:bg-surface-secondary"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </button>
 
-            <div className="hidden sm:flex items-center space-x-2 text-xs text-content-muted">
+            <div className="hidden sm:flex items-center space-x-2 text-xs text-content-muted font-mono">
               <span className="font-semibold text-content-primary">Intain Copilot</span>
               <span>/</span>
-              <span className="capitalize">{activeTab}</span>
+              <span className="capitalize font-sans">{activeTab}</span>
             </div>
           </div>
 
           {/* Center: Global Search Bar */}
           <div className="flex-1 max-w-md mx-4 hidden md:block">
             <div className="relative">
-              <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-content-muted" />
+              <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-content-muted" />
               <input
                 type="text"
                 placeholder="Search loan ID, borrower, exception..."
                 value={globalSearch}
                 onChange={(e) => setGlobalSearch(e.target.value)}
-                className="w-full bg-surface-secondary/70 border border-border rounded-sm pl-8 pr-3 py-1.5 text-xs text-content-primary placeholder:text-content-muted focus:outline-none focus:bg-surface focus:border-brand-navy transition-all font-sans"
+                className="w-full bg-surface-secondary/70 border border-border rounded-xs pl-8 pr-3 py-1.5 text-xs text-content-primary placeholder:text-content-muted focus:outline-none focus:bg-surface focus:border-brand-institutional transition-all font-sans"
               />
             </div>
           </div>
 
           {/* Right: Workspace Switcher & Persona Indicator */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2.5">
             {/* Segmented Workspace Role Switcher */}
-            <div className="flex items-center bg-surface-secondary p-0.5 rounded-sm border border-border text-xs">
+            <div className="flex items-center bg-surface-secondary p-0.5 rounded-xs border border-border text-xs">
               <button
                 onClick={() => handleTabChange('operator')}
                 className={`px-2.5 py-1 rounded-xs text-[11px] font-medium transition-colors ${
                   activeTab === 'operator'
-                    ? 'bg-surface text-brand-navy shadow-subtle font-semibold'
+                    ? 'bg-surface text-brand-institutional shadow-subtle font-semibold'
                     : 'text-content-secondary hover:text-content-primary'
                 }`}
               >
@@ -215,7 +213,7 @@ export default function App() {
                 onClick={() => handleTabChange('reviewer')}
                 className={`px-2.5 py-1 rounded-xs text-[11px] font-medium transition-colors ${
                   activeTab === 'reviewer'
-                    ? 'bg-surface text-brand-navy shadow-subtle font-semibold'
+                    ? 'bg-surface text-brand-institutional shadow-subtle font-semibold'
                     : 'text-content-secondary hover:text-content-primary'
                 }`}
               >
@@ -225,7 +223,7 @@ export default function App() {
                 onClick={() => handleTabChange('consumer')}
                 className={`px-2.5 py-1 rounded-xs text-[11px] font-medium transition-colors ${
                   activeTab === 'consumer'
-                    ? 'bg-surface text-brand-navy shadow-subtle font-semibold'
+                    ? 'bg-surface text-brand-institutional shadow-subtle font-semibold'
                     : 'text-content-secondary hover:text-content-primary'
                 }`}
               >
@@ -233,7 +231,7 @@ export default function App() {
               </button>
             </div>
 
-            <div className="h-4 w-px bg-border hidden sm:block"></div>
+            <div className="h-3.5 w-px bg-border hidden sm:block"></div>
 
             <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-xs text-[10px] font-mono text-content-muted bg-surface-secondary border border-border">
               <span className="w-1.5 h-1.5 rounded-full bg-semantic-verified"></span>
@@ -244,8 +242,8 @@ export default function App() {
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-b border-border bg-surface p-4 space-y-2">
-            <div className="text-[10px] font-mono font-semibold uppercase tracking-wider text-content-muted mb-1">
+          <div className="lg:hidden border-b border-border bg-surface p-3 space-y-1.5">
+            <div className="text-[9.5px] font-mono font-semibold uppercase tracking-wider text-content-muted mb-1">
               Select Workspace
             </div>
             {navItems.map((item) => (
@@ -255,23 +253,23 @@ export default function App() {
                   handleTabChange(item.id);
                   setMobileMenuOpen(false);
                 }}
-                className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-sm ${
+                className={`w-full flex items-center justify-between px-2.5 py-2 text-xs rounded-xs ${
                   activeTab === item.id
-                    ? 'bg-brand-navy-subtle text-brand-navy font-semibold border-l-2 border-brand-navy'
+                    ? 'bg-surface-secondary text-brand-institutional font-semibold border-l-2 border-brand-institutional'
                     : 'text-content-secondary hover:bg-surface-secondary'
                 }`}
               >
-                <span>{item.label}</span>
-                <span className="text-[10px] text-content-muted">{item.subtitle}</span>
+                <span className="font-mono">{item.label}</span>
+                <span className="text-[10px] text-content-muted">{item.descriptor}</span>
               </button>
             ))}
           </div>
         )}
 
         {/* Workspace Page Header Strip */}
-        <div className="border-b border-border bg-surface px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div className="border-b border-border bg-surface px-6 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
           <div>
-            <h1 className="text-lg font-semibold text-content-primary tracking-tight">
+            <h1 className="text-base font-semibold text-content-primary tracking-tight">
               {activeMeta.title}
             </h1>
             <p className="text-xs text-content-secondary mt-0.5">
@@ -280,9 +278,9 @@ export default function App() {
           </div>
 
           <div className="flex items-center space-x-2 text-[11px] font-mono text-content-muted">
-            <span>Workspace: Active Tape</span>
+            <span>Tape: Active</span>
             <span>•</span>
-            <span>Dataset: 2,000 Records</span>
+            <span>2,000 Records</span>
           </div>
         </div>
 
@@ -334,7 +332,7 @@ export default function App() {
         )}
 
         {/* Institutional Minimal Footer */}
-        <footer className="border-t border-border bg-surface px-6 py-3 text-[11px] text-content-muted flex flex-col sm:flex-row items-center justify-between gap-2 flex-shrink-0">
+        <footer className="border-t border-border bg-surface px-6 py-2.5 text-[11px] text-content-muted flex flex-col sm:flex-row items-center justify-between gap-2 flex-shrink-0">
           <div>
             Intain Campus FinTech Challenge 2026 • Full-Stack Track • Loan Data Verification Copilot
           </div>

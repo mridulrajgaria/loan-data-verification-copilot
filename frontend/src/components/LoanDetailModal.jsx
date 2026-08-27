@@ -40,7 +40,7 @@ export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#171817]/30 backdrop-blur-[2px] flex justify-end">
+    <div className="fixed inset-0 z-50 bg-[#151817]/30 backdrop-blur-[2px] flex justify-end">
       {/* Right-Side Forensic Slide-Out Drawer */}
       <div
         className="bg-surface border-l border-border shadow-drawer w-full max-w-2xl h-full flex flex-col text-content-primary animate-in slide-in-from-right duration-200"
@@ -50,7 +50,7 @@ export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
         <div className="px-6 py-4 border-b border-border flex items-center justify-between flex-shrink-0 bg-surface">
           <div>
             <div className="flex items-center space-x-2">
-              <h3 className="font-mono font-bold text-base text-brand-navy">
+              <h3 className="font-mono font-bold text-base text-brand-institutional">
                 {loan?.loanIdentifier || 'Loan Inspection'}
               </h3>
               {loan && (
@@ -60,7 +60,7 @@ export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
                       ? 'badge-verified'
                       : loan.status === 'FLAGGED'
                       ? 'badge-warning'
-                      : 'badge-navy'
+                      : 'badge-institutional'
                   }
                 >
                   {loan.status}
@@ -75,41 +75,41 @@ export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
           <div className="flex items-center space-x-2">
             <button
               onClick={() => onOpenAudit && onOpenAudit(loanId)}
-              className="btn-institutional-secondary text-xs"
+              className="btn-institutional-secondary text-xs font-mono"
             >
               <History className="w-3.5 h-3.5 text-content-secondary" />
               <span>Audit History</span>
             </button>
             <button
               onClick={onClose}
-              className="p-1 text-content-muted hover:text-content-primary rounded-sm hover:bg-surface-secondary"
+              className="p-1 text-content-muted hover:text-content-primary rounded-xs hover:bg-surface-secondary"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
 
         {/* Drawer Body */}
-        <div className="p-6 overflow-y-auto space-y-6 flex-1 text-xs">
+        <div className="p-6 overflow-y-auto space-y-5 flex-1 text-xs">
           {loading ? (
             <div className="py-24 flex flex-col items-center justify-center text-content-muted">
-              <Loader2 className="w-6 h-6 animate-spin text-brand-navy mb-2" />
+              <Loader2 className="w-6 h-6 animate-spin text-brand-institutional mb-2" />
               <span>Fetching loan provenance dossier...</span>
             </div>
           ) : error ? (
-            <div className="p-4 bg-semantic-critical-bg border border-semantic-critical-border rounded-sm text-semantic-critical font-mono">
+            <div className="p-3 bg-semantic-critical-bg border border-semantic-critical-border rounded-xs text-semantic-critical font-mono">
               {error}
             </div>
           ) : !loan ? (
             <div className="text-center py-12 text-content-muted">Loan record not found.</div>
           ) : (
             <>
-              {/* 1. Core Financial Data */}
+              {/* 1. Core Financial Data Facts */}
               <div className="space-y-2">
                 <span className="text-[10px] font-mono uppercase font-semibold text-content-muted tracking-wider block">
-                  Financial Data
+                  Financial Facts
                 </span>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-surface-secondary/70 p-4 rounded-sm border border-border">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-surface-secondary/70 p-3.5 rounded-xs border border-border">
                   <div>
                     <span className="text-[10px] font-mono uppercase font-semibold text-content-muted block">
                       Original Principal
@@ -150,13 +150,13 @@ export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
                 <div className="flex items-center space-x-2">
                   <Info className="w-4 h-4 text-content-secondary" />
                   <h4 className="text-xs font-semibold uppercase tracking-wider text-content-primary font-mono">
-                    Raw Tape vs Normalized Record
+                    Raw Tape Source vs Normalized Record
                   </h4>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono text-xs">
                   {/* Raw Ingested Row */}
-                  <div className="bg-surface-secondary/80 border border-border rounded-sm p-4 space-y-2">
+                  <div className="bg-surface-secondary/70 border border-border rounded-xs p-3.5 space-y-1.5">
                     <span className="text-[10px] uppercase font-semibold text-content-muted tracking-wider block font-sans border-b border-border/60 pb-1">
                       Raw Source CSV (Verbatim)
                     </span>
@@ -179,7 +179,7 @@ export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
                   </div>
 
                   {/* Normalized Database Entity */}
-                  <div className="bg-surface-secondary/80 border border-border rounded-sm p-4 space-y-2">
+                  <div className="bg-surface-secondary/70 border border-border rounded-xs p-3.5 space-y-1.5">
                     <span className="text-[10px] uppercase font-semibold text-content-muted tracking-wider block font-sans border-b border-border/60 pb-1">
                       Normalized Database Record
                     </span>
@@ -199,8 +199,8 @@ export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
                 </div>
               </div>
 
-              {/* 3. Source Lineage Provenance Box */}
-              <div className="panel-institutional p-4 space-y-2 text-xs">
+              {/* 3. Source Lineage Provenance */}
+              <div className="section-band p-4 space-y-2 text-xs">
                 <span className="text-[10px] font-mono uppercase font-semibold text-content-muted tracking-wider block">
                   Source Lineage
                 </span>
