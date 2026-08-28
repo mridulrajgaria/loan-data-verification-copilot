@@ -278,11 +278,11 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
       </div>
 
       {/* Master / Detail Grid Layout (33% Queue / 67% Dossier) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* ========================================================================= */}
         {/* LEFT COLUMN: Exception Queue (~33% width -> 4 cols)                        */}
         {/* ========================================================================= */}
-        <div className="lg:col-span-4 section-band p-4 bg-white flex flex-col h-full min-h-0 overflow-hidden">
+        <div className="lg:col-span-4 section-band p-4 bg-white flex flex-col min-h-0 lg:sticky lg:top-4 lg:h-[calc(100vh-12rem)] max-h-[850px] overflow-hidden shadow-sm">
           <div className="flex items-center justify-between border-b border-[#CDD7CB] pb-2.5 flex-shrink-0">
             <div className="flex items-center space-x-2">
               <ShieldAlert className="w-4 h-4 text-[#A15C00]" />
@@ -342,7 +342,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
             </div>
           </div>
 
-          {/* Queue List Rows (Scrollable, stretching to exact bottom of right dossier) */}
+          {/* Queue List Rows (Scrollable, strictly bounded to card height) */}
           {loadingList ? (
             <div className="py-16 flex justify-center text-[#768883] flex-1 items-center">
               <Loader2 className="w-5 h-5 animate-spin text-[#204E4C]" />
@@ -356,7 +356,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
               No open exceptions match filter criteria.
             </div>
           ) : (
-            <div className="space-y-2 overflow-y-auto pr-1 flex-1 min-h-0 h-0">
+            <div className="space-y-2 overflow-y-auto pr-1 flex-1 min-h-0">
               {exceptions.map((e) => {
                 const isSelected = e.id === selectedExceptionId;
                 return (
