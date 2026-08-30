@@ -16,6 +16,7 @@ import {
   Sparkles,
   Lock,
   Check,
+  PanelLeft,
 } from 'lucide-react';
 
 export default function App() {
