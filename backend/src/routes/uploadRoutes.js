@@ -78,7 +78,11 @@ router.post(
   authenticateUser,
   requireRole(['OPERATOR', 'ADMIN', 'REVIEWER']),
   (req, res, next) => {
-    upload.single('file')(req, res, (err) => {
+    upload.fields([
+      { name: 'file', maxCount: 1 },
+      { name: 'servicerUpdate', maxCount: 1 },
+      { name: 'documentManifest', maxCount: 1 },
+    ])(req, res, (err) => {
       if (err instanceof multer.MulterError) {
         if (err.code === 'LIMIT_FILE_SIZE') {
           return res.status(413).json({
