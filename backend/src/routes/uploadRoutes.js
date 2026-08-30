@@ -130,8 +130,15 @@ router.post(
       // than silently leaving loans unvalidated.
       let validationSummary = null;
       try {
+        const servicerFile = req.files?.servicerUpdate?.[0];
+        const manifestFile = req.files?.documentManifest?.[0];
+        const servicerUpdates = servicerFile ? await parseSecondaryFeedBuffer(servicerFile.buffer) : [];
+        const documentManifests = manifestFile ? await parseSecondaryFeedBuffer(manifestFile.buffer) : [];
+
         validationSummary = await runBatchValidation({
           rawUploadId: result.uploadId,
+          servicerUpdates,
+          documentManifests,
           actor: String(userId),
         });
       } catch (validationError) {
