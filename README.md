@@ -22,6 +22,7 @@ Tracking incremental changes made after the initial submission build, in scope w
 
 - **Consumer Dashboard — Exception Severity Breakdown chart**: Added a visual, color-coded horizontal bar chart above the verified-records table showing open exceptions grouped by severity (Critical / High / Medium / Warning), sourced from the existing `GET /api/summary` `severityCounts` payload. No new dependencies added — implemented with existing Tailwind tokens and a fixed status color palette (never reused from the app's categorical/series colors, so severity color never gets confused with anything else on screen), with an icon + label on every bar so the meaning never depends on color alone.
 - **Operator Dashboard — Validation Outcome Composition chart**: Added a segmented bar under the metric-tile strip showing what share of the ingested portfolio is Clean/Verified vs Flagged, reusing the dashboard's own existing lime/coral color story (`cleanLoansCount` and `flaggedLoansCount` from `GET /api/summary`) instead of introducing a new palette. Each segment is labeled with an icon, count, and percentage so it never relies on color alone.
+- **Bug fix — CSV upload was broken**: `frontend/src/api.js` was calling `POST /upload`, but the backend only registers `POST /uploads` (plural). Every upload attempt failed with a 404 before this fix. Corrected the frontend call to match the backend route.
 
 ---
 

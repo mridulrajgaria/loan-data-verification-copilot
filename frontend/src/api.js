@@ -66,7 +66,7 @@ export const api = {
   getSummary: () => request('/summary'),
 
   // Uploads (Data Operations)
-  uploadLoanTape: (formData) => request('/upload', { method: 'POST', body: formData }),
+  uploadLoanTape: (formData) => request('/uploads', { method: 'POST', body: formData }),
   getUploads: () => request('/uploads'),
   getUploadDetail: (id) => request(`/uploads/${id}`),
 
