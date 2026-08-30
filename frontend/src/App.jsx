@@ -201,6 +201,16 @@ export default function App() {
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
 
+            <button
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              aria-label={sidebarCollapsed ? "Show sidebar" : "Hide sidebar"}
+              aria-pressed={!sidebarCollapsed}
+              className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-[#475569] hover:text-[#0F172A] rounded-md hover:bg-[#F1F5F9] border border-transparent hover:border-[#E2E8F0] font-sans"
+            >
+              <PanelLeft className="w-4 h-4" />
+              <span>Sidebar</span>
+            </button>
+
             <div className="hidden sm:flex items-center space-x-2 text-xs text-[#64748B] font-mono">
               <span className="font-bold text-[#16433F]">Intain Copilot</span>
               <span>/</span>
