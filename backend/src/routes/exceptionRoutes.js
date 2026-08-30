@@ -9,11 +9,14 @@ const {
   idParamSchema,
   decisionBodySchema,
   batchSummaryBodySchema,
+  commentBodySchema,
+  generateRuleBodySchema,
 } = require('../schemas/validationSchemas');
 const {
   explainFailure,
   suggestCorrection,
   summarizeExceptionBatch,
+  generateRuleFromNaturalLanguage,
 } = require('../ai/reviewAssistant');
 
 const router = express.Router();
@@ -507,4 +510,126 @@ router.post(
   }
 );
 
+/**
+ * POST /api/exceptions/:id/comment
+ * Adds a standalone reviewer comment to the exception.
+ * Creates a ReviewAction with actionType = "COMMENT_ADDED" and writes to AuditLog.
+ */
+router.post(
+  '/:id/comment',
+  authenticateUser,
+  requireRole(['REVIEWER', 'ADMIN', 'OPERATOR']),
+  validateRequest({ params: idParamSchema, body: commentBodySchema }),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { notes } = req.body;
+      const actor = getActor(req);
+
+      const exception = await prisma.exception.findUnique({
+        where: { id },
+        include: { loan: true, rule: true },
+      });
+
+      if (!exception) {
+        return res.status(404).json({ success: false, error: `Exception with ID '${id}' not found.` });
+      }
+
+      // Ensure user exists
+      let userId = actor;
+      const userExists = await prisma.user.findUnique({ where: { id: userId } });
+      if (!userExists) {
+        const defaultUser = await prisma.user.upsert({
+          where: { email: 'reviewer@loancopilot.local' },
+          update: {},
+          create: {
+            id: userId !== 'system' ? userId : undefined,
+            email: 'reviewer@loancopilot.local',
+            name: 'System Reviewer',
+            passwordHash: '$2b$10$defaultPlaceholderHashForReviewerAuth00000',
+            role: 'REVIEWER',
+          },
+        });
+        userId = defaultUser.id;
+      }
+
+      const beforeState = JSON.stringify({
+        exception: { id: exception.id, status: exception.status },
+        loan: { id: exception.loan.id, status: exception.loan.status },
+      });
+
+      // Write standalone comment as a ReviewAction with type COMMENT_ADDED
+      const reviewAction = await prisma.reviewAction.create({
+        data: {
+          loanId: exception.loan.id,
+          exceptionId: exception.id,
+          userId,
+          actionType: 'COMMENT_ADDED',
+          resolution: null,
+          beforeState,
+          afterState: beforeState, // no state transition
+          notes,
+        },
+        include: {
+          user: { select: { id: true, name: true, role: true } }
+        }
+      });
+
+      // Audit Log for the comment
+      await logAudit({
+        actor: userId,
+        actionType: 'COMMENT_ADDED',
+        entityType: 'Exception',
+        entityId: exception.id,
+        details: {
+          loanId: exception.loan.id,
+          loanIdentifier: exception.loan.loanIdentifier,
+          ruleCode: exception.rule.ruleCode,
+          comment: notes,
+        },
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: 'Comment added successfully.',
+        data: reviewAction,
+      });
+    } catch (error) {
+      console.error('[ADD_COMMENT_ERROR]', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'An error occurred while adding the comment.',
+      });
+    }
+  }
+);
+
+/**
+ * POST /api/exceptions/ai-generate-rule
+ * Translates natural language descriptions into structured rule configurations.
+ * Rate-limited.
+ */
+router.post(
+  '/ai-generate-rule',
+  authenticateUser,
+  validateRequest({ body: generateRuleBodySchema }),
+  aiRateLimiter,
+  async (req, res) => {
+    try {
+      const { description } = req.body;
+      const actor = getActor(req);
+
+      const generated = await generateRuleFromNaturalLanguage(description, actor);
+      return res.status(200).json({ success: true, data: generated });
+    } catch (error) {
+      console.error('[AI_GENERATE_RULE_ERROR]', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to translate natural language rule description.',
+      });
+    }
+  }
+);
+
 module.exports = router;
+

@@ -60,6 +60,16 @@ const verifyLoanBodySchema = z.object({
   aiRecommendationId: z.string().trim().max(100).nullable().optional(),
 });
 
+// Standalone Comment Body Schema
+const commentBodySchema = z.object({
+  notes: z.string().trim().min(3, 'Reviewer comment must be at least 3 characters.').max(2000),
+});
+
+// Generate Rule from Natural Language Body Schema
+const generateRuleBodySchema = z.object({
+  description: z.string().trim().min(3, 'Rule description must be at least 3 characters.').max(1000),
+});
+
 module.exports = {
   paginationQuerySchema,
   exceptionQuerySchema,
@@ -69,4 +79,7 @@ module.exports = {
   batchSummaryBodySchema,
   exportQuerySchema,
   verifyLoanBodySchema,
+  commentBodySchema,
+  generateRuleBodySchema,
 };
+

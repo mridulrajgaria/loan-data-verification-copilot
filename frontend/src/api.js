@@ -89,10 +89,20 @@ export const api = {
       method: 'POST',
       body: payload,
     }),
+  addComment: (id, notes) =>
+    request(`/exceptions/${id}/comment`, {
+      method: 'POST',
+      body: { notes },
+    }),
 
   // AI Assistant (Advisory Layer)
   aiExplainException: (id) => request(`/exceptions/${id}/ai-explain`, { method: 'POST' }),
   aiSuggestCorrection: (id) => request(`/exceptions/${id}/ai-suggest`, { method: 'POST' }),
+  aiGenerateRule: (description) =>
+    request('/exceptions/ai-generate-rule', {
+      method: 'POST',
+      body: { description },
+    }),
 
   // Verification Portal (Cryptographic Attestation)
   getVerifiedLoans: (params = {}) => {

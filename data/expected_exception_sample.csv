@@ -1,0 +1,13 @@
+loan_id,borrower_id,rule_code,severity,field,value,justification
+,bor-9874,RULE_REQUIRED_FIELDS,CRITICAL,loan_id,,Primary identifier loan_id is missing from record
+LN-0102,bor-1102,RULE_DUPLICATE_LOAN_ID,CRITICAL,loan_id,LN-0102,Duplicate loan identifier detected in tape
+LN-0205,bor-2205,RULE_MATURITY_AFTER_ORIGINATION,CRITICAL,maturity_date,2025-05-12,Maturity date precedes origination date (2025-10-15)
+LN-0312,bor-3312,RULE_NON_NEGATIVE_PRINCIPAL,CRITICAL,original_principal,-150000,Original principal amount cannot be negative
+LN-0450,bor-4450,RULE_BALANCE_LE_PRINCIPAL,HIGH,current_balance,210000,Current balance exceeds original principal (200000)
+LN-0518,bor-5518,RULE_INTEREST_RATE_RANGE,HIGH,interest_rate,42.5,Interest rate exceeds usury boundary of 35.0%
+LN-0622,bor-6622,RULE_PAYMENT_STATUS_DPD_CONSISTENCY,HIGH,days_past_due,15,Days Past Due (15) is inconsistent with CURRENT payment status
+LN-0730,bor-7730,RULE_REQUIRED_DOCUMENT_STATUS,HIGH,document_status,MISSING,Required document status is missing or not provided
+LN-0845,bor-8845,RULE_STALE_RECORD,WARNING,last_updated_at,2025-02-14,Record last updated date is older than threshold of 180 days
+LN-0919,bor-9919,RULE_VALID_STATE_CODE,MEDIUM,borrower_state,XX,Invalid US state code provided
+LN-1055,bor-1055,RULE_CLOSED_LOAN_POSITIVE_BALANCE,HIGH,current_balance,4500.25,Loan marked as PAID_OFF or CLOSED has a positive balance
+LN-1120,bor-1120,RULE_CROSS_SOURCE_CONFLICT,HIGH,current_balance,12450.50,Servicer feed reports balance 15000.00 while tape reports 12450.50

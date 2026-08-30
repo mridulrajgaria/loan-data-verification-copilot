@@ -1,0 +1,34 @@
+[
+  {
+    "id": "usr-operator-01",
+    "name": "Priya Sharma",
+    "email": "priya.sharma@loancopilot.local",
+    "role": "OPERATOR",
+    "title": "Data Operations Specialist",
+    "initials": "PS"
+  },
+  {
+    "id": "usr-reviewer-01",
+    "name": "Mridul Rajgaria",
+    "email": "mridul.rajgaria@loancopilot.local",
+    "role": "REVIEWER",
+    "title": "Lead Underwriter",
+    "initials": "MR"
+  },
+  {
+    "id": "usr-auditor-01",
+    "name": "Rohan Mehta",
+    "email": "rohan.mehta@loancopilot.local",
+    "role": "AUDITOR",
+    "title": "Verification Auditor",
+    "initials": "RM"
+  },
+  {
+    "id": "usr-admin-01",
+    "name": "Alex Mercer",
+    "email": "alex.mercer@loancopilot.local",
+    "role": "ADMIN",
+    "title": "Verification Administrator",
+    "initials": "AM"
+  }
+]

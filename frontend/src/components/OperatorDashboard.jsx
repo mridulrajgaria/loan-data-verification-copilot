@@ -9,6 +9,8 @@ import {
   ArrowUpRight,
   CheckCircle,
   FileSpreadsheet,
+  BrainCircuit,
+  Sparkles,
 } from 'lucide-react';
 
 export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQuery = '' }) {
@@ -27,6 +29,12 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
   const [uploading, setUploading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState(null);
   const [uploadError, setUploadError] = useState(null);
+
+  // AI Rule Generation State
+  const [nlRuleDescription, setNlRuleDescription] = useState('');
+  const [generatingRule, setGeneratingRule] = useState(false);
+  const [generatedRule, setGeneratedRule] = useState(null);
+  const [generationError, setGenerationError] = useState(null);
 
   const fetchSummary = useCallback(async () => {
     setLoadingSummary(true);
@@ -66,6 +74,28 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
       setLoadingFlagged(false);
     }
   }, []);
+
+  const handleGenerateRule = async (e) => {
+    e.preventDefault();
+    if (!nlRuleDescription || nlRuleDescription.trim().length < 3) {
+      setGenerationError('Natural language description must be at least 3 characters.');
+      return;
+    }
+
+    setGeneratingRule(true);
+    setGenerationError(null);
+    setGeneratedRule(null);
+
+    try {
+      const res = await api.aiGenerateRule(nlRuleDescription);
+      setGeneratedRule(res.data.rule);
+      setNlRuleDescription('');
+    } catch (err) {
+      setGenerationError(err.message || 'Failed to generate structured rule configuration.');
+    } finally {
+      setGeneratingRule(false);
+    }
+  };
 
   const refreshAll = () => {
     fetchSummary();
@@ -279,6 +309,106 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
           <div className="p-3 bg-semantic-critical-bg border border-semantic-critical-border rounded-md text-semantic-critical text-xs flex items-center space-x-2 font-mono font-bold">
             <AlertTriangle className="w-4 h-4 flex-shrink-0" />
             <span>{uploadError}</span>
+          </div>
+        )}
+      </div>
+
+      {/* 2.5 AI VALIDATION RULE COPILOT (SOFT LIME-GREEN PANEL WITH SHADOW) */}
+      <div className="bg-[#FBFDF9] border border-[#CDD7CB] rounded-lg p-5 space-y-3 shadow-subtle">
+        <div className="flex items-center justify-between border-b border-[#CDD7CB] pb-2.5">
+          <div className="flex items-center space-x-2">
+            <BrainCircuit className="w-5 h-5 text-[#204E4C]" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#204E4C] font-mono">
+              AI Validation Rule Copilot
+            </h3>
+          </div>
+          <span className="text-[10px] font-mono font-bold text-[#204E4C] bg-white px-2 py-0.5 rounded-xs border border-[#CDD7CB]">
+            Natural Language to Rule Engine Configuration
+          </span>
+        </div>
+
+        <form onSubmit={handleGenerateRule} className="space-y-3">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex-1">
+              <input
+                type="text"
+                placeholder="Describe a validation rule in plain English (e.g. 'Interest rate should not exceed 10.5%' or 'Original principal must be positive')..."
+                value={nlRuleDescription}
+                onChange={(e) => setNlRuleDescription(e.target.value)}
+                className="w-full text-xs font-sans border border-[#CDD7CB] rounded-lg p-2.5 bg-white text-[#131D1B] placeholder:text-[#768883] focus:outline-none focus:ring-1 focus:ring-[#204E4C]"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={generatingRule}
+              style={{ backgroundColor: '#204E4C', color: '#FFFFFF' }}
+              className="px-4 py-2.5 rounded-lg text-xs font-bold transition-all disabled:opacity-50 flex items-center justify-center space-x-2 font-mono flex-shrink-0"
+            >
+              {generatingRule ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+              <span>Translate Rule</span>
+            </button>
+          </div>
+        </form>
+
+        {generationError && (
+          <div className="p-3 bg-[#FEF3F2] border border-[#FECDCA] rounded-md text-xs text-[#B42318] font-mono font-bold">
+            {generationError}
+          </div>
+        )}
+
+        {generatedRule && (
+          <div className="bg-white border border-[#CDD7CB] rounded-lg p-4 space-y-3 shadow-inner font-mono text-xs">
+            <div className="flex items-center justify-between border-b border-[#CDD7CB]/50 pb-2">
+              <span className="font-bold text-[#204E4C]">Generated Validation Configuration</span>
+              <span className="badge-coral uppercase text-[9px] font-mono">
+                {generatedRule.severity}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div>
+                  <span className="text-[10px] text-[#768883] block">Rule Code</span>
+                  <span className="font-bold text-[#131D1B]">{generatedRule.ruleCode}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-[#768883] block">Rule Name</span>
+                  <span className="font-bold text-[#131D1B]">{generatedRule.name}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-[#768883] block">Rule Type</span>
+                  <span className="font-bold text-[#204E4C]">{generatedRule.ruleType}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-[#768883] block">Category</span>
+                  <span className="font-bold text-[#131D1B]">{generatedRule.category}</span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div>
+                  <span className="text-[10px] text-[#768883] block">Description</span>
+                  <span className="text-[#334155] block font-sans text-xs">{generatedRule.description}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-[#768883] block">Configured Parameters</span>
+                  <pre className="bg-[#F8FAFC] border border-[#E2E8F0] rounded p-2 text-[10px] text-[#475569] overflow-x-auto">
+                    {JSON.stringify(generatedRule.parameters, null, 2)}
+                  </pre>
+                </div>
+                <div>
+                  <span className="text-[10px] text-[#768883] block">Failing Test Case Input</span>
+                  <pre className="bg-[#FFF8F8] border border-[#FEE2E2] rounded p-2 text-[10px] text-[#991B1B] overflow-x-auto">
+                    {JSON.stringify(generatedRule.mockTestCase, null, 2)}
+                  </pre>
+                </div>
+              </div>
+            </div>
+            
+            <div className="pt-2 border-t border-[#CDD7CB]/50 text-[10px] text-[#768883] flex items-center justify-between font-sans">
+              <span>This JSON is compliant with the validation engine's <code>validation_rules.json</code> format.</span>
+              <span className="font-mono text-[#087443] font-bold">Rule validated & ready to commit</span>
+            </div>
           </div>
         )}
       </div>

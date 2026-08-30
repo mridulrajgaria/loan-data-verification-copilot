@@ -84,6 +84,9 @@ node backend/test-verification.js
 
 # Run Security Suite (Zod validation & RBAC guards)
 node backend/test-security.js
+
+# Test Standalone Comments & NL Rule Generator
+node backend/test-nl-rule-comments.js
 ```
 
 ---
@@ -97,7 +100,12 @@ Loan-Data-Verification-Copilot/
 ├── sample-output/                # Deliverable: Exported sample outputs
 │   ├── verified-loans-export.json # Full verified dataset with canonical JSON & SHA-256 hashes
 │   └── audit-trail-export.csv    # Complete chronological audit ledger export
-├── data/                         # Synthetic datasets (loan_tape, servicer_update, manifest)
+├── data/                         # Synthetic datasets & mock organizers package
+│   ├── loan_tape.csv             # Primary ingested loan dataset
+│   ├── servicer_update.csv       # External conflicting servicer updates
+│   ├── document_manifest.csv     # Document availability manifest
+│   ├── users.json                # Mock users and role assignments
+│   └── expected_exception_sample.csv # Known exception orientation sample
 ├── scripts/
 │   ├── generate-loan-tape.js     # Deterministic synthetic portfolio generator
 │   └── run-e2e-pipeline-export.js # Full pipeline executor & sample export generator

@@ -717,9 +717,140 @@ function generateFallbackCorrection(exception, details) {
   }
 }
 
+/**
+ * 4. generateRuleFromNaturalLanguage(description, userId)
+ * Translates a natural language validation request into a structured JSON configuration.
+ */
+async function generateRuleFromNaturalLanguage(description, userId = 'system') {
+  if (!description || description.trim() === '') {
+    throw new Error('Description is required for rule generation.');
+  }
+
+  const prompt = `You are a mortgage compliance engineer. Translate the following natural language validation rule request into a structured JSON configuration for our config-driven loan validation engine:
+
+NATURAL LANGUAGE REQUEST:
+"${description}"
+
+Return a JSON object containing the following keys (and nothing else, no markdown fences, no prefix, no suffix):
+- ruleCode: unique uppercase snake_case identifier starting with RULE_ (e.g. RULE_INTEREST_RATE_LE_15)
+- name: clear Title Case name for the rule (e.g. Interest Rate Max Threshold 15 Percent)
+- category: one of: DATA_INTEGRITY, UNDERWRITING, COMPLIANCE, ELIGIBILITY
+- severity: one of: CRITICAL, HIGH, MEDIUM, LOW, WARNING
+- ruleType: one of: RANGE, FORMAT, COMPARISON, REQUIRED_FIELD, CROSS_FIELD
+- description: concise user-friendly description of what the rule does
+- parameters: JSON object with threshold values or bounds (e.g. { "maxInterestRate": 15.0 })
+- mockTestCase: JSON object representing a mock NormalizedLoan that would FAIL this rule (e.g. { "interestRate": 16.5 })`;
+
+  let ruleJson = null;
+  const client = getAnthropicClient();
+
+  if (client) {
+    try {
+      const response = await client.messages.create({
+        model: DEFAULT_MODEL,
+        max_tokens: 600,
+        temperature: 0.1,
+        messages: [{ role: 'user', content: prompt }],
+      });
+      const text = response.content[0].text.trim();
+      ruleJson = JSON.parse(text);
+    } catch (apiErr) {
+      console.warn(`[AI_ASSISTANT_WARN] Claude API call failed: ${apiErr.message}. Generating rule-based deterministic fallback.`);
+      ruleJson = generateFallbackRule(description);
+    }
+  } else {
+    ruleJson = generateFallbackRule(description);
+  }
+
+  // Persist AIRecommendation before returning
+  const recommendation = await recordRecommendation({
+    target: 'loan',
+    promptSent: prompt,
+    modelName: client ? DEFAULT_MODEL : 'rule-engine-fallback-v1',
+    response: JSON.stringify(ruleJson, null, 2),
+    reasoning: `Auto-generated structured rule config from description: "${description}"`,
+    userId,
+  });
+
+  return {
+    recommendationId: recommendation.id,
+    rule: ruleJson,
+    timestamp: recommendation.createdAt,
+  };
+}
+
+/**
+ * Fallback generator for rule translation when AI is disabled.
+ */
+function generateFallbackRule(description) {
+  const desc = description.toLowerCase();
+  let ruleCode = 'RULE_CUSTOM_NL_VALIDATION';
+  let name = 'Custom Natural Language Rule';
+  let category = 'UNDERWRITING';
+  let severity = 'HIGH';
+  let ruleType = 'RANGE';
+  let parameters = {};
+  let mockTestCase = {};
+
+  if (desc.includes('interest rate') || desc.includes('rate')) {
+    const match = desc.match(/(\d+(?:\.\d+)?)\s*%/);
+    const limit = match ? parseFloat(match[1]) : 15.0;
+    ruleCode = `RULE_INTEREST_RATE_LIMIT_${Math.round(limit)}`;
+    name = `Interest Rate Max Threshold ${limit} Percent`;
+    category = 'UNDERWRITING';
+    severity = 'HIGH';
+    ruleType = 'RANGE';
+    parameters = { maxInterestRate: limit };
+    mockTestCase = { interestRate: limit + 2.5 };
+  } else if (desc.includes('principal') || desc.includes('balance') || desc.includes('principal balance')) {
+    const match = desc.match(/(?:greater|more|above|exceed)\s*(?:than)?\s*\$?(\d+(?:\.\d+)?)/) || desc.match(/\$?(\d+(?:\.\d+)?)/);
+    const limit = match ? parseFloat(match[1]) : 100000;
+    ruleCode = `RULE_MAX_PRINCIPAL_LIMIT_${Math.round(limit / 1000)}`;
+    name = `Maximum Loan Principal Limit $${limit}`;
+    category = 'UNDERWRITING';
+    severity = 'HIGH';
+    ruleType = 'RANGE';
+    parameters = { maxPrincipal: limit };
+    mockTestCase = { originalPrincipal: limit + 50000 };
+  } else if (desc.includes('state') || desc.includes('borrower state')) {
+    ruleCode = 'RULE_RESTRICTED_BORROWER_STATES';
+    name = 'Restricted Borrower State Validation';
+    category = 'ELIGIBILITY';
+    severity = 'MEDIUM';
+    ruleType = 'COMPARISON';
+    parameters = { allowedStates: ['NY', 'CA', 'TX', 'FL'] };
+    mockTestCase = { borrowerState: 'HI' };
+  } else if (desc.includes('document') || desc.includes('missing') || desc.includes('require')) {
+    ruleCode = 'RULE_REQUIRED_UNDERWRITING_DOCUMENTS';
+    name = 'Required Underwriting Document Validation';
+    category = 'COMPLIANCE';
+    severity = 'CRITICAL';
+    ruleType = 'REQUIRED_FIELD';
+    parameters = { requiredDocumentStatus: 'APPROVED' };
+    mockTestCase = { documentStatus: 'MISSING' };
+  } else {
+    // General default fallback
+    parameters = { limit: 100 };
+    mockTestCase = { testValue: 120 };
+  }
+
+  return {
+    ruleCode,
+    name,
+    category,
+    severity,
+    ruleType,
+    description: `Auto-generated validation rule from request: "${description}"`,
+    parameters,
+    mockTestCase,
+  };
+}
+
 module.exports = {
   explainFailure,
   suggestCorrection,
   summarizeExceptionBatch,
   recordRecommendation,
+  generateRuleFromNaturalLanguage,
 };
+

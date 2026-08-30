@@ -12,6 +12,8 @@ import {
   ExternalLink,
   ShieldAlert,
   Info,
+  MessageSquare,
+  History,
 } from 'lucide-react';
 
 export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQuery = '' }) {
@@ -47,6 +49,12 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
   const [submittingDecision, setSubmittingDecision] = useState(false);
   const [decisionSuccess, setDecisionSuccess] = useState(null);
   const [decisionError, setDecisionError] = useState(null);
+
+  // Standalone Reviewer Comment State
+  const [standaloneComment, setStandaloneComment] = useState('');
+  const [submittingComment, setSubmittingComment] = useState(false);
+  const [commentError, setCommentError] = useState(null);
+  const [commentSuccess, setCommentSuccess] = useState(null);
 
   // Sync prop searchQuery
   useEffect(() => {
@@ -235,6 +243,33 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
       setDecisionError(err.message || 'Failed to record underwriter decision.');
     } finally {
       setSubmittingDecision(false);
+    }
+  };
+
+  const handleAddComment = async (e) => {
+    e.preventDefault();
+    if (!selectedExceptionId) return;
+    if (!standaloneComment || standaloneComment.trim().length < 3) {
+      setCommentError('Comment text is required (minimum 3 characters).');
+      return;
+    }
+
+    setSubmittingComment(true);
+    setCommentError(null);
+    setCommentSuccess(null);
+
+    try {
+      await api.addComment(selectedExceptionId, standaloneComment);
+      setCommentSuccess('Comment successfully added.');
+      setStandaloneComment('');
+      
+      // Reload exception detail to refresh comments feed
+      const res = await api.getExceptionDetail(selectedExceptionId);
+      setExceptionDetail(res.data);
+    } catch (err) {
+      setCommentError(err.message || 'Failed to add comment.');
+    } finally {
+      setSubmittingComment(false);
     }
   };
 
@@ -656,6 +691,93 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                       </button>
                     </div>
                   </div>
+                )}
+              </div>
+
+              {/* REVIEWER ACTIVITY & COMMENTS FEED (Module C) */}
+              <div className="section-band p-5 space-y-4 bg-white border border-[#E2E8F0] rounded-lg shadow-sm">
+                <div className="flex items-center justify-between border-b border-[#CDD7CB] pb-2">
+                  <div className="flex items-center space-x-2">
+                    <History className="w-4 h-4 text-[#204E4C]" />
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-[#131D1B] font-mono">
+                      Reviewer Action History & Comments
+                    </h3>
+                  </div>
+                  <span className="text-[10px] text-[#204E4C] font-mono font-bold bg-[#E2ECEB] px-2.5 py-0.5 rounded-md border border-[#9BB8B6]">
+                    {exceptionDetail.reviewActions?.length || 0} Events
+                  </span>
+                </div>
+
+                {/* Comment Feed / Activity timeline */}
+                <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
+                  {exceptionDetail.reviewActions && exceptionDetail.reviewActions.length > 0 ? (
+                    exceptionDetail.reviewActions.map((action) => (
+                      <div key={action.id} className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md text-xs space-y-1">
+                        <div className="flex items-center justify-between text-[10px] text-[#64748B] font-mono">
+                          <span className="font-bold text-[#1E293B]">{action.user?.name || action.userId} ({action.user?.role || 'REVIEWER'})</span>
+                          <span>{new Date(action.createdAt).toLocaleString()}</span>
+                        </div>
+                        <div className="flex items-center space-x-1.5 py-0.5">
+                          <span className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase ${
+                            action.actionType === 'COMMENT_ADDED' ? 'bg-[#E0F2FE] text-[#0369A1]' :
+                            action.actionType === 'REJECT' ? 'bg-[#FEE2E2] text-[#991B1B]' :
+                            action.actionType === 'OVERRIDE_APPROVE' ? 'bg-[#DCFCE7] text-[#166534]' :
+                            'bg-[#FEF9C3] text-[#854D0E]'
+                          }`}>
+                            {action.actionType.replace('_', ' ')}
+                          </span>
+                          {action.resolution && (
+                            <span className="text-[10px] font-mono text-[#475569]">
+                              → Resolved: {action.resolution.toUpperCase()}
+                            </span>
+                          )}
+                        </div>
+                        {action.notes && (
+                          <p className="text-[#334155] leading-normal font-sans italic mt-1 bg-white p-2 rounded border border-[#F1F5F9]">
+                            "{action.notes}"
+                          </p>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-[#768883] text-xs font-sans text-center py-2">
+                      No review actions or comments recorded for this exception.
+                    </p>
+                  )}
+                </div>
+
+                {/* Add Standalone Comment Box */}
+                {exceptionDetail.status === 'OPEN' && (
+                  <form onSubmit={handleAddComment} className="pt-2 border-t border-[#F1F5F9] space-y-2">
+                    <div className="flex items-start space-x-2">
+                      <MessageSquare className="w-4.5 h-4.5 text-[#768883] mt-2 flex-shrink-0" />
+                      <div className="flex-1">
+                        <textarea
+                          rows={2}
+                          placeholder="Add a standalone reviewer comment or query..."
+                          value={standaloneComment}
+                          onChange={(e) => setStandaloneComment(e.target.value)}
+                          className="w-full text-xs font-sans border border-[#CDD7CB] rounded-lg p-2 bg-white text-[#131D1B] placeholder:text-[#768883] focus:outline-none focus:ring-1 focus:ring-[#204E4C]"
+                        />
+                      </div>
+                    </div>
+                    {commentError && (
+                      <p className="text-[11px] text-[#B42318] font-mono font-semibold ml-6">{commentError}</p>
+                    )}
+                    {commentSuccess && (
+                      <p className="text-[11px] text-[#087443] font-mono font-semibold ml-6">{commentSuccess}</p>
+                    )}
+                    <div className="flex justify-end">
+                      <button
+                        type="submit"
+                        disabled={submittingComment}
+                        className="btn-institutional-secondary text-xs"
+                      >
+                        {submittingComment ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                        <span>Add Comment</span>
+                      </button>
+                    </div>
+                  </form>
                 )}
               </div>
 
