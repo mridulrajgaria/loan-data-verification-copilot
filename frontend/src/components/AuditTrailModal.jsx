@@ -134,7 +134,7 @@ export default function AuditTrailModal({ loanId, onClose }) {
                           <td className="py-2.5 font-sans font-medium text-content-primary">
                             {event.actor}
                           </td>
-                          <td className="py-2.5 font-mono text-[11px] text-content-secondary">
+                          <td className="py-2.5 font-mono text-[11px] text-content-secondary" title={event.entityId || undefined}>
                             {event.entityType}:{event.entityId ? event.entityId.slice(0, 8) : '—'}
                           </td>
                           <td className="py-2.5 text-content-secondary max-w-xs truncate">
