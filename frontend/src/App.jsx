@@ -87,7 +87,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col lg:flex-row text-[#0F172A] font-sans antialiased">
-      {/* 1. DESKTOP LEFT SIDEBAR (Expanded to w-72 so text never cuts off) */}
+      {/* 1. DESKTOP LEFT SIDEBAR (Expanded to w-72 so text never cuts off; collapsible via the header toggle) */}
+      {!sidebarCollapsed && (
       <aside className="hidden lg:flex lg:flex-col w-72 border-r border-[#E2E8F0] bg-white flex-shrink-0 justify-between">
         <div className="flex flex-col">
           {/* Institutional Brand Header (FinFox Clean Style: White Background + Bold Green Logo) */}
@@ -184,6 +185,7 @@ export default function App() {
           </div>
         </div>
       </aside>
+      )}
 
       {/* 2. MAIN APPLICATION CONTENT AREA */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
