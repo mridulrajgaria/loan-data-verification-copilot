@@ -11,7 +11,86 @@ import {
   FileSpreadsheet,
   BrainCircuit,
   Sparkles,
+  BadgeCheck,
+  Flag,
 } from 'lucide-react';
+
+/**
+ * Validation Outcome Composition — a single segmented bar showing what
+ * share of the ingested portfolio is Clean/Verified vs currently Flagged.
+ * Reuses this dashboard's own established two-tone story (lime = clean/
+ * verified, coral/critical-red = flagged) rather than introducing a new
+ * palette, and always pairs each segment with an icon + label + % so the
+ * split never depends on color alone (a red/green pair sits in the CVD
+ * warn band without that secondary encoding).
+ */
+function ValidationCompositionBar({ summary, loading }) {
+  const total = summary?.totalLoans || 0;
+  const clean = summary?.cleanLoansCount || 0;
+  const flagged = summary?.flaggedLoansCount || 0;
+  const cleanPct = total > 0 ? Math.round((clean / total) * 100) : 0;
+  const flaggedPct = total > 0 ? Math.max(100 - cleanPct, 0) : 0;
+
+  return (
+    <div className="section-band p-5 space-y-3 bg-white">
+      <div className="flex items-center justify-between border-b border-border pb-2">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-content-primary font-mono">
+          Validation Outcome Composition
+        </h3>
+        <span className="text-[10px] font-mono text-content-secondary">
+          {loading ? '—' : `${total.toLocaleString()} loans ingested`}
+        </span>
+      </div>
+
+      {!loading && total === 0 ? (
+        <p className="text-xs text-content-secondary font-mono py-2">
+          No loans ingested yet — upload a loan tape to see the validation split.
+        </p>
+      ) : (
+        <div className="space-y-2 pt-1">
+          <div
+            className="flex h-3 w-full rounded-full overflow-hidden bg-surface-inset"
+            role="img"
+            aria-label={`Validation outcome: ${cleanPct}% clean or verified (${clean} loans), ${flaggedPct}% flagged (${flagged} loans)`}
+          >
+            {cleanPct > 0 && (
+              <div
+                className="h-full"
+                style={{ width: `${cleanPct}%`, backgroundColor: '#087443' }}
+              />
+            )}
+            {flaggedPct > 0 && (
+              <div
+                className="h-full"
+                style={{ width: `${flaggedPct}%`, backgroundColor: '#B42318' }}
+              />
+            )}
+          </div>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-1.5 pt-0.5">
+            <div className="flex items-center gap-1.5">
+              <BadgeCheck className="w-3.5 h-3.5" style={{ color: '#087443' }} />
+              <span className="text-[10.5px] font-mono font-semibold text-content-secondary uppercase tracking-wide">
+                Clean / Verified
+              </span>
+              <span className="text-xs font-mono font-bold text-content-primary tabular-nums">
+                {clean.toLocaleString()} ({cleanPct}%)
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Flag className="w-3.5 h-3.5" style={{ color: '#B42318' }} />
+              <span className="text-[10.5px] font-mono font-semibold text-content-secondary uppercase tracking-wide">
+                Flagged
+              </span>
+              <span className="text-xs font-mono font-bold text-content-primary tabular-nums">
+                {flagged.toLocaleString()} ({flaggedPct}%)
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQuery = '' }) {
   const [summary, setSummary] = useState(null);
@@ -235,6 +314,9 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
           {summaryError}
         </div>
       )}
+
+      {/* 1b. VALIDATION OUTCOME COMPOSITION (chart) */}
+      <ValidationCompositionBar summary={summary} loading={loadingSummary} />
 
       {/* 2. FILE INTAKE OPERATION PANEL (PERIWINKLE-LIGHT SURFACE BAND) */}
       <div className="bg-ref-periwinkle-light border border-ref-periwinkle-border rounded-lg p-5 space-y-3 shadow-subtle">
