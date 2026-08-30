@@ -198,7 +198,7 @@ router.get(
 router.post(
   '/verified-loans/:id/simulate-tamper',
   authenticateUser,
-  requireRole(['ADMIN', 'REVIEWER', 'OPERATOR']),
+  requireRole(['ADMIN', 'REVIEWER', 'OPERATOR', 'AUDITOR']),
   validateRequest({ params: idParamSchema }),
   async (req, res) => {
     try {
