@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../api';
 import {
   X,
   History,
   Loader2,
   Info,
+  ShieldCheck,
 } from 'lucide-react';
 
 export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
@@ -12,16 +13,45 @@ export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
+  // Verify & Seal (Module E) state
+  const [verifying, setVerifying] = useState(false);
+  const [verifyError, setVerifyError] = useState(null);
+
+  const fetchLoan = useCallback(() => {
     if (!loanId) return;
     setLoading(true);
     setError(null);
 
-    api.getLoanDetail(loanId)
+    return api.getLoanDetail(loanId)
       .then((res) => setLoan(res.data))
       .catch((err) => setError(err.message || 'Failed to load loan record lineage.'))
       .finally(() => setLoading(false));
   }, [loanId]);
+
+  useEffect(() => {
+    fetchLoan();
+  }, [fetchLoan]);
+
+  const openCriticalExceptions = (loan?.exceptions || []).filter(
+    (e) => e.status === 'OPEN' && e.severity === 'CRITICAL'
+  );
+  const isAlreadyVerified = Boolean(loan?.verifiedLoan);
+  const isRejected = loan?.status === 'REJECTED';
+  const canVerify = loan && !isAlreadyVerified && !isRejected && openCriticalExceptions.length === 0;
+
+  const handleVerifyLoan = async () => {
+    if (!loan) return;
+    setVerifying(true);
+    setVerifyError(null);
+    try {
+      await api.verifyLoan(loan.id, {});
+      await fetchLoan();
+    } catch (err) {
+      setVerifyError(err.message || 'Failed to verify and seal loan record.');
+    } finally {
+      setVerifying(false);
+    }
+  };
 
   // Handle ESC key
   useEffect(() => {
