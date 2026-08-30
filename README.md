@@ -16,6 +16,14 @@
 
 ---
 
+## 📝 Changelog
+
+Tracking incremental changes made after the initial submission build, in scope with the [Full Stack Track problem statement](https://uc.hackerearth.com/he-public-ap-south-1/Intain_Full_Stack_Track_Problem_Statement.docx3b4003f.pdf) (production-grade infra such as Docker, message queues, and real auth are explicitly out of scope for this challenge, so this list stays focused on validation, workflow, and UX).
+
+- **Consumer Dashboard — Exception Severity Breakdown chart**: Added a visual, color-coded horizontal bar chart above the verified-records table showing open exceptions grouped by severity (Critical / High / Medium / Warning), sourced from the existing `GET /api/summary` `severityCounts` payload. No new dependencies added — implemented with existing Tailwind tokens and a fixed status color palette (never reused from the app's categorical/series colors, so severity color never gets confused with anything else on screen), with an icon + label on every bar so the meaning never depends on color alone.
+
+---
+
 ## 🎭 Role-Based Access Control & Mock Test Personas
 
 This system uses **header-based mock authentication** rather than username/password login, enabling evaluators to test role boundaries and permissions across the entire platform.
