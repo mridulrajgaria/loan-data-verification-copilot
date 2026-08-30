@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../api';
 import {
   CheckCircle2,
@@ -30,13 +30,6 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
 
   // Selected Exception & Loan Detail
   const [selectedExceptionId, setSelectedExceptionId] = useState(null);
-  // Async handlers below close over stale state, so a ref tracks the
-  // live selection to detect whether the queue auto-advanced out from
-  // under an in-flight decision submission.
-  const selectedExceptionIdRef = useRef(null);
-  useEffect(() => {
-    selectedExceptionIdRef.current = selectedExceptionId;
-  }, [selectedExceptionId]);
   const [exceptionDetail, setExceptionDetail] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [detailError, setDetailError] = useState(null);
