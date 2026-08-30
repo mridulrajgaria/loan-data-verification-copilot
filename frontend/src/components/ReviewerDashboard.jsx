@@ -243,15 +243,27 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
         acceptedAiRecommendationId: appliedAiRecId,
       };
 
+      const resolvedLoanLabel = exceptionDetail?.loan?.loanIdentifier || 'loan';
+
       const res = await api.submitDecision(selectedExceptionId, payload);
       setDecisionSuccess(`Decision recorded: Exception ${decisionType.toUpperCase()}. ReviewAction #${res.data.reviewAction.id.slice(0, 8)} vaulted to audit ledger.`);
       setReviewerNote('');
-      fetchExceptionList();
 
-      // Re-fetch this exception so its status flips from OPEN to RESOLVED in
-      // the UI — without this the decision panel stayed visible and
-      // unchanged after a successful submit, making it look like the click
-      // had no effect.
+      // Surface the confirmation as a standalone toast BEFORE the queue
+      // refetch below, since that refetch may auto-advance selectedExceptionId
+      // to the next open exception — which resets exceptionDetail (and
+      // decisionSuccess with it) via the per-exception effect. The toast is
+      // independent state, so it survives that transition.
+      setQueueToast({
+        type: 'success',
+        message: `${decisionType.toUpperCase()} recorded for ${resolvedLoanLabel}. Moving to the next open exception…`,
+      });
+
+      // Refresh the queue first (this is what may auto-advance selection),
+      // then re-fetch this exception's own detail so a loan with no more
+      // open exceptions correctly shows the resolved state rather than
+      // staying on stale data.
+      await fetchExceptionList();
       const refreshed = await api.getExceptionDetail(selectedExceptionId);
       setExceptionDetail(refreshed.data);
     } catch (err) {
