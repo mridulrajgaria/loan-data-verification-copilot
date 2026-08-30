@@ -132,6 +132,7 @@ async function runBatchValidation({ rawUploadId, servicerUpdates = [], documentM
 
     let loanStatus = 'VALID';
     if (failingResults.length > 0) {
+      loanStatus = 'FLAGGED';
       loansWithViolations++;
       totalViolations += failingResults.length;
       // Clear prior OPEN exceptions on this loan to ensure batch revalidation idempotency

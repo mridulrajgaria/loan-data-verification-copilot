@@ -3,6 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const prisma = require('../db');
 const { processLoanTapeUpload, IngestionError } = require('../services/ingestionService');
+const { runBatchValidation } = require('../validation/batchValidator');
 const { authenticateUser, requireRole } = require('../middleware/auth');
 const { validateRequest } = require('../middleware/validate');
 const { paginationQuerySchema } = require('../schemas/validationSchemas');
@@ -97,10 +98,26 @@ router.post(
         userId: String(userId),
       });
 
+      // Module B: run the validation engine against this batch immediately
+      // after ingestion, so the exception queue and dashboards populate
+      // without a separate manual step. Validation failure doesn't fail the
+      // upload itself (the file is already safely ingested/normalized) —
+      // it's logged and surfaced to the caller so the gap is visible rather
+      // than silently leaving loans unvalidated.
+      let validationSummary = null;
+      try {
+        validationSummary = await runBatchValidation({
+          rawUploadId: result.uploadId,
+          actor: String(userId),
+        });
+      } catch (validationError) {
+        console.error('[POST_INGESTION_VALIDATION_ERROR]', validationError);
+      }
+
       return res.status(201).json({
         success: true,
-        message: 'Loan tape uploaded and normalized successfully.',
-        data: result,
+        message: 'Loan tape uploaded, normalized, and validated successfully.',
+        data: { ...result, validationSummary },
       });
     } catch (error) {
       console.error('[INGESTION_CONTROLLER_ERROR]', error);

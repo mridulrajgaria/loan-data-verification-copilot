@@ -28,8 +28,14 @@ function ValidationCompositionBar({ summary, loading }) {
   const total = summary?.totalLoans || 0;
   const clean = summary?.cleanLoansCount || 0;
   const flagged = summary?.flaggedLoansCount || 0;
+  // Computed independently from actual counts (never by subtracting from
+  // 100) so an un-validated or partially-reconciled batch — where
+  // clean + flagged doesn't yet add up to total — can't render a
+  // misleading "100% flagged" bar for loans that simply haven't been
+  // classified yet.
   const cleanPct = total > 0 ? Math.round((clean / total) * 100) : 0;
-  const flaggedPct = total > 0 ? Math.max(100 - cleanPct, 0) : 0;
+  const flaggedPct = total > 0 ? Math.round((flagged / total) * 100) : 0;
+  const unclassified = Math.max(total - clean - flagged, 0);
 
   return (
     <div className="section-band p-5 space-y-3 bg-white">
@@ -51,7 +57,7 @@ function ValidationCompositionBar({ summary, loading }) {
           <div
             className="flex h-3 w-full rounded-full overflow-hidden bg-surface-inset"
             role="img"
-            aria-label={`Validation outcome: ${cleanPct}% clean or verified (${clean} loans), ${flaggedPct}% flagged (${flagged} loans)`}
+            aria-label={`Validation outcome: ${cleanPct}% clean or verified (${clean} loans), ${flaggedPct}% flagged (${flagged} loans)${unclassified > 0 ? `, ${unclassified} not yet validated` : ''}`}
           >
             {cleanPct > 0 && (
               <div
@@ -63,6 +69,12 @@ function ValidationCompositionBar({ summary, loading }) {
               <div
                 className="h-full"
                 style={{ width: `${flaggedPct}%`, backgroundColor: '#B42318' }}
+              />
+            )}
+            {unclassified > 0 && (
+              <div
+                className="h-full"
+                style={{ width: `${Math.round((unclassified / total) * 100)}%`, backgroundColor: '#B4C2B1' }}
               />
             )}
           </div>
@@ -85,6 +97,17 @@ function ValidationCompositionBar({ summary, loading }) {
                 {flagged.toLocaleString()} ({flaggedPct}%)
               </span>
             </div>
+            {unclassified > 0 && (
+              <div className="flex items-center gap-1.5">
+                <span className="w-3.5 h-3.5 rounded-full inline-block" style={{ backgroundColor: '#B4C2B1' }} />
+                <span className="text-[10.5px] font-mono font-semibold text-content-secondary uppercase tracking-wide">
+                  Not Yet Validated
+                </span>
+                <span className="text-xs font-mono font-bold text-content-primary tabular-nums">
+                  {unclassified.toLocaleString()}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       )}
