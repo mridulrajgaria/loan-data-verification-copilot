@@ -2,9 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../api';
 import {
   UploadCloud,
-  FileCheck2,
   AlertTriangle,
-  RefreshCw,
   Loader2,
   ArrowUpRight,
   CheckCircle,
@@ -115,7 +113,7 @@ function ValidationCompositionBar({ summary, loading }) {
   );
 }
 
-export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQuery = '' }) {
+export default function OperatorDashboard({ onSelectLoan, searchQuery = '' }) {
   const [summary, setSummary] = useState(null);
   const [uploads, setUploads] = useState([]);
   const [flaggedLoans, setFlaggedLoans] = useState([]);
