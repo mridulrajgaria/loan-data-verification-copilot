@@ -15,7 +15,6 @@ import {
   ChevronRight,
   Sparkles,
   Lock,
-  CheckCircle,
   Check,
 } from 'lucide-react';
 
