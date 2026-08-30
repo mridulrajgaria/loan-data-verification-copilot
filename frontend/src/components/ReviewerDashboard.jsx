@@ -282,17 +282,22 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
       // Refresh the queue — this is what may auto-advance selection to the
       // next open exception, which independently triggers its own detail
       // fetch via the selectedExceptionId effect.
-      await fetchExceptionList();
+      const refreshedList = await fetchExceptionList();
 
-      // Only fetch this exception's own detail ourselves if the queue did
-      // NOT auto-advance away from it (i.e. this was the last open
-      // exception, so selection stayed put). Doing this unconditionally
-      // used to race the auto-advance's own fetch for a *different*
-      // exception — whichever landed last would silently overwrite the
-      // other, occasionally leaving the panel showing a mismatched or
-      // stale record. Skipping it here means exactly one fetch ever runs
-      // per decision.
-      if (selectedExceptionIdRef.current === resolvedExceptionId) {
+      // Determine — synchronously, from the list fetchExceptionList just
+      // returned, not from React state that may not have re-rendered yet —
+      // whether it auto-advanced selection away from this exception. Only
+      // fetch this exception's own detail ourselves when it did NOT (i.e.
+      // this was the last open exception, so selection stayed put).
+      // Refetching unconditionally used to race the auto-advance's own
+      // fetch for a *different* exception — whichever landed last would
+      // silently overwrite the other, occasionally leaving the panel
+      // showing a mismatched or stale record. This guard means exactly one
+      // fetch ever runs per decision.
+      const didAutoAdvance = Boolean(
+        refreshedList && refreshedList.length > 0 && !refreshedList.some((e) => e.id === resolvedExceptionId)
+      );
+      if (!didAutoAdvance) {
         const refreshed = await api.getExceptionDetail(resolvedExceptionId);
         setExceptionDetail(refreshed.data);
       }
