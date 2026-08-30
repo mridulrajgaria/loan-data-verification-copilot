@@ -473,6 +473,30 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
         {/* RIGHT COLUMN: Forensic Investigation Dossier (~67% -> 8 cols)             */}
         {/* ========================================================================= */}
         <div className="lg:col-span-8 space-y-5">
+          {/* Decision confirmation toast — rendered above everything else in
+              this column so it stays visible even when the panel below it
+              switches to the next auto-advanced exception. */}
+          {queueToast && (
+            <div
+              role="status"
+              style={{ backgroundColor: '#CDE78C', color: '#1C3806', border: '1px solid #B3D463' }}
+              className="p-3 rounded-lg text-xs font-mono font-bold flex items-center justify-between shadow-subtle"
+            >
+              <div className="flex items-center space-x-2">
+                <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+                <span>{queueToast.message}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setQueueToast(null)}
+                aria-label="Dismiss notification"
+                className="ml-3 hover:opacity-70"
+              >
+                <XCircle className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
           {loadingDetail ? (
             <div className="section-band p-16 flex flex-col items-center justify-center text-[#768883] bg-white">
               <Loader2 className="w-6 h-6 animate-spin text-[#204E4C] mb-2" />
