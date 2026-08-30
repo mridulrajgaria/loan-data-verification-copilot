@@ -412,6 +412,34 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
           </label>
         </div>
 
+        {/* Optional secondary feeds — enable the cross-source-conflict and
+            document-custody validation rules for this batch. Neither is
+            required; validation still runs on the tape alone without them. */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <label className="text-[11px] font-mono text-content-secondary bg-white border border-ref-periwinkle-border rounded-md px-3 py-2 flex items-center justify-between cursor-pointer hover:border-ref-teal">
+            <span className="truncate">
+              Servicer Updates (optional): <span className="font-semibold text-content-primary">{servicerUpdateFile?.name || 'servicer_update.csv'}</span>
+            </span>
+            <input
+              type="file"
+              accept=".csv,text/csv"
+              className="hidden"
+              onChange={(e) => setServicerUpdateFile(e.target.files?.[0] || null)}
+            />
+          </label>
+          <label className="text-[11px] font-mono text-content-secondary bg-white border border-ref-periwinkle-border rounded-md px-3 py-2 flex items-center justify-between cursor-pointer hover:border-ref-teal">
+            <span className="truncate">
+              Document Manifest (optional): <span className="font-semibold text-content-primary">{documentManifestFile?.name || 'document_manifest.csv'}</span>
+            </span>
+            <input
+              type="file"
+              accept=".csv,text/csv"
+              className="hidden"
+              onChange={(e) => setDocumentManifestFile(e.target.files?.[0] || null)}
+            />
+          </label>
+        </div>
+
         {uploadMessage && (
           <div className="p-3 bg-semantic-verified-bg border border-semantic-verified-border rounded-md text-semantic-verified text-xs flex items-center space-x-2 font-mono font-bold">
             <CheckCircle className="w-4 h-4 flex-shrink-0" />
