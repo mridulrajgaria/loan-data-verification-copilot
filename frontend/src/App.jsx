@@ -24,6 +24,7 @@ export default function App() {
   const [selectedLoanId, setSelectedLoanId] = useState(null);
   const [auditLoanId, setAuditLoanId] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [globalSearch, setGlobalSearch] = useState('');
 
   // Three Demo Personas per Challenge Specification
