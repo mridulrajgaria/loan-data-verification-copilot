@@ -115,6 +115,13 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
     fetchExceptionList();
   }, [fetchExceptionList]);
 
+  // Auto-dismiss the decision confirmation toast after a few seconds.
+  useEffect(() => {
+    if (!queueToast) return;
+    const timeoutId = window.setTimeout(() => setQueueToast(null), 5000);
+    return () => window.clearTimeout(timeoutId);
+  }, [queueToast]);
+
   // Fetch Single Exception Details when selected
   useEffect(() => {
     if (!selectedExceptionId) {
