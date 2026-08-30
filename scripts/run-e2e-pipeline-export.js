@@ -124,10 +124,10 @@ async function runPipeline() {
     actor: reviewer.id,
   });
   console.log(`✅ Validation Batch Completed:`);
-  console.log(`   Evaluated: ${validationResult.totalEvaluated} loans`);
+  console.log(`   Evaluated: ${validationResult.totalLoans} loans (${validationResult.totalRuleEvaluations} rule checks)`);
   console.log(`   Clean / Valid: ${validationResult.cleanLoans}`);
   console.log(`   Flagged Defective: ${validationResult.flaggedLoans}`);
-  console.log(`   Exceptions Created: ${validationResult.exceptionsCreated}\n`);
+  console.log(`   Exceptions Created: ${validationResult.totalExceptionsCreated}\n`);
 
   // --- Step 4: Adjudicate Representative Exceptions (Human + AI) ---
   console.log('🧠 Step 4: Adjudicating Representative Exceptions...');
