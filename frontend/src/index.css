@@ -195,8 +195,8 @@
 .section-band {
   background-color: #FFFFFF !important;
   border: 1px solid #E2E8F0 !important;
-  border-radius: 8px !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 2px rgba(19, 29, 27, 0.04), 0 8px 20px -12px rgba(19, 29, 27, 0.10) !important;
 }
 
 /* Buttons */
