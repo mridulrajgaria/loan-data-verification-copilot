@@ -318,6 +318,22 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
     }
   };
 
+  const handleRequestBatchSummary = async () => {
+    setLoadingBatchSummary(true);
+    setBatchSummaryError(null);
+    try {
+      const filters = {};
+      if (severityFilter) filters.severity = severityFilter;
+      if (ruleFilter) filters.ruleCode = ruleFilter;
+      const res = await api.aiSummarizeBatch(filters);
+      setBatchSummary(res.data);
+    } catch (err) {
+      setBatchSummaryError(err.message || 'AI portfolio summary service unavailable.');
+    } finally {
+      setLoadingBatchSummary(false);
+    }
+  };
+
   const handleAddComment = async (e) => {
     e.preventDefault();
     if (!selectedExceptionId) return;
