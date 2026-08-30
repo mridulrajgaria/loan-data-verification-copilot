@@ -37,7 +37,8 @@ export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
   );
   const isAlreadyVerified = Boolean(loan?.verifiedLoan);
   const isRejected = loan?.status === 'REJECTED';
-  const canVerify = loan && !isAlreadyVerified && !isRejected && openCriticalExceptions.length === 0;
+  const canVerifyRole = ['REVIEWER', 'ADMIN'].includes(api.getAuthUser().userRole);
+  const canVerify = loan && !isAlreadyVerified && !isRejected && openCriticalExceptions.length === 0 && canVerifyRole;
 
   const handleVerifyLoan = async () => {
     if (!loan) return;
@@ -286,6 +287,11 @@ export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
                     {openCriticalExceptions.length > 0 && (
                       <p className="text-semantic-critical font-sans">
                         {openCriticalExceptions.length} unresolved CRITICAL exception{openCriticalExceptions.length > 1 ? 's' : ''} must be resolved in the exception queue before this loan can be verified.
+                      </p>
+                    )}
+                    {!canVerifyRole && (
+                      <p className="text-content-muted font-sans">
+                        Only a Reviewer or Admin can verify and seal this loan.
                       </p>
                     )}
                     {verifyError && (
