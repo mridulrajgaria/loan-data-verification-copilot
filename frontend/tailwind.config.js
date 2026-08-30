@@ -81,7 +81,7 @@ export default {
       },
       boxShadow: {
         'subtle': '0 1px 2px 0 rgba(0, 0, 0, 0.04)',
-        'section': '0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.03)',
+        'section': '0 1px 2px 0 rgba(19, 29, 27, 0.04), 0 8px 20px -12px rgba(19, 29, 27, 0.10)',
         'drawer': '-4px 0 24px 0 rgba(0, 0, 0, 0.12)',
         'modal': '0 16px 32px -4px rgba(0, 0, 0, 0.12)',
       },
