@@ -108,6 +108,11 @@ export const api = {
       method: 'POST',
       body: { description },
     }),
+  aiSummarizeBatch: (filters = {}) =>
+    request('/exceptions/ai-summary', {
+      method: 'POST',
+      body: filters,
+    }),
 
   // Verification Portal (Cryptographic Attestation)
   getVerifiedLoans: (params = {}) => {
