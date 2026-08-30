@@ -132,6 +132,13 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
   const [uploadMessage, setUploadMessage] = useState(null);
   const [uploadError, setUploadError] = useState(null);
 
+  // Optional secondary feeds (servicer updates / document manifest) — used
+  // by the cross-source-conflict and document-custody validation rules.
+  // Both are optional; validation still runs without them, those two rules
+  // just won't have anything to check a loan against.
+  const [servicerUpdateFile, setServicerUpdateFile] = useState(null);
+  const [documentManifestFile, setDocumentManifestFile] = useState(null);
+
   // AI Rule Generation State
   const [nlRuleDescription, setNlRuleDescription] = useState('');
   const [generatingRule, setGeneratingRule] = useState(false);
