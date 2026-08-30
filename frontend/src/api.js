@@ -77,6 +77,11 @@ export const api = {
   },
   getLoanDetail: (id) => request(`/loans/${id}`),
   getLoanAuditTrail: (id) => request(`/loans/${id}/audit-trail`),
+  verifyLoan: (id, payload = {}) =>
+    request(`/loans/${id}/verify`, {
+      method: 'POST',
+      body: payload,
+    }),
 
   // Exceptions (Underwriting Review)
   getExceptions: (params = {}) => {
