@@ -68,7 +68,6 @@ export const api = {
   // Uploads (Data Operations)
   uploadLoanTape: (formData) => request('/uploads', { method: 'POST', body: formData }),
   getUploads: () => request('/uploads'),
-  getUploadDetail: (id) => request(`/uploads/${id}`),
 
   // Loans (Lineage & Entities)
   getLoans: (params = {}) => {
