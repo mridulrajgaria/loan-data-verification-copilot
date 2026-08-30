@@ -105,7 +105,8 @@ router.post(
   },
   async (req, res) => {
     try {
-      if (!req.file) {
+      const tapeFile = req.files?.file?.[0];
+      if (!tapeFile) {
         return res.status(400).json({
           success: false,
           error: 'No file uploaded. Please attach a CSV file under the "file" form-data field.',
@@ -115,9 +116,9 @@ router.post(
       const userId = req.user?.id || 'system';
 
       const result = await processLoanTapeUpload({
-        fileBuffer: req.file.buffer,
-        filename: req.file.originalname,
-        fileSize: req.file.size,
+        fileBuffer: tapeFile.buffer,
+        filename: tapeFile.originalname,
+        fileSize: tapeFile.size,
         userId: String(userId),
       });
 
