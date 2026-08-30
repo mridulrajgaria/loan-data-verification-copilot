@@ -397,8 +397,49 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
           <span className="badge-warning">Queue: {exceptions.length} Open</span>
           <span>•</span>
           <span className="font-bold text-[#131D1B]">Signer: Mridul Rajgaria (REVIEWER)</span>
+          <button
+            type="button"
+            onClick={handleRequestBatchSummary}
+            disabled={loadingBatchSummary}
+            style={{ backgroundColor: '#204E4C', color: '#FFFFFF' }}
+            className="ml-2 px-3 py-1 rounded-md text-xs font-bold transition-colors disabled:opacity-50 font-mono shadow-sm"
+          >
+            {loadingBatchSummary ? <Loader2 className="w-3 h-3 animate-spin inline" /> : 'AI Portfolio Summary'}
+          </button>
         </div>
       </div>
+
+      {/* AI Portfolio Executive Summary (batch-level, distinct from the
+          per-exception AI assist in the dossier column below) */}
+      {batchSummaryError && (
+        <div className="p-3 bg-[#FEF3F2] border border-[#FECDCA] rounded-md text-[#B42318] text-xs font-mono">
+          {batchSummaryError}
+        </div>
+      )}
+      {batchSummary && (
+        <div
+          style={{ backgroundColor: '#FEECEB', color: '#7A1D18', border: '1px solid #F9C3BF' }}
+          className="p-4 rounded-lg space-y-2 shadow-sm"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <BrainCircuit className="w-4 h-4 text-[#7A1D18]" />
+              <span className="text-xs font-bold uppercase tracking-wider font-mono">
+                AI Portfolio Executive Summary — {batchSummary.totalOpenExceptions} Open Exceptions
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setBatchSummary(null)}
+              aria-label="Dismiss portfolio summary"
+              className="hover:opacity-70"
+            >
+              <XCircle className="w-4 h-4" />
+            </button>
+          </div>
+          <p className="text-xs font-sans leading-relaxed whitespace-pre-line">{batchSummary.summary}</p>
+        </div>
+      )}
 
       {/* Master / Detail Grid Layout (33% Queue / 67% Dossier) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
