@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { api } from '../api';
 import {
   CheckCircle2,
@@ -57,6 +57,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
   // per-exception panel gets wiped before the reviewer can see it. This
   // toast is independent state so it survives that auto-advance.
   const [queueToast, setQueueToast] = useState(null);
+  const toastRef = useRef(null);
 
   // Standalone Reviewer Comment State
   const [standaloneComment, setStandaloneComment] = useState('');
