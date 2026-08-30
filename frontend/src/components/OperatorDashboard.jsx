@@ -234,6 +234,13 @@ export default function OperatorDashboard({ onSelectLoan, searchQuery = '' }) {
     try {
       const res = await api.uploadLoanTape(formData);
       setUploadMessage(`Ingestion completed: "${res.data.filename}" (${res.data.totalRows?.toLocaleString()} rows parsed with SHA-256 provenance).`);
+      if (!res.data.validationSummary) {
+        setUploadError(
+          `Warning: validation did not run against this batch — the exception queue and dashboards will NOT reflect it until this is resolved.${
+            res.data.validationError ? ` (${res.data.validationError})` : ''
+          }`
+        );
+      }
       setServicerUpdateFile(null);
       setDocumentManifestFile(null);
       refreshAll();
