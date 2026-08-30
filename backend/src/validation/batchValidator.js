@@ -116,7 +116,7 @@ async function runBatchValidation({ rawUploadId, servicerUpdates = [], documentM
 
   for (const loan of loans) {
     const servicerMatch = loan.loanIdentifier ? servicerMap.get(loan.loanIdentifier) : null;
-    const manifestMatch = loan.loanIdentifier ? manifestMap.get(loan.loanIdentifier) : null;
+    const manifestMatch = (loan.loanIdentifier ? manifestMap.get(loan.loanIdentifier) : null) ?? null;
 
     const validationResults = validateLoan(loan, {
       servicerUpdate: servicerMatch,
