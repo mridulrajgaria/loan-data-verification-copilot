@@ -239,6 +239,13 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
       setDecisionSuccess(`Decision recorded: Exception ${decisionType.toUpperCase()}. ReviewAction #${res.data.reviewAction.id.slice(0, 8)} vaulted to audit ledger.`);
       setReviewerNote('');
       fetchExceptionList();
+
+      // Re-fetch this exception so its status flips from OPEN to RESOLVED in
+      // the UI — without this the decision panel stayed visible and
+      // unchanged after a successful submit, making it look like the click
+      // had no effect.
+      const refreshed = await api.getExceptionDetail(selectedExceptionId);
+      setExceptionDetail(refreshed.data);
     } catch (err) {
       setDecisionError(err.message || 'Failed to record underwriter decision.');
     } finally {
