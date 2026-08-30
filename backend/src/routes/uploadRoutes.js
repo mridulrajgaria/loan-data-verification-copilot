@@ -46,10 +46,27 @@ const upload = multer({
   storage,
   limits: {
     fileSize: MAX_FILE_SIZE_BYTES,
-    files: 1,
+    files: 3,
   },
   fileFilter,
 });
+
+/**
+ * Parses a small secondary-feed CSV buffer (servicer updates / document
+ * manifest) into plain row objects, matching the shape runBatchValidation
+ * expects (the same shape the standalone test scripts already parse from
+ * disk with the same csv-parser package).
+ */
+function parseSecondaryFeedBuffer(buffer) {
+  return new Promise((resolve, reject) => {
+    const rows = [];
+    Readable.from(buffer)
+      .pipe(csvParser({ trim: true, skipEmptyLines: true }))
+      .on('data', (row) => rows.push(row))
+      .on('end', () => resolve(rows))
+      .on('error', reject);
+  });
+}
 
 /**
  * POST /api/uploads
