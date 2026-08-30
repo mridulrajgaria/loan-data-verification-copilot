@@ -111,8 +111,13 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
       if (filtered.length > 0 && (!selectedExceptionId || !filtered.some((e) => e.id === selectedExceptionId))) {
         setSelectedExceptionId(filtered[0].id);
       }
+      // Return the freshly-fetched list so callers can synchronously know
+      // whether selection just auto-advanced, instead of guessing from
+      // React state that may not have re-rendered yet.
+      return filtered;
     } catch (err) {
       setListError(err.message || 'Failed to fetch active exception queue.');
+      return null;
     } finally {
       setLoadingList(false);
     }
@@ -258,8 +263,9 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
       };
 
       const resolvedLoanLabel = exceptionDetail?.loan?.loanIdentifier || 'loan';
+      const resolvedExceptionId = selectedExceptionId;
 
-      const res = await api.submitDecision(selectedExceptionId, payload);
+      const res = await api.submitDecision(resolvedExceptionId, payload);
       setDecisionSuccess(`Decision recorded: Exception ${decisionType.toUpperCase()}. ReviewAction #${res.data.reviewAction.id.slice(0, 8)} vaulted to audit ledger.`);
       setReviewerNote('');
 
@@ -273,13 +279,23 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
         message: `${decisionType.toUpperCase()} recorded for ${resolvedLoanLabel}. Moving to the next open exception…`,
       });
 
-      // Refresh the queue first (this is what may auto-advance selection),
-      // then re-fetch this exception's own detail so a loan with no more
-      // open exceptions correctly shows the resolved state rather than
-      // staying on stale data.
+      // Refresh the queue — this is what may auto-advance selection to the
+      // next open exception, which independently triggers its own detail
+      // fetch via the selectedExceptionId effect.
       await fetchExceptionList();
-      const refreshed = await api.getExceptionDetail(selectedExceptionId);
-      setExceptionDetail(refreshed.data);
+
+      // Only fetch this exception's own detail ourselves if the queue did
+      // NOT auto-advance away from it (i.e. this was the last open
+      // exception, so selection stayed put). Doing this unconditionally
+      // used to race the auto-advance's own fetch for a *different*
+      // exception — whichever landed last would silently overwrite the
+      // other, occasionally leaving the panel showing a mismatched or
+      // stale record. Skipping it here means exactly one fetch ever runs
+      // per decision.
+      if (selectedExceptionIdRef.current === resolvedExceptionId) {
+        const refreshed = await api.getExceptionDetail(resolvedExceptionId);
+        setExceptionDetail(refreshed.data);
+      }
     } catch (err) {
       setDecisionError(err.message || 'Failed to record underwriter decision.');
     } finally {
