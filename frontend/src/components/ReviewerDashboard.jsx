@@ -799,6 +799,25 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
               </div>
 
               {/* 4. HUMAN REVIEW DECISION LAYER (DEEP TEAL ANCHOR BLOCK #204E4C) */}
+              {exceptionDetail.status !== 'OPEN' ? (
+                // This exception is already resolved — show a clear, unmissable
+                // confirmation instead of leaving the same decision form sitting
+                // there looking unchanged after a successful submit.
+                <div
+                  style={{ backgroundColor: '#CDE78C', color: '#1C3806', border: '1px solid #B3D463' }}
+                  className="p-6 rounded-lg space-y-1.5 shadow-modal"
+                >
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle2 className="w-5 h-5" />
+                    <h3 className="text-xs font-bold uppercase tracking-wider font-mono">
+                      Exception Resolved — {exceptionDetail.resolution?.toUpperCase() || exceptionDetail.status}
+                    </h3>
+                  </div>
+                  <p className="text-xs font-sans">
+                    This decision is permanently recorded in the audit trail. Select another exception from the queue on the left to continue reviewing, or open "Full Loan Lineage" above to verify and seal this loan once all its exceptions are resolved.
+                  </p>
+                </div>
+              ) : (
               <form
                 onSubmit={handleSubmitDecision}
                 style={{ backgroundColor: '#204E4C', color: '#FFFFFF', border: '1px solid #163B39' }}
@@ -939,6 +958,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                   </button>
                 </div>
               </form>
+              )}
             </>
           )}
         </div>
