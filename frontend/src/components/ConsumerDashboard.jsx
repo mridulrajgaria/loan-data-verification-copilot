@@ -171,17 +171,17 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
   };
 
   // Handle Export (JSON / CSV) with memory leak prevention (revokeObjectURL)
-  const handleExport = async (format = 'json') => {
+  const handleExport = async (format = 'json', target = 'verified') => {
     setExporting(true);
     setActionError(null);
     try {
-      const data = await api.exportVerified(format);
+      const data = await api.exportVerified(format, target);
       if (format === 'csv') {
         const blob = new Blob([data], { type: 'text/csv;charset=utf-8;' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `verified_loan_tape_${Date.now()}.csv`;
+        a.download = target === 'audit' ? `audit_trail_${Date.now()}.csv` : `verified_loan_tape_${Date.now()}.csv`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
