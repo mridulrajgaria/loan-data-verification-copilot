@@ -654,6 +654,16 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                       </span>
                     </div>
                     <p className="text-[#131D1B] leading-relaxed text-xs font-sans">{aiExplanation.explanation}</p>
+                    <div className="pt-1.5 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => setReviewerNote(`AI Explanation: ${aiExplanation.explanation}`)}
+                        className="btn-institutional-secondary text-xs flex items-center space-x-1"
+                      >
+                        <Edit3 className="w-3 h-3 text-[#204E4C]" />
+                        <span>Draft Note from Explanation</span>
+                      </button>
+                    </div>
                   </div>
                 )}
 
