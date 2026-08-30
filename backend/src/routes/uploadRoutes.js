@@ -129,6 +129,7 @@ router.post(
       // it's logged and surfaced to the caller so the gap is visible rather
       // than silently leaving loans unvalidated.
       let validationSummary = null;
+      let validationErrorMessage = null;
       try {
         const servicerFile = req.files?.servicerUpdate?.[0];
         const manifestFile = req.files?.documentManifest?.[0];
@@ -143,12 +144,15 @@ router.post(
         });
       } catch (validationError) {
         console.error('[POST_INGESTION_VALIDATION_ERROR]', validationError);
+        validationErrorMessage = validationError.message || 'Validation failed to run against the ingested batch.';
       }
 
       return res.status(201).json({
         success: true,
-        message: 'Loan tape uploaded, normalized, and validated successfully.',
-        data: { ...result, validationSummary },
+        message: validationSummary
+          ? 'Loan tape uploaded, normalized, and validated successfully.'
+          : 'Loan tape uploaded and normalized, but validation failed to run — the batch has NOT been checked against the rule set. Re-upload or check the server logs.',
+        data: { ...result, validationSummary, validationError: validationErrorMessage },
       });
     } catch (error) {
       console.error('[INGESTION_CONTROLLER_ERROR]', error);
