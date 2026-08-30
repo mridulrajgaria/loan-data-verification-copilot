@@ -500,6 +500,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
               switches to the next auto-advanced exception. */}
           {queueToast && (
             <div
+              ref={toastRef}
               role="status"
               style={{ backgroundColor: '#CDE78C', color: '#1C3806', border: '1px solid #B3D463' }}
               className="p-3 rounded-lg text-xs font-mono font-bold flex items-center justify-between shadow-subtle"
