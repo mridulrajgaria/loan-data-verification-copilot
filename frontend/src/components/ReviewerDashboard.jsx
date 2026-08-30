@@ -50,6 +50,14 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
   const [decisionSuccess, setDecisionSuccess] = useState(null);
   const [decisionError, setDecisionError] = useState(null);
 
+  // Decision confirmation toast — deliberately NOT tied to exceptionDetail or
+  // selectedExceptionId, because submitting a decision also auto-advances the
+  // queue to the next open exception. That advance resets exceptionDetail
+  // (and decisionSuccess with it), so a confirmation living inside the
+  // per-exception panel gets wiped before the reviewer can see it. This
+  // toast is independent state so it survives that auto-advance.
+  const [queueToast, setQueueToast] = useState(null);
+
   // Standalone Reviewer Comment State
   const [standaloneComment, setStandaloneComment] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
