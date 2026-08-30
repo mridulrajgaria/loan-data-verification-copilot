@@ -250,6 +250,15 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
             <FileSpreadsheet className="w-3.5 h-3.5 text-content-secondary" />
             <span>Export CSV</span>
           </button>
+          <button
+            onClick={() => handleExport('csv', 'audit')}
+            disabled={exporting}
+            aria-label="Export full audit trail as CSV"
+            className="btn-institutional-secondary text-xs font-mono"
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5 text-content-secondary" />
+            <span>Export Audit Trail</span>
+          </button>
         </div>
       </div>
 
