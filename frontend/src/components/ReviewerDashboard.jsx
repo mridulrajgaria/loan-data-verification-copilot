@@ -59,6 +59,12 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
   const [queueToast, setQueueToast] = useState(null);
   const toastRef = useRef(null);
 
+  // AI Portfolio Executive Summary (batch-level advisory, independent of the
+  // single-exception AI assist above)
+  const [batchSummary, setBatchSummary] = useState(null);
+  const [loadingBatchSummary, setLoadingBatchSummary] = useState(false);
+  const [batchSummaryError, setBatchSummaryError] = useState(null);
+
   // Standalone Reviewer Comment State
   const [standaloneComment, setStandaloneComment] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
