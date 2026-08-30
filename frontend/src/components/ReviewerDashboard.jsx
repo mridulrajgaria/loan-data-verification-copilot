@@ -128,6 +128,16 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
     return () => window.clearTimeout(timeoutId);
   }, [queueToast]);
 
+  // Scroll the toast into view the moment it appears — the decision form
+  // it's triggered from sits far down this panel, so without this the
+  // confirmation renders off-screen above the reviewer's scroll position
+  // and they'd have to know to scroll up to ever see it.
+  useEffect(() => {
+    if (queueToast && toastRef.current) {
+      toastRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [queueToast]);
+
   // Fetch Single Exception Details when selected
   useEffect(() => {
     if (!selectedExceptionId) {
