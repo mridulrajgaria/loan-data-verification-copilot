@@ -230,6 +230,8 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
 
     const formData = new FormData();
     formData.append('file', file);
+    if (servicerUpdateFile) formData.append('servicerUpdate', servicerUpdateFile);
+    if (documentManifestFile) formData.append('documentManifest', documentManifestFile);
 
     try {
       const res = await api.uploadLoanTape(formData);
