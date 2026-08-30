@@ -123,5 +123,6 @@ export const api = {
   simulateTamper: (id) => request(`/verified-loans/${id}/simulate-tamper`, { method: 'POST' }),
 
   // Exports
-  exportVerified: (format = 'json') => request(`/export?format=${format}`),
+  exportVerified: (format = 'json', target = 'verified') =>
+    request(`/export?format=${format}&target=${target}`),
 };
