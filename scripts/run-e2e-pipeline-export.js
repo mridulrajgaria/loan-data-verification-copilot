@@ -54,7 +54,7 @@ async function runPipeline() {
   console.log('👤 Step 1: Initializing Role Actors in Database...');
   const [operator, reviewer, auditor, admin] = await Promise.all([
     prisma.user.upsert({
-      where: { email: 'elena.rostova@loancopilot.local' },
+      where: { id: 'usr-operator-01' },
       update: {},
       create: {
         id: 'usr-operator-01',
@@ -65,7 +65,7 @@ async function runPipeline() {
       },
     }),
     prisma.user.upsert({
-      where: { email: 'david.chen@loancopilot.local' },
+      where: { id: 'usr-reviewer-01' },
       update: {},
       create: {
         id: 'usr-reviewer-01',
@@ -76,7 +76,7 @@ async function runPipeline() {
       },
     }),
     prisma.user.upsert({
-      where: { email: 'sarah.vance@loancopilot.local' },
+      where: { id: 'usr-auditor-01' },
       update: {},
       create: {
         id: 'usr-auditor-01',
@@ -87,7 +87,7 @@ async function runPipeline() {
       },
     }),
     prisma.user.upsert({
-      where: { email: 'alex.mercer@loancopilot.local' },
+      where: { id: 'usr-admin-01' },
       update: {},
       create: {
         id: 'usr-admin-01',
@@ -124,10 +124,10 @@ async function runPipeline() {
     actor: reviewer.id,
   });
   console.log(`✅ Validation Batch Completed:`);
-  console.log(`   Evaluated: ${validationResult.totalEvaluated} loans`);
+  console.log(`   Evaluated: ${validationResult.totalLoans} loans (${validationResult.totalRuleEvaluations} rule checks)`);
   console.log(`   Clean / Valid: ${validationResult.cleanLoans}`);
   console.log(`   Flagged Defective: ${validationResult.flaggedLoans}`);
-  console.log(`   Exceptions Created: ${validationResult.exceptionsCreated}\n`);
+  console.log(`   Exceptions Created: ${validationResult.totalExceptionsCreated}\n`);
 
   // --- Step 4: Adjudicate Representative Exceptions (Human + AI) ---
   console.log('🧠 Step 4: Adjudicating Representative Exceptions...');

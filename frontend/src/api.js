@@ -66,9 +66,8 @@ export const api = {
   getSummary: () => request('/summary'),
 
   // Uploads (Data Operations)
-  uploadLoanTape: (formData) => request('/upload', { method: 'POST', body: formData }),
+  uploadLoanTape: (formData) => request('/uploads', { method: 'POST', body: formData }),
   getUploads: () => request('/uploads'),
-  getUploadDetail: (id) => request(`/uploads/${id}`),
 
   // Loans (Lineage & Entities)
   getLoans: (params = {}) => {
@@ -77,6 +76,11 @@ export const api = {
   },
   getLoanDetail: (id) => request(`/loans/${id}`),
   getLoanAuditTrail: (id) => request(`/loans/${id}/audit-trail`),
+  verifyLoan: (id, payload = {}) =>
+    request(`/loans/${id}/verify`, {
+      method: 'POST',
+      body: payload,
+    }),
 
   // Exceptions (Underwriting Review)
   getExceptions: (params = {}) => {
@@ -103,6 +107,11 @@ export const api = {
       method: 'POST',
       body: { description },
     }),
+  aiSummarizeBatch: (filters = {}) =>
+    request('/exceptions/ai-summary', {
+      method: 'POST',
+      body: filters,
+    }),
 
   // Verification Portal (Cryptographic Attestation)
   getVerifiedLoans: (params = {}) => {
@@ -114,5 +123,6 @@ export const api = {
   simulateTamper: (id) => request(`/verified-loans/${id}/simulate-tamper`, { method: 'POST' }),
 
   // Exports
-  exportVerified: (format = 'json') => request(`/export?format=${format}`),
+  exportVerified: (format = 'json', target = 'verified') =>
+    request(`/export?format=${format}&target=${target}`),
 };

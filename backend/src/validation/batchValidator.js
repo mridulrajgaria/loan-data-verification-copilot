@@ -116,7 +116,7 @@ async function runBatchValidation({ rawUploadId, servicerUpdates = [], documentM
 
   for (const loan of loans) {
     const servicerMatch = loan.loanIdentifier ? servicerMap.get(loan.loanIdentifier) : null;
-    const manifestMatch = loan.loanIdentifier ? manifestMap.get(loan.loanIdentifier) : null;
+    const manifestMatch = (loan.loanIdentifier ? manifestMap.get(loan.loanIdentifier) : null) ?? null;
 
     const validationResults = validateLoan(loan, {
       servicerUpdate: servicerMatch,
@@ -132,6 +132,7 @@ async function runBatchValidation({ rawUploadId, servicerUpdates = [], documentM
 
     let loanStatus = 'VALID';
     if (failingResults.length > 0) {
+      loanStatus = 'FLAGGED';
       loansWithViolations++;
       totalViolations += failingResults.length;
       // Clear prior OPEN exceptions on this loan to ensure batch revalidation idempotency

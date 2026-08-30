@@ -84,8 +84,8 @@
   border: 1px solid #FECDCA !important;
   font-weight: 700 !important;
   font-family: "IBM Plex Mono", monospace !important;
-  padding: 2px 6px !important;
-  border-radius: 4px !important;
+  padding: 3px 8px !important;
+  border-radius: 6px !important;
   font-size: 10.5px !important;
 }
 
@@ -95,8 +95,8 @@
   border: 1px solid #FDE3B2 !important;
   font-weight: 700 !important;
   font-family: "IBM Plex Mono", monospace !important;
-  padding: 2px 6px !important;
-  border-radius: 4px !important;
+  padding: 3px 8px !important;
+  border-radius: 6px !important;
   font-size: 10.5px !important;
 }
 
@@ -106,8 +106,8 @@
   border: 1px solid #AAF0C4 !important;
   font-weight: 700 !important;
   font-family: "IBM Plex Mono", monospace !important;
-  padding: 2px 6px !important;
-  border-radius: 4px !important;
+  padding: 3px 8px !important;
+  border-radius: 6px !important;
   font-size: 10.5px !important;
 }
 
@@ -117,8 +117,8 @@
   border: 1px solid #B3D463 !important;
   font-weight: 700 !important;
   font-family: "IBM Plex Mono", monospace !important;
-  padding: 2px 6px !important;
-  border-radius: 4px !important;
+  padding: 3px 8px !important;
+  border-radius: 6px !important;
   font-size: 10.5px !important;
 }
 
@@ -128,8 +128,8 @@
   border: 1px solid #F9C3BF !important;
   font-weight: 700 !important;
   font-family: "IBM Plex Mono", monospace !important;
-  padding: 2px 6px !important;
-  border-radius: 4px !important;
+  padding: 3px 8px !important;
+  border-radius: 6px !important;
   font-size: 10.5px !important;
 }
 
@@ -139,8 +139,8 @@
   border: 1px solid #163B39 !important;
   font-weight: 700 !important;
   font-family: "IBM Plex Mono", monospace !important;
-  padding: 2px 6px !important;
-  border-radius: 4px !important;
+  padding: 3px 8px !important;
+  border-radius: 6px !important;
   font-size: 10.5px !important;
 }
 
@@ -150,8 +150,8 @@
   border: 1px solid #9DC0FB !important;
   font-weight: 700 !important;
   font-family: "IBM Plex Mono", monospace !important;
-  padding: 2px 6px !important;
-  border-radius: 4px !important;
+  padding: 3px 8px !important;
+  border-radius: 6px !important;
   font-size: 10.5px !important;
 }
 
@@ -160,43 +160,48 @@
   background-color: #204E4C !important;
   color: #FFFFFF !important;
   border: 1px solid #163B39 !important;
-  border-radius: 8px !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 2px rgba(15, 35, 32, 0.15), 0 6px 14px -8px rgba(15, 35, 32, 0.35) !important;
 }
 
 .block-lime {
   background-color: #CDE78C !important;
   color: #1C3806 !important;
   border: 1px solid #B3D463 !important;
-  border-radius: 8px !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 2px rgba(28, 56, 6, 0.06) !important;
 }
 
 .block-periwinkle {
   background-color: #C1D8FF !important;
   color: #0D2754 !important;
   border: 1px solid #9DC0FB !important;
-  border-radius: 8px !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 2px rgba(13, 39, 84, 0.06) !important;
 }
 
 .block-yellow {
   background-color: #FFEB8C !important;
   color: #453800 !important;
   border: 1px solid #F0D452 !important;
-  border-radius: 8px !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 2px rgba(69, 56, 0, 0.06) !important;
 }
 
 .block-coral {
   background-color: #FEECEB !important;
   color: #7A1D18 !important;
   border: 1px solid #F9C3BF !important;
-  border-radius: 8px !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 2px rgba(122, 29, 24, 0.06) !important;
 }
 
 /* White Data Surface on Clean Canvas */
 .section-band {
   background-color: #FFFFFF !important;
   border: 1px solid #E2E8F0 !important;
-  border-radius: 8px !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 2px rgba(19, 29, 27, 0.04), 0 8px 20px -12px rgba(19, 29, 27, 0.10) !important;
 }
 
 /* Buttons */
@@ -205,13 +210,14 @@
   align-items: center;
   justify-content: center;
   gap: 0.375rem;
-  padding: 0.45rem 0.9rem;
+  padding: 0.5rem 0.95rem;
   background-color: #204E4C !important;
   color: #FFFFFF !important;
   font-size: 0.75rem;
   font-weight: 700;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid #163B39;
+  box-shadow: 0 1px 2px rgba(15, 35, 32, 0.15), 0 6px 14px -8px rgba(15, 35, 32, 0.4);
   transition: all 150ms;
 }
 .btn-teal:hover {
@@ -223,13 +229,14 @@
   align-items: center;
   justify-content: center;
   gap: 0.375rem;
-  padding: 0.45rem 0.9rem;
+  padding: 0.5rem 0.95rem;
   background-color: #CDE78C !important;
   color: #1C3806 !important;
   font-size: 0.75rem;
   font-weight: 700;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid #B3D463;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
   transition: all 150ms;
 }
 .btn-lime:hover {
@@ -246,7 +253,7 @@
   color: #0F172A !important;
   font-size: 0.75rem;
   font-weight: 600;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid #E2E8F0;
   transition: all 150ms;
 }
@@ -275,7 +282,7 @@
   background-color: #FFFFFF;
   color: #0F172A;
   border: 1px solid #E2E8F0;
-  border-radius: 6px;
+  border-radius: 8px;
   padding-top: 0.45rem;
   padding-bottom: 0.45rem;
   padding-left: 0.75rem;
@@ -298,7 +305,7 @@
   background-color: #FFFFFF;
   color: #0F172A;
   border: 1px solid #E2E8F0;
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 0.45rem 0.6rem;
   font-size: 0.75rem;
   transition: all 150ms;

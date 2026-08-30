@@ -270,6 +270,9 @@ Return a JSON object ONLY with these exact keys:
       const jsonMatch = rawResponseText.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         correctionData = JSON.parse(jsonMatch[0]);
+      } else {
+        correctionData = generateFallbackCorrection(exception, exceptionDetails);
+        rawResponseText = JSON.stringify(correctionData);
       }
     } catch (apiErr) {
       console.warn(`[AI_ASSISTANT_WARN] Claude API suggestion failed: ${apiErr.message}. Generating deterministic rule suggestion.`);

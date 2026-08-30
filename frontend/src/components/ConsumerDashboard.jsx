@@ -2,8 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../api';
 import {
   ShieldCheck,
-  CheckCircle2,
   AlertTriangle,
+  AlertOctagon,
+  AlertCircle,
+  Info,
   Loader2,
   FileJson,
   FileSpreadsheet,
@@ -11,6 +13,80 @@ import {
   Check,
   X,
 } from 'lucide-react';
+
+// Fixed status palette (never themed) — deliberately distinct from any
+// categorical/series color in the app so severity never impersonates a
+// data series. Order runs worst -> mildest; mitigated by icon + label
+// pairing per bar (color is never the only cue).
+const SEVERITY_META = [
+  { key: 'CRITICAL', label: 'Critical', color: '#d03b3b', icon: AlertOctagon },
+  { key: 'HIGH', label: 'High', color: '#ec835a', icon: AlertTriangle },
+  { key: 'MEDIUM', label: 'Medium', color: '#fab219', icon: AlertCircle },
+  { key: 'WARNING', label: 'Warning', color: '#0ca30c', icon: Info },
+];
+
+/**
+ * Open Exception Severity Breakdown — a lightweight, dependency-free
+ * horizontal bar chart (inline SVG-free, pure CSS) summarizing
+ * summary.severityCounts. Added so the Consumer dashboard's portfolio
+ * health story is visual, not just tabular numbers.
+ */
+function SeverityBreakdownChart({ severityCounts }) {
+  const counts = severityCounts || {};
+  const total = SEVERITY_META.reduce((acc, s) => acc + (counts[s.key] || 0), 0);
+  const maxCount = Math.max(1, ...SEVERITY_META.map((s) => counts[s.key] || 0));
+
+  return (
+    <div className="section-band p-5 space-y-3 bg-white">
+      <div className="flex items-center justify-between border-b border-border pb-2">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-content-primary font-mono">
+          Open Exception Severity Breakdown
+        </h3>
+        <span className="text-[10px] font-mono text-content-secondary">
+          {total} open {total === 1 ? 'exception' : 'exceptions'}
+        </span>
+      </div>
+
+      {total === 0 ? (
+        <p className="text-xs text-content-secondary font-mono py-2">
+          No open exceptions — portfolio is fully reconciled.
+        </p>
+      ) : (
+        <div
+          className="space-y-2.5 pt-1"
+          role="img"
+          aria-label={`Open exceptions by severity: ${SEVERITY_META.map(
+            (s) => `${s.label} ${counts[s.key] || 0}`
+          ).join(', ')}`}
+        >
+          {SEVERITY_META.map(({ key, label, color, icon: Icon }) => {
+            const count = counts[key] || 0;
+            const widthPct = count > 0 ? Math.max((count / maxCount) * 100, 4) : 0;
+            return (
+              <div key={key} className="flex items-center gap-3">
+                <div className="w-[72px] flex items-center gap-1.5 flex-shrink-0">
+                  <Icon className="w-3.5 h-3.5 flex-shrink-0" style={{ color }} />
+                  <span className="text-[10.5px] font-mono font-semibold text-content-secondary uppercase tracking-wide">
+                    {label}
+                  </span>
+                </div>
+                <div className="flex-1 h-2.5 bg-surface-inset rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full"
+                    style={{ width: `${widthPct}%`, backgroundColor: color }}
+                  />
+                </div>
+                <span className="w-7 text-right text-xs font-mono font-bold text-content-primary tabular-nums">
+                  {count}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQuery = '' }) {
   const [summary, setSummary] = useState(null);
@@ -94,17 +170,17 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
   };
 
   // Handle Export (JSON / CSV) with memory leak prevention (revokeObjectURL)
-  const handleExport = async (format = 'json') => {
+  const handleExport = async (format = 'json', target = 'verified') => {
     setExporting(true);
     setActionError(null);
     try {
-      const data = await api.exportVerified(format);
+      const data = await api.exportVerified(format, target);
       if (format === 'csv') {
         const blob = new Blob([data], { type: 'text/csv;charset=utf-8;' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `verified_loan_tape_${Date.now()}.csv`;
+        a.download = target === 'audit' ? `audit_trail_${Date.now()}.csv` : `verified_loan_tape_${Date.now()}.csv`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -172,6 +248,15 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
           >
             <FileSpreadsheet className="w-3.5 h-3.5 text-content-secondary" />
             <span>Export CSV</span>
+          </button>
+          <button
+            onClick={() => handleExport('csv', 'audit')}
+            disabled={exporting}
+            aria-label="Export full audit trail as CSV"
+            className="btn-institutional-secondary text-xs font-mono"
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5 text-content-secondary" />
+            <span>Export Audit Trail</span>
           </button>
         </div>
       </div>
@@ -245,6 +330,9 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
           </div>
         </div>
       </div>
+
+      {/* 1b. VISUAL EXCEPTION SEVERITY BREAKDOWN (chart) */}
+      <SeverityBreakdownChart severityCounts={summary?.severityCounts} />
 
       {tamperAlertMessage && (
         <div className="p-3 bg-semantic-warning-bg border border-semantic-warning-border rounded-xs text-semantic-warning text-xs flex items-center justify-between font-mono">

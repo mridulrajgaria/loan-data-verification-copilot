@@ -15,8 +15,8 @@ import {
   ChevronRight,
   Sparkles,
   Lock,
-  CheckCircle,
   Check,
+  PanelLeft,
 } from 'lucide-react';
 
 export default function App() {
@@ -24,6 +24,7 @@ export default function App() {
   const [selectedLoanId, setSelectedLoanId] = useState(null);
   const [auditLoanId, setAuditLoanId] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [globalSearch, setGlobalSearch] = useState('');
 
   // Three Demo Personas per Challenge Specification
@@ -86,7 +87,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col lg:flex-row text-[#0F172A] font-sans antialiased">
-      {/* 1. DESKTOP LEFT SIDEBAR (Expanded to w-72 so text never cuts off) */}
+      {/* 1. DESKTOP LEFT SIDEBAR (Expanded to w-72 so text never cuts off; collapsible via the header toggle) */}
+      {!sidebarCollapsed && (
       <aside className="hidden lg:flex lg:flex-col w-72 border-r border-[#E2E8F0] bg-white flex-shrink-0 justify-between">
         <div className="flex flex-col">
           {/* Institutional Brand Header (FinFox Clean Style: White Background + Bold Green Logo) */}
@@ -183,6 +185,7 @@ export default function App() {
           </div>
         </div>
       </aside>
+      )}
 
       {/* 2. MAIN APPLICATION CONTENT AREA */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
@@ -196,6 +199,16 @@ export default function App() {
               className="lg:hidden p-1.5 text-[#475569] hover:text-[#0F172A] rounded-md hover:bg-[#F1F5F9]"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+
+            <button
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              aria-label={sidebarCollapsed ? "Show sidebar" : "Hide sidebar"}
+              aria-pressed={!sidebarCollapsed}
+              className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-[#475569] hover:text-[#0F172A] rounded-md hover:bg-[#F1F5F9] border border-transparent hover:border-[#E2E8F0] font-sans"
+            >
+              <PanelLeft className="w-4 h-4" />
+              <span>Sidebar</span>
             </button>
 
             <div className="hidden sm:flex items-center space-x-2 text-xs text-[#64748B] font-mono">

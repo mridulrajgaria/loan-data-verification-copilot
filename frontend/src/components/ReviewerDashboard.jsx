@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { api } from '../api';
 import {
   CheckCircle2,
@@ -50,6 +50,21 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
   const [decisionSuccess, setDecisionSuccess] = useState(null);
   const [decisionError, setDecisionError] = useState(null);
 
+  // Decision confirmation toast — deliberately NOT tied to exceptionDetail or
+  // selectedExceptionId, because submitting a decision also auto-advances the
+  // queue to the next open exception. That advance resets exceptionDetail
+  // (and decisionSuccess with it), so a confirmation living inside the
+  // per-exception panel gets wiped before the reviewer can see it. This
+  // toast is independent state so it survives that auto-advance.
+  const [queueToast, setQueueToast] = useState(null);
+  const toastRef = useRef(null);
+
+  // AI Portfolio Executive Summary (batch-level advisory, independent of the
+  // single-exception AI assist above)
+  const [batchSummary, setBatchSummary] = useState(null);
+  const [loadingBatchSummary, setLoadingBatchSummary] = useState(false);
+  const [batchSummaryError, setBatchSummaryError] = useState(null);
+
   // Standalone Reviewer Comment State
   const [standaloneComment, setStandaloneComment] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
@@ -96,8 +111,13 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
       if (filtered.length > 0 && (!selectedExceptionId || !filtered.some((e) => e.id === selectedExceptionId))) {
         setSelectedExceptionId(filtered[0].id);
       }
+      // Return the freshly-fetched list so callers can synchronously know
+      // whether selection just auto-advanced, instead of guessing from
+      // React state that may not have re-rendered yet.
+      return filtered;
     } catch (err) {
       setListError(err.message || 'Failed to fetch active exception queue.');
+      return null;
     } finally {
       setLoadingList(false);
     }
@@ -106,6 +126,23 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
   useEffect(() => {
     fetchExceptionList();
   }, [fetchExceptionList]);
+
+  // Auto-dismiss the decision confirmation toast after a few seconds.
+  useEffect(() => {
+    if (!queueToast) return;
+    const timeoutId = window.setTimeout(() => setQueueToast(null), 5000);
+    return () => window.clearTimeout(timeoutId);
+  }, [queueToast]);
+
+  // Scroll the toast into view the moment it appears — the decision form
+  // it's triggered from sits far down this panel, so without this the
+  // confirmation renders off-screen above the reviewer's scroll position
+  // and they'd have to know to scroll up to ever see it.
+  useEffect(() => {
+    if (queueToast && toastRef.current) {
+      toastRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [queueToast]);
 
   // Fetch Single Exception Details when selected
   useEffect(() => {
@@ -235,14 +272,65 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
         acceptedAiRecommendationId: appliedAiRecId,
       };
 
-      const res = await api.submitDecision(selectedExceptionId, payload);
+      const resolvedLoanLabel = exceptionDetail?.loan?.loanIdentifier || 'loan';
+      const resolvedExceptionId = selectedExceptionId;
+
+      const res = await api.submitDecision(resolvedExceptionId, payload);
       setDecisionSuccess(`Decision recorded: Exception ${decisionType.toUpperCase()}. ReviewAction #${res.data.reviewAction.id.slice(0, 8)} vaulted to audit ledger.`);
       setReviewerNote('');
-      fetchExceptionList();
+
+      // Surface the confirmation as a standalone toast BEFORE the queue
+      // refetch below, since that refetch may auto-advance selectedExceptionId
+      // to the next open exception — which resets exceptionDetail (and
+      // decisionSuccess with it) via the per-exception effect. The toast is
+      // independent state, so it survives that transition.
+      setQueueToast({
+        type: 'success',
+        message: `${decisionType.toUpperCase()} recorded for ${resolvedLoanLabel}. Moving to the next open exception…`,
+      });
+
+      // Refresh the queue — this is what may auto-advance selection to the
+      // next open exception, which independently triggers its own detail
+      // fetch via the selectedExceptionId effect.
+      const refreshedList = await fetchExceptionList();
+
+      // Determine — synchronously, from the list fetchExceptionList just
+      // returned, not from React state that may not have re-rendered yet —
+      // whether it auto-advanced selection away from this exception. Only
+      // fetch this exception's own detail ourselves when it did NOT (i.e.
+      // this was the last open exception, so selection stayed put).
+      // Refetching unconditionally used to race the auto-advance's own
+      // fetch for a *different* exception — whichever landed last would
+      // silently overwrite the other, occasionally leaving the panel
+      // showing a mismatched or stale record. This guard means exactly one
+      // fetch ever runs per decision.
+      const didAutoAdvance = Boolean(
+        refreshedList && refreshedList.length > 0 && !refreshedList.some((e) => e.id === resolvedExceptionId)
+      );
+      if (!didAutoAdvance) {
+        const refreshed = await api.getExceptionDetail(resolvedExceptionId);
+        setExceptionDetail(refreshed.data);
+      }
     } catch (err) {
       setDecisionError(err.message || 'Failed to record underwriter decision.');
     } finally {
       setSubmittingDecision(false);
+    }
+  };
+
+  const handleRequestBatchSummary = async () => {
+    setLoadingBatchSummary(true);
+    setBatchSummaryError(null);
+    try {
+      const filters = {};
+      if (severityFilter) filters.severity = severityFilter;
+      if (ruleFilter) filters.ruleCode = ruleFilter;
+      const res = await api.aiSummarizeBatch(filters);
+      setBatchSummary(res.data);
+    } catch (err) {
+      setBatchSummaryError(err.message || 'AI portfolio summary service unavailable.');
+    } finally {
+      setLoadingBatchSummary(false);
     }
   };
 
@@ -309,8 +397,49 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
           <span className="badge-warning">Queue: {exceptions.length} Open</span>
           <span>•</span>
           <span className="font-bold text-[#131D1B]">Signer: Mridul Rajgaria (REVIEWER)</span>
+          <button
+            type="button"
+            onClick={handleRequestBatchSummary}
+            disabled={loadingBatchSummary}
+            style={{ backgroundColor: '#204E4C', color: '#FFFFFF' }}
+            className="ml-2 px-3 py-1 rounded-md text-xs font-bold transition-colors disabled:opacity-50 font-mono shadow-sm"
+          >
+            {loadingBatchSummary ? <Loader2 className="w-3 h-3 animate-spin inline" /> : 'AI Portfolio Summary'}
+          </button>
         </div>
       </div>
+
+      {/* AI Portfolio Executive Summary (batch-level, distinct from the
+          per-exception AI assist in the dossier column below) */}
+      {batchSummaryError && (
+        <div className="p-3 bg-[#FEF3F2] border border-[#FECDCA] rounded-md text-[#B42318] text-xs font-mono">
+          {batchSummaryError}
+        </div>
+      )}
+      {batchSummary && (
+        <div
+          style={{ backgroundColor: '#FEECEB', color: '#7A1D18', border: '1px solid #F9C3BF' }}
+          className="p-4 rounded-lg space-y-2 shadow-sm"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <BrainCircuit className="w-4 h-4 text-[#7A1D18]" />
+              <span className="text-xs font-bold uppercase tracking-wider font-mono">
+                AI Portfolio Executive Summary — {batchSummary.totalOpenExceptions} Open Exceptions
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setBatchSummary(null)}
+              aria-label="Dismiss portfolio summary"
+              className="hover:opacity-70"
+            >
+              <XCircle className="w-4 h-4" />
+            </button>
+          </div>
+          <p className="text-xs font-sans leading-relaxed whitespace-pre-line">{batchSummary.summary}</p>
+        </div>
+      )}
 
       {/* Master / Detail Grid Layout (33% Queue / 67% Dossier) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -439,6 +568,31 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
         {/* RIGHT COLUMN: Forensic Investigation Dossier (~67% -> 8 cols)             */}
         {/* ========================================================================= */}
         <div className="lg:col-span-8 space-y-5">
+          {/* Decision confirmation toast — rendered above everything else in
+              this column so it stays visible even when the panel below it
+              switches to the next auto-advanced exception. */}
+          {queueToast && (
+            <div
+              ref={toastRef}
+              role="status"
+              style={{ backgroundColor: '#CDE78C', color: '#1C3806', border: '1px solid #B3D463' }}
+              className="p-3 rounded-lg text-xs font-mono font-bold flex items-center justify-between shadow-subtle"
+            >
+              <div className="flex items-center space-x-2">
+                <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+                <span>{queueToast.message}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setQueueToast(null)}
+                aria-label="Dismiss notification"
+                className="ml-3 hover:opacity-70"
+              >
+                <XCircle className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
           {loadingDetail ? (
             <div className="section-band p-16 flex flex-col items-center justify-center text-[#768883] bg-white">
               <Loader2 className="w-6 h-6 animate-spin text-[#204E4C] mb-2" />
@@ -792,6 +946,25 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
               </div>
 
               {/* 4. HUMAN REVIEW DECISION LAYER (DEEP TEAL ANCHOR BLOCK #204E4C) */}
+              {exceptionDetail.status !== 'OPEN' ? (
+                // This exception is already resolved — show a clear, unmissable
+                // confirmation instead of leaving the same decision form sitting
+                // there looking unchanged after a successful submit.
+                <div
+                  style={{ backgroundColor: '#CDE78C', color: '#1C3806', border: '1px solid #B3D463' }}
+                  className="p-6 rounded-lg space-y-1.5 shadow-modal"
+                >
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle2 className="w-5 h-5" />
+                    <h3 className="text-xs font-bold uppercase tracking-wider font-mono">
+                      Exception Resolved — {exceptionDetail.resolution?.toUpperCase() || exceptionDetail.status}
+                    </h3>
+                  </div>
+                  <p className="text-xs font-sans">
+                    This decision is permanently recorded in the audit trail. Select another exception from the queue on the left to continue reviewing, or open "Full Loan Lineage" above to verify and seal this loan once all its exceptions are resolved.
+                  </p>
+                </div>
+              ) : (
               <form
                 onSubmit={handleSubmitDecision}
                 style={{ backgroundColor: '#204E4C', color: '#FFFFFF', border: '1px solid #163B39' }}
@@ -932,6 +1105,7 @@ export default function ReviewerDashboard({ onSelectLoan, onOpenAudit, searchQue
                   </button>
                 </div>
               </form>
+              )}
             </>
           )}
         </div>

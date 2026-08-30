@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../api';
 import {
   X,
   History,
   Loader2,
   Info,
+  ShieldCheck,
 } from 'lucide-react';
 
 export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
@@ -12,16 +13,46 @@ export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
+  // Verify & Seal (Module E) state
+  const [verifying, setVerifying] = useState(false);
+  const [verifyError, setVerifyError] = useState(null);
+
+  const fetchLoan = useCallback(() => {
     if (!loanId) return;
     setLoading(true);
     setError(null);
 
-    api.getLoanDetail(loanId)
+    return api.getLoanDetail(loanId)
       .then((res) => setLoan(res.data))
       .catch((err) => setError(err.message || 'Failed to load loan record lineage.'))
       .finally(() => setLoading(false));
   }, [loanId]);
+
+  useEffect(() => {
+    fetchLoan();
+  }, [fetchLoan]);
+
+  const openCriticalExceptions = (loan?.exceptions || []).filter(
+    (e) => e.status === 'OPEN' && e.severity === 'CRITICAL'
+  );
+  const isAlreadyVerified = Boolean(loan?.verifiedLoan);
+  const isRejected = loan?.status === 'REJECTED';
+  const canVerifyRole = ['REVIEWER', 'ADMIN'].includes(api.getAuthUser().userRole);
+  const canVerify = loan && !isAlreadyVerified && !isRejected && openCriticalExceptions.length === 0 && canVerifyRole;
+
+  const handleVerifyLoan = async () => {
+    if (!loan) return;
+    setVerifying(true);
+    setVerifyError(null);
+    try {
+      await api.verifyLoan(loan.id, {});
+      await fetchLoan();
+    } catch (err) {
+      setVerifyError(err.message || 'Failed to verify and seal loan record.');
+    } finally {
+      setVerifying(false);
+    }
+  };
 
   // Handle ESC key
   useEffect(() => {
@@ -225,6 +256,62 @@ export default function LoanDetailModal({ loanId, onClose, onOpenAudit }) {
                     </span>
                   </div>
                 </div>
+              </div>
+
+              {/* 4. Verify & Seal (Module E: Verified Loan Record) */}
+              <div className="section-band p-4 space-y-2.5 text-xs bg-white">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-3.5 h-3.5 text-ref-lime-text" />
+                  <span className="text-[10px] font-mono uppercase font-semibold text-content-muted tracking-wider">
+                    Verification & Cryptographic Seal
+                  </span>
+                </div>
+
+                {isAlreadyVerified ? (
+                  <div className="bg-ref-lime-light border border-ref-lime-border rounded-xs p-3 space-y-1">
+                    <span className="badge-verified">SEALED</span>
+                    <div className="text-[11px] text-content-secondary font-sans">
+                      Verified {loan.verifiedLoan.verifiedAt ? new Date(loan.verifiedLoan.verifiedAt).toLocaleString() : ''}
+                      {loan.verifiedLoan.verifiedByUser?.name ? ` by ${loan.verifiedLoan.verifiedByUser.name}` : ''}
+                    </div>
+                    <div className="font-mono text-content-primary bg-white px-2 py-1 rounded-xs border border-ref-lime-border block truncate" title={loan.verifiedLoan.recordHash}>
+                      {loan.verifiedLoan.recordHash}
+                    </div>
+                  </div>
+                ) : isRejected ? (
+                  <p className="text-content-muted font-sans">
+                    This loan was rejected and cannot be verified.
+                  </p>
+                ) : (
+                  <>
+                    {openCriticalExceptions.length > 0 && (
+                      <p className="text-semantic-critical font-sans">
+                        {openCriticalExceptions.length} unresolved CRITICAL exception{openCriticalExceptions.length > 1 ? 's' : ''} must be resolved in the exception queue before this loan can be verified.
+                      </p>
+                    )}
+                    {!canVerifyRole && (
+                      <p className="text-content-muted font-sans">
+                        Only a Reviewer or Admin can verify and seal this loan.
+                      </p>
+                    )}
+                    {verifyError && (
+                      <p className="text-semantic-critical font-sans">{verifyError}</p>
+                    )}
+                    <button
+                      onClick={handleVerifyLoan}
+                      disabled={!canVerify || verifying}
+                      aria-label="Verify and cryptographically seal this loan record"
+                      className="btn-lime text-xs font-mono disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {verifying ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <ShieldCheck className="w-3.5 h-3.5" />
+                      )}
+                      <span>{verifying ? 'Sealing…' : 'Verify & Seal Loan'}</span>
+                    </button>
+                  </>
+                )}
               </div>
             </>
           )}

@@ -2,18 +2,118 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../api';
 import {
   UploadCloud,
-  FileCheck2,
   AlertTriangle,
-  RefreshCw,
   Loader2,
   ArrowUpRight,
   CheckCircle,
   FileSpreadsheet,
   BrainCircuit,
   Sparkles,
+  BadgeCheck,
+  Flag,
 } from 'lucide-react';
 
-export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQuery = '' }) {
+/**
+ * Validation Outcome Composition — a single segmented bar showing what
+ * share of the ingested portfolio is Clean/Verified vs currently Flagged.
+ * Reuses this dashboard's own established two-tone story (lime = clean/
+ * verified, coral/critical-red = flagged) rather than introducing a new
+ * palette, and always pairs each segment with an icon + label + % so the
+ * split never depends on color alone (a red/green pair sits in the CVD
+ * warn band without that secondary encoding).
+ */
+function ValidationCompositionBar({ summary, loading }) {
+  const total = summary?.totalLoans || 0;
+  const clean = summary?.cleanLoansCount || 0;
+  const flagged = summary?.flaggedLoansCount || 0;
+  // Computed independently from actual counts (never by subtracting from
+  // 100) so an un-validated or partially-reconciled batch — where
+  // clean + flagged doesn't yet add up to total — can't render a
+  // misleading "100% flagged" bar for loans that simply haven't been
+  // classified yet.
+  const cleanPct = total > 0 ? Math.round((clean / total) * 100) : 0;
+  const flaggedPct = total > 0 ? Math.round((flagged / total) * 100) : 0;
+  const unclassified = Math.max(total - clean - flagged, 0);
+
+  return (
+    <div className="section-band p-5 space-y-3 bg-white">
+      <div className="flex items-center justify-between border-b border-border pb-2">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-content-primary font-mono">
+          Validation Outcome Composition
+        </h3>
+        <span className="text-[10px] font-mono text-content-secondary">
+          {loading ? '—' : `${total.toLocaleString()} loans ingested`}
+        </span>
+      </div>
+
+      {!loading && total === 0 ? (
+        <p className="text-xs text-content-secondary font-mono py-2">
+          No loans ingested yet — upload a loan tape to see the validation split.
+        </p>
+      ) : (
+        <div className="space-y-2 pt-1">
+          <div
+            className="flex h-3 w-full rounded-full overflow-hidden bg-surface-inset"
+            role="img"
+            aria-label={`Validation outcome: ${cleanPct}% clean or verified (${clean} loans), ${flaggedPct}% flagged (${flagged} loans)${unclassified > 0 ? `, ${unclassified} not yet validated` : ''}`}
+          >
+            {cleanPct > 0 && (
+              <div
+                className="h-full"
+                style={{ width: `${cleanPct}%`, backgroundColor: '#087443' }}
+              />
+            )}
+            {flaggedPct > 0 && (
+              <div
+                className="h-full"
+                style={{ width: `${flaggedPct}%`, backgroundColor: '#B42318' }}
+              />
+            )}
+            {unclassified > 0 && (
+              <div
+                className="h-full"
+                style={{ width: `${Math.round((unclassified / total) * 100)}%`, backgroundColor: '#B4C2B1' }}
+              />
+            )}
+          </div>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-1.5 pt-0.5">
+            <div className="flex items-center gap-1.5">
+              <BadgeCheck className="w-3.5 h-3.5" style={{ color: '#087443' }} />
+              <span className="text-[10.5px] font-mono font-semibold text-content-secondary uppercase tracking-wide">
+                Clean / Verified
+              </span>
+              <span className="text-xs font-mono font-bold text-content-primary tabular-nums">
+                {clean.toLocaleString()} ({cleanPct}%)
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Flag className="w-3.5 h-3.5" style={{ color: '#B42318' }} />
+              <span className="text-[10.5px] font-mono font-semibold text-content-secondary uppercase tracking-wide">
+                Flagged
+              </span>
+              <span className="text-xs font-mono font-bold text-content-primary tabular-nums">
+                {flagged.toLocaleString()} ({flaggedPct}%)
+              </span>
+            </div>
+            {unclassified > 0 && (
+              <div className="flex items-center gap-1.5">
+                <span className="w-3.5 h-3.5 rounded-full inline-block" style={{ backgroundColor: '#B4C2B1' }} />
+                <span className="text-[10.5px] font-mono font-semibold text-content-secondary uppercase tracking-wide">
+                  Not Yet Validated
+                </span>
+                <span className="text-xs font-mono font-bold text-content-primary tabular-nums">
+                  {unclassified.toLocaleString()}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function OperatorDashboard({ onSelectLoan, searchQuery = '' }) {
   const [summary, setSummary] = useState(null);
   const [uploads, setUploads] = useState([]);
   const [flaggedLoans, setFlaggedLoans] = useState([]);
@@ -29,6 +129,13 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
   const [uploading, setUploading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState(null);
   const [uploadError, setUploadError] = useState(null);
+
+  // Optional secondary feeds (servicer updates / document manifest) — used
+  // by the cross-source-conflict and document-custody validation rules.
+  // Both are optional; validation still runs without them, those two rules
+  // just won't have anything to check a loan against.
+  const [servicerUpdateFile, setServicerUpdateFile] = useState(null);
+  const [documentManifestFile, setDocumentManifestFile] = useState(null);
 
   // AI Rule Generation State
   const [nlRuleDescription, setNlRuleDescription] = useState('');
@@ -121,10 +228,21 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
 
     const formData = new FormData();
     formData.append('file', file);
+    if (servicerUpdateFile) formData.append('servicerUpdate', servicerUpdateFile);
+    if (documentManifestFile) formData.append('documentManifest', documentManifestFile);
 
     try {
       const res = await api.uploadLoanTape(formData);
       setUploadMessage(`Ingestion completed: "${res.data.filename}" (${res.data.totalRows?.toLocaleString()} rows parsed with SHA-256 provenance).`);
+      if (!res.data.validationSummary) {
+        setUploadError(
+          `Warning: validation did not run against this batch — the exception queue and dashboards will NOT reflect it until this is resolved.${
+            res.data.validationError ? ` (${res.data.validationError})` : ''
+          }`
+        );
+      }
+      setServicerUpdateFile(null);
+      setDocumentManifestFile(null);
       refreshAll();
     } catch (err) {
       setUploadError(err.message || 'File upload failed. Ensure file is under 10MB and format is compliant.');
@@ -236,6 +354,9 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
         </div>
       )}
 
+      {/* 1b. VALIDATION OUTCOME COMPOSITION (chart) */}
+      <ValidationCompositionBar summary={summary} loading={loadingSummary} />
+
       {/* 2. FILE INTAKE OPERATION PANEL (PERIWINKLE-LIGHT SURFACE BAND) */}
       <div className="bg-ref-periwinkle-light border border-ref-periwinkle-border rounded-lg p-5 space-y-3 shadow-subtle">
         <div className="flex items-center justify-between border-b border-ref-periwinkle-border pb-2.5">
@@ -295,6 +416,34 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
                 <span className="text-[10px] text-content-muted font-mono font-semibold">(.csv, UTF-8)</span>
               </>
             )}
+          </label>
+        </div>
+
+        {/* Optional secondary feeds — enable the cross-source-conflict and
+            document-custody validation rules for this batch. Neither is
+            required; validation still runs on the tape alone without them. */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <label className="text-[11px] font-mono text-content-secondary bg-white border border-ref-periwinkle-border rounded-md px-3 py-2 flex items-center justify-between cursor-pointer hover:border-ref-teal">
+            <span className="truncate">
+              Servicer Updates (optional): <span className="font-semibold text-content-primary">{servicerUpdateFile?.name || 'servicer_update.csv'}</span>
+            </span>
+            <input
+              type="file"
+              accept=".csv,text/csv"
+              className="hidden"
+              onChange={(e) => setServicerUpdateFile(e.target.files?.[0] || null)}
+            />
+          </label>
+          <label className="text-[11px] font-mono text-content-secondary bg-white border border-ref-periwinkle-border rounded-md px-3 py-2 flex items-center justify-between cursor-pointer hover:border-ref-teal">
+            <span className="truncate">
+              Document Manifest (optional): <span className="font-semibold text-content-primary">{documentManifestFile?.name || 'document_manifest.csv'}</span>
+            </span>
+            <input
+              type="file"
+              accept=".csv,text/csv"
+              className="hidden"
+              onChange={(e) => setDocumentManifestFile(e.target.files?.[0] || null)}
+            />
           </label>
         </div>
 
