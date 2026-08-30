@@ -236,6 +236,8 @@ export default function OperatorDashboard({ onSelectLoan, onOpenAudit, searchQue
     try {
       const res = await api.uploadLoanTape(formData);
       setUploadMessage(`Ingestion completed: "${res.data.filename}" (${res.data.totalRows?.toLocaleString()} rows parsed with SHA-256 provenance).`);
+      setServicerUpdateFile(null);
+      setDocumentManifestFile(null);
       refreshAll();
     } catch (err) {
       setUploadError(err.message || 'File upload failed. Ensure file is under 10MB and format is compliant.');
