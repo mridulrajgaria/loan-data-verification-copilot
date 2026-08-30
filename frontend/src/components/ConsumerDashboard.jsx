@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../api';
 import {
   ShieldCheck,
-  CheckCircle2,
   AlertTriangle,
   AlertOctagon,
   AlertCircle,
