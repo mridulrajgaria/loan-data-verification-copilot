@@ -160,35 +160,40 @@
   background-color: #204E4C !important;
   color: #FFFFFF !important;
   border: 1px solid #163B39 !important;
-  border-radius: 8px !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 2px rgba(15, 35, 32, 0.15), 0 6px 14px -8px rgba(15, 35, 32, 0.35) !important;
 }
 
 .block-lime {
   background-color: #CDE78C !important;
   color: #1C3806 !important;
   border: 1px solid #B3D463 !important;
-  border-radius: 8px !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 2px rgba(28, 56, 6, 0.06) !important;
 }
 
 .block-periwinkle {
   background-color: #C1D8FF !important;
   color: #0D2754 !important;
   border: 1px solid #9DC0FB !important;
-  border-radius: 8px !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 2px rgba(13, 39, 84, 0.06) !important;
 }
 
 .block-yellow {
   background-color: #FFEB8C !important;
   color: #453800 !important;
   border: 1px solid #F0D452 !important;
-  border-radius: 8px !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 2px rgba(69, 56, 0, 0.06) !important;
 }
 
 .block-coral {
   background-color: #FEECEB !important;
   color: #7A1D18 !important;
   border: 1px solid #F9C3BF !important;
-  border-radius: 8px !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 2px rgba(122, 29, 24, 0.06) !important;
 }
 
 /* White Data Surface on Clean Canvas */
