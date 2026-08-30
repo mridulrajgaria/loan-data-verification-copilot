@@ -39,6 +39,7 @@ Tracking incremental changes made after the initial submission build, in scope w
 - **Cleanup — removed unused imports** left over from earlier iteration across `App.jsx`, `OperatorDashboard.jsx`, and `ConsumerDashboard.jsx` (unused `lucide-react` icons and an unused `onOpenAudit` destructure), no behavior change.
 - **Visual polish pass**: refined the shared CSS tokens used by every dashboard — section cards, status badges, metric color blocks, and buttons now use a softer layered shadow and slightly larger corner radius instead of a flat 1px shadow and tight 4-6px radius. Purely visual: same colors, same layout, same components, applied consistently across all three role dashboards through the shared utility classes rather than per-screen edits.
 - **Feature — collapsible sidebar**: added a "Sidebar" toggle in the top header (desktop only — the existing mobile drawer is unaffected) that hides/shows the left navigation panel, so reviewers on smaller laptop screens can reclaim the extra width for the case queue and dossier when they want it.
+- **Bug fix — upload response claimed validation succeeded even when it failed to run**: `POST /api/uploads` always returned "uploaded, normalized, and validated successfully," even in the branch where `runBatchValidation` threw and was caught silently, leaving `validationSummary` null. Now the response message and `validationError` field accurately reflect whether validation actually ran, and the Operator dashboard surfaces a warning when it didn't.
 
 ---
 
