@@ -3,7 +3,7 @@
  * Handles consistent error handling, credentials, and mock RBAC headers.
  */
 
-const API_BASE = '/api';
+const API_BASE = import.meta.env.DEV ? '/api' : (import.meta.env.VITE_API_URL || '/api');
 
 // Active Mock Authentication Context (Synchronized with default Reviewer Persona)
 let currentAuth = {
