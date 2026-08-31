@@ -30,11 +30,11 @@ export default function App() {
   // Three Demo Personas per Challenge Specification
   const personas = {
     operator: {
-      name: 'Priya Sharma',
+      name: 'Panya Kapoor',
       title: 'Data Operations Specialist',
       role: 'OPERATOR',
       userId: 'usr-operator-01',
-      initials: 'PS',
+      initials: 'PK',
     },
     reviewer: {
       name: 'Mridul Rajgaria',

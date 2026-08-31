@@ -1,11 +1,11 @@
 [
   {
     "id": "usr-operator-01",
-    "name": "Priya Sharma",
-    "email": "priya.sharma@loancopilot.local",
+    "name": "Panya Kapoor",
+    "email": "panya.kapoor@loancopilot.local",
     "role": "OPERATOR",
     "title": "Data Operations Specialist",
-    "initials": "PS"
+    "initials": "PK"
   },
   {
     "id": "usr-reviewer-01",
