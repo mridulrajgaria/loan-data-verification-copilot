@@ -18,24 +18,33 @@
     .font-mono {
       font-family: 'JetBrains Mono', monospace;
     }
-    /* Slide dimensions for 16:9 ratio */
+    /* Slide dimensions for 16:9 ratio in browser preview */
     .slide-container {
       aspect-ratio: 16 / 9;
       width: 100%;
-      max-width: 1200px;
+      max-width: 1100px;
     }
     
     /* Print optimizations to render page breaks per slide */
     @media print {
+      @page {
+        size: 11in 6.1875in; /* exact 16:9 aspect ratio landscape */
+        margin: 0;
+      }
       body {
-        background-color: white !important;
-        color: black !important;
+        background-color: #0F172A !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        min-height: 0 !important;
+        height: 100vh !important;
+        width: 100vw !important;
       }
       .no-print {
         display: none !important;
       }
       .slide-page {
-        page-break-after: always;
+        page-break-after: always !important;
+        page-break-inside: avoid !important;
         height: 100vh !important;
         width: 100vw !important;
         max-width: none !important;
@@ -43,366 +52,389 @@
         box-shadow: none !important;
         border: none !important;
         margin: 0 !important;
-        padding: 2rem !important;
-        display: flex !important;
+        padding: 3rem !important;
+        display: flex !important; /* Force all slides visible for print engine */
         flex-direction: column !important;
         justify-content: space-between !important;
+        background-color: #0F172A !important;
+        color: #F1F5F9 !important;
+        box-sizing: border-box !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      /* Ensure special backgrounds print exactly */
+      .bg-brand-teal {
+        background-color: #204E4C !important;
+      }
+      .bg-brand-coral {
+        background-color: #FEECEB !important;
+      }
+      .bg-brand-lime {
+        background-color: #CDE78C !important;
+      }
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
     }
   </style>
 </head>
-<body class="bg-[#0F172A] text-slate-100 min-h-screen flex flex-col items-center justify-between p-4 sm:p-6 md:p-8 select-none">
+<body class="bg-[#0B0F19] text-slate-100 min-h-screen flex flex-col items-center justify-between p-4 sm:p-6 select-none">
 
   <!-- Interactive Slide Controller (Hidden during print) -->
-  <header class="no-print w-full max-w-[1200px] flex items-center justify-between border-b border-slate-800 pb-3 mb-4 text-xs font-mono">
+  <header class="no-print w-full max-w-[1100px] flex items-center justify-between border-b border-slate-800 pb-3 mb-4 text-xs font-mono">
     <div class="flex items-center space-x-2">
-      <div class="w-3 h-3 rounded-full bg-[#CDE78C]"></div>
+      <div class="w-3.5 h-3.5 bg-[#CDE78C] rounded-md border border-white/20"></div>
       <span class="font-bold uppercase tracking-wider text-slate-300">Intain Campus FinTech Challenge 2026</span>
     </div>
     <div class="text-slate-400">
-      Interactive Presentation &bull; Press <kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700">Ctrl+P</kbd> to Export to PDF
+      Interactive Presentation &bull; Pushed to GitHub
     </div>
   </header>
 
   <!-- Main Slide Display Area -->
-  <main class="w-full max-w-[1200px] bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden slide-container flex flex-col justify-between p-8 md:p-12 relative">
+  <main class="w-full max-w-[1100px] bg-slate-900 border border-slate-800/80 rounded-2xl shadow-2xl overflow-hidden slide-container flex flex-col justify-between p-10 relative">
     
-    <!-- SLIDE 1: TITLE SLIDE -->
-    <div id="slide-1" class="slide-page h-full flex flex-col justify-between">
-      <div class="flex items-center justify-between">
-        <span class="text-xs font-mono bg-[#16433F] text-[#CDE78C] px-3 py-1 rounded-full border border-[#CDE78C]/20 font-semibold tracking-widest uppercase">
-          Full Stack Track &bull; Prototype Phase
+    <!-- SLIDE 1: TITLE SLIDE (Brand Teal Theme #204E4C) -->
+    <div id="slide-1" class="slide-page h-full flex flex-col justify-between bg-brand-teal text-white" style="background-color: #204E4C;">
+      <div class="flex items-center justify-between border-b border-white/10 pb-4">
+        <span class="text-xs font-mono bg-white/15 text-[#CDE78C] px-3.5 py-1 rounded-md border border-white/20 font-bold tracking-widest uppercase">
+          Full Stack Track Prototype
         </span>
-        <span class="text-xs font-mono text-slate-400">01 / 08</span>
+        <span class="text-xs font-mono text-white/60">01 / 08</span>
       </div>
       
       <div class="space-y-6 my-auto">
-        <div class="flex items-center space-x-3.5">
-          <div class="w-12 h-12 bg-[#16433F] rounded-2xl flex items-center justify-center shadow-md relative border border-[#CDE78C]/30">
-            <i data-lucide="shield-check" class="w-7 h-7 text-[#CDE78C]"></i>
+        <div class="flex items-center space-x-4">
+          <div class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20 shadow-inner">
+            <i data-lucide="shield-check" class="w-8 h-8 text-[#CDE78C]"></i>
           </div>
-          <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white">
-            Loan Data Verification Copilot
-          </h1>
+          <div>
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight leading-none text-white">
+              Loan Data Verification Copilot
+            </h1>
+            <div class="text-[#CDE78C] font-mono text-sm tracking-wider font-semibold mt-2 uppercase">
+              Lineage, AI Diagnostics & Cryptographic Proofs
+            </div>
+          </div>
         </div>
-        <p class="text-lg md:text-xl text-slate-300 max-w-3xl leading-relaxed">
-          AI-Assisted Underwriting Auditing, Data Lineage & Cryptographic Attestation Platform for Mortgage portfolios.
+        <p class="text-base md:text-lg text-slate-100 max-w-3xl leading-relaxed font-light">
+          A security-hardened fintech auditing workspace resolving format normalization discrepancies, validating portfolios against 15 configurable business rules, and attesting data integrity via canonical SHA-256 hashes.
         </p>
       </div>
 
-      <div class="border-t border-slate-800 pt-6 flex items-center justify-between text-xs font-mono text-slate-400">
+      <div class="border-t border-white/10 pt-5 flex items-center justify-between text-xs font-mono text-white/70">
         <div>
           Presenters: <span class="text-white font-bold">Mridul Rajgaria</span> & <span class="text-white">Panya Kapoor</span>
         </div>
         <div>
-          GitHub: <span class="text-[#CDE78C]">mridulrajgaria/loan-data-verification-copilot</span>
+          Platform: <span class="text-[#CDE78C] font-bold">React • Node.js • Prisma • SQLite • Claude 3.5</span>
         </div>
       </div>
     </div>
 
-    <!-- SLIDE 2: THE PROBLEM -->
+    <!-- SLIDE 2: THE PROBLEM (Dark Institutional Theme) -->
     <div id="slide-2" class="slide-page h-full hidden flex flex-col justify-between">
-      <div class="flex items-center justify-between">
-        <span class="text-xs font-mono text-slate-400 uppercase tracking-wider">The Problem</span>
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <span class="text-xs font-mono text-slate-400 uppercase tracking-wider font-bold">01. The Problem Space</span>
         <span class="text-xs font-mono text-slate-400">02 / 08</span>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 my-auto">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-10 my-auto">
         <div class="space-y-4">
-          <h2 class="text-2xl md:text-3xl font-bold text-white tracking-tight">
-            The Multi-Billion Dollar Mortgage Data Crisis
+          <h2 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-tight">
+            The Mortgage Tape Integrity Challenge
           </h2>
-          <p class="text-sm md:text-base text-slate-300 leading-relaxed font-sans">
-            Secondary mortgage markets and capital market aggregators ingest loan portfolios from fragmented, inconsistent channels: spreadsheets, servicer feeds, and legacy APIs.
+          <p class="text-sm text-slate-300 leading-relaxed font-sans">
+            Capital market aggregators receive loan files from fragmented networks. These files contain structural defects, formatting inconsistencies, and critical usury violations.
           </p>
-          <p class="text-sm md:text-base text-slate-300 leading-relaxed font-sans">
-            Underwriters struggle to detect data quality issues, leading to critical risk exposure and structural double-pledging.
-          </p>
+          <div class="bg-red-500/10 border border-red-500/20 p-4 rounded-xl text-xs text-red-300">
+            <span class="font-bold block mb-1">Double-Pledging & Compliance Risk:</span>
+            Without validation checks and cryptographic locks, database records are vulnerable to unlogged edits, exposing lenders to double-pledging and regulatory penalties.
+          </div>
         </div>
         
-        <div class="space-y-3">
-          <div class="bg-slate-850 p-4 rounded-xl border border-red-500/25 flex items-start space-x-3.5">
-            <div class="p-2 bg-red-500/10 text-red-400 rounded-lg"><i data-lucide="alert-triangle" class="w-5 h-5"></i></div>
+        <div class="space-y-3.5">
+          <div class="bg-slate-850 p-4 rounded-xl border border-slate-800 flex items-start space-x-3.5 shadow-sm">
+            <div class="p-2 bg-red-500/15 text-red-400 rounded-lg flex-shrink-0"><i data-lucide="alert-triangle" class="w-5 h-5"></i></div>
             <div>
-              <h4 class="font-bold text-white text-sm">Messy CSV Ingestion</h4>
-              <p class="text-xs text-slate-400 mt-0.5">Missing loan IDs, malformed ISO calendar dates, and unstandardized postal codes.</p>
+              <h4 class="font-bold text-white text-sm">Dirty CSV Tapes</h4>
+              <p class="text-[11px] text-slate-400 mt-0.5">Missing unique IDs, negative balances, stale dates, and invalid jurisdiction codes.</p>
             </div>
           </div>
-          <div class="bg-slate-850 p-4 rounded-xl border border-red-500/25 flex items-start space-x-3.5">
-            <div class="p-2 bg-red-500/10 text-red-400 rounded-lg"><i data-lucide="refresh-cw" class="w-5 h-5"></i></div>
+          <div class="bg-slate-850 p-4 rounded-xl border border-slate-800 flex items-start space-x-3.5 shadow-sm">
+            <div class="p-2 bg-red-500/15 text-red-400 rounded-lg flex-shrink-0"><i data-lucide="refresh-cw" class="w-5 h-5"></i></div>
             <div>
-              <h4 class="font-bold text-white text-sm">Servicing & Manifest Discrepancies</h4>
-              <p class="text-xs text-slate-400 mt-0.5">Conflicts in interest rates and balances between tapes, servicer records, and physical documents.</p>
+              <h4 class="font-bold text-white text-sm">Cross-Source Discrepancies</h4>
+              <p class="text-[11px] text-slate-400 mt-0.5">Tape balances conflicting with external servicer updates or missing document manifests.</p>
             </div>
           </div>
-          <div class="bg-slate-850 p-4 rounded-xl border border-red-500/25 flex items-start space-x-3.5">
-            <div class="p-2 bg-red-500/10 text-red-400 rounded-lg"><i data-lucide="database" class="w-5 h-5"></i></div>
+          <div class="bg-slate-850 p-4 rounded-xl border border-slate-800 flex items-start space-x-3.5 shadow-sm">
+            <div class="p-2 bg-red-500/15 text-red-400 rounded-lg flex-shrink-0"><i data-lucide="database" class="w-5 h-5"></i></div>
             <div>
-              <h4 class="font-bold text-white text-sm">Rogue Database Alterations</h4>
-              <p class="text-xs text-slate-400 mt-0.5">Direct SQL injections or unlogged data manipulation that bypass audit controls.</p>
+              <h4 class="font-bold text-white text-sm">Data Alteration Risk</h4>
+              <p class="text-[11px] text-slate-400 mt-0.5">Database entries lacks tamper-evidence, allowing unauthorized SQL modifications to go undetected.</p>
             </div>
           </div>
         </div>
       </div>
 
       <div class="border-t border-slate-800 pt-4 text-xs font-mono text-slate-400">
-        Focus: Restoring data trust, governance, and traceability in credit portfolios.
+        Objective: Vault a traceable history with absolute proof of data integrity.
       </div>
     </div>
 
-    <!-- SLIDE 3: THE SOLUTION -->
+    <!-- SLIDE 3: THE CO-PILOT SOLUTION (Dark Institutional Theme) -->
     <div id="slide-3" class="slide-page h-full hidden flex flex-col justify-between">
-      <div class="flex items-center justify-between">
-        <span class="text-xs font-mono text-slate-400 uppercase tracking-wider">The Solution</span>
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <span class="text-xs font-mono text-slate-400 uppercase tracking-wider font-bold">02. Platform Solution</span>
         <span class="text-xs font-mono text-slate-400">03 / 08</span>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-auto">
-        <div class="bg-slate-850 p-5 rounded-xl border border-[#CDE78C]/15 space-y-3.5 shadow-sm">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-auto text-xs">
+        <div class="bg-[#16433F]/10 border border-[#204E4C]/30 p-5 rounded-xl space-y-3 shadow-md flex flex-col justify-between">
           <div class="w-9 h-9 bg-[#16433F] text-[#CDE78C] rounded-lg flex items-center justify-center"><i data-lucide="layers" class="w-5 h-5"></i></div>
-          <h3 class="font-bold text-white text-base">Ingestion & Linage</h3>
-          <p class="text-xs text-slate-400 leading-relaxed">
-            Streaming CSV parser storing raw verbatim payloads (`RawLoanRecord`) and file SHA-256 hashes (`RawUpload`) as strict non-nullable database relationships. Zero data is corrected silently during ingestion.
+          <h3 class="font-bold text-white text-sm font-mono uppercase tracking-wider">01. Lineage & Ingestion</h3>
+          <p class="text-slate-400 leading-relaxed">
+            Streaming CSV parser calculates SHA-256 file hashes and stores raw verbatim content (`RawLoanRecord`) mapping 1:1 to the coerced typed fields (`NormalizedLoan`). Zero data is corrected silently.
           </p>
         </div>
         
-        <div class="bg-slate-850 p-5 rounded-xl border border-[#CDE78C]/15 space-y-3.5 shadow-sm">
+        <div class="bg-[#16433F]/10 border border-[#204E4C]/30 p-5 rounded-xl space-y-3 shadow-md flex flex-col justify-between">
           <div class="w-9 h-9 bg-[#16433F] text-[#CDE78C] rounded-lg flex items-center justify-center"><i data-lucide="brain-circuit" class="w-5 h-5"></i></div>
-          <h3 class="font-bold text-white text-base">AI-Assisted Diagnostics</h3>
-          <p class="text-xs text-slate-400 leading-relaxed">
-            An isolated LLM assistant panel that interprets 15 underwriting rule exceptions, proposes exact JSON correction patches, drafts underwriter compliance notes, and translates natural language criteria into engine rules.
+          <h3 class="font-bold text-white text-sm font-mono uppercase tracking-wider">02. Rule-Based AI Diagnostics</h3>
+          <p class="text-slate-400 leading-relaxed">
+            Engine validates 15 dynamics rules from config. Isolated AI review assistant handles exception diagnostics, proposes correction patches, and compiles natural language descriptions into system rules.
           </p>
         </div>
 
-        <div class="bg-slate-850 p-5 rounded-xl border border-[#CDE78C]/15 space-y-3.5 shadow-sm">
+        <div class="bg-[#16433F]/10 border border-[#204E4C]/30 p-5 rounded-xl space-y-3 shadow-md flex flex-col justify-between">
           <div class="w-9 h-9 bg-[#16433F] text-[#CDE78C] rounded-lg flex items-center justify-center"><i data-lucide="lock" class="w-5 h-5"></i></div>
-          <h3 class="font-bold text-white text-base">Cryptographic Seal</h3>
-          <p class="text-xs text-slate-400 leading-relaxed">
-            AGG-256 deterministic key-sorted JSON hashing (`canonicalStringify`) of signed records, locking them in `VerifiedLoan`. Proves record immutability and flags database-level tampering immediately.
+          <h3 class="font-bold text-white text-sm font-mono uppercase tracking-wider">03. Immutability Seal</h3>
+          <p class="text-slate-400 leading-relaxed">
+            AGG-256 recursive key-sorting JSON stringifier computes SHA-256 record hashes of validated loans. Tampering is flagged instantly, providing mathematical proof independent of database logs.
           </p>
         </div>
       </div>
 
       <div class="border-t border-slate-800 pt-4 text-xs font-mono text-[#CDE78C]">
-        Outcome: A single source of truth backed by mathematical proofs and human sign-off.
+        Result: End-to-end provenance with complete accountability at every lifecycle change.
       </div>
     </div>
 
-    <!-- SLIDE 4: PRODUCT WORKSPACE DEMO -->
+    <!-- SLIDE 4: ROLE-BASED COWORKSPACES (Dark Institutional Theme) -->
     <div id="slide-4" class="slide-page h-full hidden flex flex-col justify-between">
-      <div class="flex items-center justify-between">
-        <span class="text-xs font-mono text-slate-400 uppercase tracking-wider">Workspace Roles</span>
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <span class="text-xs font-mono text-slate-400 uppercase tracking-wider font-bold">03. Coworkspace Dashboards</span>
         <span class="text-xs font-mono text-slate-400">04 / 08</span>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-auto text-xs font-sans">
-        <div class="p-5 bg-slate-850 rounded-xl border border-slate-800 space-y-3">
+        <div class="p-5 bg-slate-850 rounded-xl border border-slate-800/80 space-y-3">
           <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-            <span class="font-bold text-white font-mono text-xs">01. Data Operations</span>
-            <span class="bg-[#9DC0FB]/10 text-[#9DC0FB] text-[9px] px-1.5 py-0.5 rounded uppercase font-bold tracking-wider font-mono">Operator</span>
+            <span class="font-bold text-white font-mono text-xs uppercase tracking-wider">Panya Kapoor</span>
+            <span class="bg-[#9DC0FB]/10 text-[#9DC0FB] text-[9px] px-2 py-0.5 rounded font-bold font-mono">OPERATOR</span>
           </div>
-          <p class="text-slate-400">Ingestion console with file upload, summary charts, flagged anomalies list, and the natural language rule translation builder.</p>
-          <div class="bg-[#F8FAFC]/5 p-2 rounded text-[10px] text-slate-300 font-mono">
-            User: Panya Kapoor (PK)
+          <p class="text-slate-400">Drag-and-drop ingestion pipeline, source tape history ledger, validation summary statistics, and the AI validation rules translator tool.</p>
+          <div class="text-[10px] text-slate-500 font-mono">
+            Permissions: Tape Ingestion, Rule Generation
           </div>
         </div>
 
-        <div class="p-5 bg-slate-850 rounded-xl border border-slate-800 space-y-3">
+        <div class="p-5 bg-slate-850 rounded-xl border border-slate-800/80 space-y-3">
           <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-            <span class="font-bold text-white font-mono text-xs">02. Underwriting Review</span>
-            <span class="bg-[#FEECEB] text-[#7A1D18] text-[9px] px-1.5 py-0.5 rounded uppercase font-bold tracking-wider font-mono">Reviewer</span>
+            <span class="font-bold text-white font-mono text-xs uppercase tracking-wider">Mridul Rajgaria</span>
+            <span class="bg-[#FEECEB] text-[#7A1D18] text-[9px] px-2 py-0.5 rounded font-bold font-mono">REVIEWER</span>
           </div>
-          <p class="text-slate-400">Forensic review workbench. Side-by-side raw-to-normalized comparison, AI advisory drawer, standalone comments feed, and binding human decisions form.</p>
-          <div class="bg-[#F8FAFC]/5 p-2 rounded text-[10px] text-slate-300 font-mono">
-            User: Mridul Rajgaria (MR)
+          <p class="text-slate-400">Adjudicates flagged exceptions. Employs Claude explainers and suggestion patches, logs standalone comments, and submits binding decisions with notes.</p>
+          <div class="text-[10px] text-slate-500 font-mono">
+            Permissions: Exception Resolution, Comments
           </div>
         </div>
 
-        <div class="p-5 bg-slate-850 rounded-xl border border-slate-800 space-y-3">
+        <div class="p-5 bg-slate-850 rounded-xl border border-slate-800/80 space-y-3">
           <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-            <span class="font-bold text-white font-mono text-xs">03. Verification Portal</span>
-            <span class="bg-[#DCFCE7] text-[#166534] text-[9px] px-1.5 py-0.5 rounded uppercase font-bold tracking-wider font-mono">Auditor</span>
+            <span class="font-bold text-white font-mono text-xs uppercase tracking-wider">Rohan Mehta</span>
+            <span class="bg-[#DCFCE7] text-[#166534] text-[9px] px-2 py-0.5 rounded font-bold font-mono">AUDITOR</span>
           </div>
-          <p class="text-slate-400">Public attestation ledger. Offers independent verification of hashes, a live database tamper simulator, data quality score, and CSV/JSON export actions.</p>
-          <div class="bg-[#F8FAFC]/5 p-2 rounded text-[10px] text-slate-300 font-mono">
-            User: Rohan Mehta (RM)
+          <p class="text-slate-400">Inspects verified portfolio. Recomputes hashes, runs the live database tamper simulator, tracks the full audit timeline, and exports CSV/JSON data.</p>
+          <div class="text-[10px] text-slate-500 font-mono">
+            Permissions: Hash Auditing, Portfolio Export
           </div>
         </div>
       </div>
 
       <div class="border-t border-slate-800 pt-4 text-xs font-mono text-slate-400">
-        Demo Flow: Switch personas dynamically via the topbar switcher.
+        Authentication: Header-based mock authentication handles permission boundaries dynamically.
       </div>
     </div>
 
-    <!-- SLIDE 5: SYSTEM ARCHITECTURE DIAGRAM -->
+    <!-- SLIDE 5: SYSTEM PIPELINE DETAIL (Dark Institutional Theme) -->
     <div id="slide-5" class="slide-page h-full hidden flex flex-col justify-between">
-      <div class="flex items-center justify-between">
-        <span class="text-xs font-mono text-slate-400 uppercase tracking-wider">Architecture Note</span>
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <span class="text-xs font-mono text-slate-400 uppercase tracking-wider font-bold">04. Data Pipeline</span>
         <span class="text-xs font-mono text-slate-400">05 / 08</span>
       </div>
 
       <div class="space-y-4 my-auto">
-        <h3 class="text-lg font-bold text-white font-mono">End-to-End Data Pipeline & Lineage</h3>
+        <h3 class="text-lg font-bold text-white font-mono">Verifiable Data Ingestion & Adjudication Pipeline</h3>
         
         <div class="grid grid-cols-5 gap-3 text-center text-[10.5px] font-mono">
-          <div class="bg-slate-850 p-3 rounded-lg border border-slate-700">
-            <div class="font-bold text-[#9DC0FB] mb-1">1. RAW CSV TAPE</div>
-            <p class="text-[9px] text-slate-400">Ingest via multipart stream. Compute File Hash.</p>
+          <div class="bg-slate-850 p-3.5 rounded-lg border border-slate-700">
+            <div class="font-bold text-[#9DC0FB] mb-1">1. INGESTION</div>
+            <p class="text-[9px] text-slate-400">Verify CSV schema. Write RawUpload & raw lines.</p>
           </div>
-          <div class="flex items-center justify-center text-slate-600 font-bold text-lg">&rarr;</div>
-          <div class="bg-slate-850 p-3 rounded-lg border border-slate-700">
+          <div class="flex items-center justify-center text-slate-650 font-bold text-lg">&rarr;</div>
+          <div class="bg-slate-850 p-3.5 rounded-lg border border-slate-700">
             <div class="font-bold text-[#CDE78C] mb-1">2. NORMALIZATION</div>
-            <p class="text-[9px] text-slate-400">Store raw Content. Coerce formats safely.</p>
+            <p class="text-[9px] text-slate-400">Standardize date fields & state codes.</p>
           </div>
-          <div class="flex items-center justify-center text-slate-600 font-bold text-lg">&rarr;</div>
-          <div class="bg-slate-850 p-3 rounded-lg border border-slate-700">
-            <div class="font-bold text-[#FECDCA] mb-1">3. EXCEPTION MATRIX</div>
-            <p class="text-[9px] text-slate-400">15 config rules. Open exception row per failure.</p>
+          <div class="flex items-center justify-center text-slate-650 font-bold text-lg">&rarr;</div>
+          <div class="bg-slate-850 p-3.5 rounded-lg border border-slate-700">
+            <div class="font-bold text-[#FECDCA] mb-1">3. EXCEPTION CHECK</div>
+            <p class="text-[9px] text-slate-400">Run 15 config-driven validation rules.</p>
           </div>
         </div>
 
         <div class="grid grid-cols-5 gap-3 text-center text-[10.5px] font-mono mt-3">
-          <div class="bg-slate-850 p-3 rounded-lg border border-slate-700 col-start-3">
-            <div class="font-bold text-amber-300 mb-1">4. ADJUDICATION</div>
-            <p class="text-[9px] text-slate-400">Claude diagnostic explanation & JSON fix suggestion.</p>
+          <div class="bg-slate-850 p-3.5 rounded-lg border border-slate-700 col-start-3">
+            <div class="font-bold text-amber-300 mb-1">4. HUMAN DECISION</div>
+            <p class="text-[9px] text-slate-400">Approve Override, Correct fields, or Reject loan.</p>
           </div>
-          <div class="flex items-center justify-center text-slate-600 font-bold text-lg">&rarr;</div>
-          <div class="bg-slate-850 p-3 rounded-lg border border-slate-700">
-            <div class="font-bold text-emerald-400 mb-1">5. VAULT LOCK</div>
-            <p class="text-[9px] text-slate-400">Sort keys. Hash canonical JSON. Lock state.</p>
+          <div class="flex items-center justify-center text-slate-650 font-bold text-lg">&rarr;</div>
+          <div class="bg-slate-850 p-3.5 rounded-lg border border-slate-700">
+            <div class="font-bold text-emerald-400 mb-1">5. VAULT SHIELD</div>
+            <p class="text-[9px] text-slate-400">Build canonical payload & seal with SHA-256.</p>
           </div>
         </div>
       </div>
 
       <div class="border-t border-slate-800 pt-4 text-xs font-mono text-slate-400">
-        Single Mutating Endpoint: `POST /api/exceptions/:id/decision` is the only route authorized to alter database records.
+        Single Mutating Endpoint: `POST /api/exceptions/:id/decision` manages transactions, audit logs, and status transitions.
       </div>
     </div>
 
-    <!-- SLIDE 6: REQUIRED AI CONTROLS -->
-    <div id="slide-6" class="slide-page h-full hidden flex flex-col justify-between">
-      <div class="flex items-center justify-between">
-        <span class="text-xs font-mono text-slate-400 uppercase tracking-wider">AI Controls & Governance</span>
-        <span class="text-xs font-mono text-slate-400">06 / 08</span>
+    <!-- SLIDE 6: AI GOVERNANCE (Soft Coral AI Theme #FEECEB) -->
+    <div id="slide-6" class="slide-page h-full hidden flex flex-col justify-between bg-brand-coral text-[#7A1D18]" style="background-color: #FEECEB; color: #7A1D18;">
+      <div class="flex items-center justify-between border-b border-[#7A1D18]/10 pb-4">
+        <span class="text-xs font-mono text-[#7A1D18]/80 uppercase tracking-wider font-bold">05. AI Control Governance</span>
+        <span class="text-xs font-mono text-[#7A1D18]/60">06 / 08</span>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8 my-auto">
         <div class="space-y-4">
-          <h2 class="text-xl md:text-2xl font-bold text-white font-mono uppercase tracking-tight">
-            Separation of Concerns: AI Advice vs Human Decision
+          <h2 class="text-2xl md:text-3xl font-black tracking-tight leading-none uppercase font-mono">
+            Model Risk Compliance
           </h2>
-          <p class="text-xs md:text-sm text-slate-300 leading-relaxed font-sans">
-            Per regulatory model risk guidance (e.g. OCC 2011-12), the platform enforces strict human-in-the-loop controls: AI recommends, but only humans execute.
+          <p class="text-xs md:text-sm text-[#7A1D18]/95 leading-relaxed font-sans font-light">
+            In compliance with OCC 2011-12 guidelines, AI handles diagnostic suggestion processing only. Every output is treated as advisory and requires manual underwriter validation.
           </p>
-          <div class="bg-[#16433F]/20 border border-[#CDE78C]/25 p-3 rounded-lg text-xs">
-            <span class="font-bold text-[#CDE78C] block mb-1">Audit Trail Logging:</span>
-            Every AI request, prompt sent, model version, and generated suggestion is logged in `AIRecommendation` and is permanently indexed in the audit trail.
+          <div class="bg-white/60 border border-[#7A1D18]/20 p-3.5 rounded-lg text-[11px] leading-relaxed">
+            <span class="font-bold block mb-0.5 font-mono uppercase text-[9px] tracking-wider text-[#7A1D18]">Permanent Auditing:</span>
+            Recommendations, prompts, model metadata, and confidence scores are logged in the `AIRecommendation` table *before* displaying to the user, establishing an audit trail.
           </div>
         </div>
         
         <div class="space-y-3.5">
-          <div class="bg-slate-850 p-4 rounded-xl border border-slate-800">
-            <h4 class="font-bold text-white text-sm flex items-center space-x-2">
-              <i data-lucide="check" class="w-4 h-4 text-[#CDE78C]"></i>
-              <span>Isolated AIRecommendation Layer</span>
+          <div class="bg-white/80 p-4 rounded-xl border border-[#7A1D18]/15 text-xs">
+            <h4 class="font-bold text-[#7A1D18] flex items-center space-x-2">
+              <i data-lucide="check-circle" class="w-4 h-4 text-[#7A1D18]"></i>
+              <span class="font-mono uppercase tracking-wider text-[11px]">Strict Read-Only Isolation</span>
             </h4>
-            <p class="text-xs text-slate-400 mt-1">AI recommendation starts with `acceptedByReviewer: null`. AI cannot mutate loan attributes or exception status directly.</p>
+            <p class="text-[#7A1D18]/80 mt-1">The AI review assistant is strictly read-only. It has zero permissions to directly edit, mutate, or resolve loan data in the database.</p>
           </div>
-          <div class="bg-slate-850 p-4 rounded-xl border border-slate-800">
-            <h4 class="font-bold text-white text-sm flex items-center space-x-2">
-              <i data-lucide="check" class="w-4 h-4 text-[#CDE78C]"></i>
-              <span>Immutable ReviewAction Records</span>
+          <div class="bg-white/80 p-4 rounded-xl border border-[#7A1D18]/15 text-xs">
+            <h4 class="font-bold text-[#7A1D18] flex items-center space-x-2">
+              <i data-lucide="check-circle" class="w-4 h-4 text-[#7A1D18]"></i>
+              <span class="font-mono uppercase tracking-wider text-[11px]">ReviewAction Attestation</span>
             </h4>
-            <p class="text-xs text-slate-400 mt-1">When an underwriter accepts, edits, or rejects an AI fix, before/after JSON snapshots are vaulted in `ReviewAction` linking back to the advisor record.</p>
+            <p class="text-[#7A1D18]/80 mt-1">Underwriter sign-offs explicitly log whether they accepted or bypassed AI recommendations, capturing full snapshots of before/after states.</p>
           </div>
         </div>
       </div>
 
-      <div class="border-t border-slate-800 pt-4 text-xs font-mono text-slate-400">
-        AI Control Shielding: Prevents "side-door" database manipulation and ensures audit integrity.
+      <div class="border-t border-[#7A1D18]/10 pt-4 text-xs font-mono text-[#7A1D18]/70">
+        AI Advisory Layer: Prompts, models, and timestamps are displayed transparently in the panel.
       </div>
     </div>
 
-    <!-- SLIDE 7: DYNAMIC CRYPTOGRAPHIC EVIDENCE -->
+    <!-- SLIDE 7: CRYPTOGRAPHIC INTEGRITY PROOF (Dark Institutional Theme) -->
     <div id="slide-7" class="slide-page h-full hidden flex flex-col justify-between">
-      <div class="flex items-center justify-between">
-        <span class="text-xs font-mono text-slate-400 uppercase tracking-wider">Cryptographic Attestation</span>
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <span class="text-xs font-mono text-slate-400 uppercase tracking-wider font-bold">06. Cryptographic Attestation</span>
         <span class="text-xs font-mono text-slate-400">07 / 08</span>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8 my-auto">
         <div class="space-y-4">
-          <h2 class="text-xl md:text-2xl font-bold text-white font-mono">
-            Deterministic Tamper-Evidence
+          <h2 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-none">
+            Tamper-Evidence & Hash Verification
           </h2>
-          <p class="text-xs md:text-sm text-slate-300 leading-relaxed">
-            Audit logs are rows inside a database that could theoretically be modified or dropped by an administrator with direct database write access.
+          <p class="text-xs md:text-sm text-slate-300 leading-relaxed font-sans">
+            Audit trails inside databases can theoretically be altered by system administrators. Our attestation model resolves this by sealing loans with deterministic SHA-256 digests.
           </p>
-          <p class="text-xs md:text-sm text-slate-300 leading-relaxed font-bold text-[#CDE78C]">
-            VerifiedLoan recordHash provides mathematical proof of integrity independent of the database audit log.
-          </p>
+          <div class="bg-[#16433F]/20 border border-[#204E4C]/30 p-4 rounded-xl text-xs text-slate-300 leading-relaxed font-mono">
+            <span class="text-[#CDE78C] font-bold block mb-1">Live Judge Tamper Simulation:</span>
+            The Auditor workspace features a simulated tamper trigger. Modifying even 1 byte in the database instantly causes a verification failure, rendering the record invalid.
+          </div>
         </div>
 
-        <div class="space-y-3.5">
-          <div class="bg-slate-850 p-4 rounded-xl border border-slate-800">
-            <h4 class="font-bold text-white text-sm">1. Canonical Key Sorting</h4>
-            <p class="text-xs text-slate-400 mt-1">Recursive alphabetical sorting ensures identical byte-for-byte serialization regardless of runtime JSON keys ordering.</p>
+        <div class="space-y-3">
+          <div class="bg-slate-850 p-4 rounded-xl border border-slate-800 text-xs">
+            <h4 class="font-bold text-white text-sm">Deterministic Key Serialization</h4>
+            <p class="text-slate-400 mt-1 text-[11px]">Canonical stringification (`canonicalStringify`) sorts all JSON fields recursively, producing identical byte-level output regardless of database storage order.</p>
           </div>
-          <div class="bg-slate-850 p-4 rounded-xl border border-slate-800">
-            <h4 class="font-bold text-white text-sm">2. SHA-256 Attestation Hashing</h4>
-            <p class="text-xs text-slate-400 mt-1">Aggregates loan fields, raw lineage source references, validation snapshot, and reviewer signature into a unique 64-character hash.</p>
-          </div>
-          <div class="bg-slate-850 p-4 rounded-xl border border-slate-800">
-            <h4 class="font-bold text-white text-sm">3. Live Tamper Verification</h4>
-            <p class="text-xs text-slate-400 mt-1">Alterations of even 1 byte in the database immediately triggers a `HASH_MISMATCH_TAMPER_DETECTED` warning on the auditor dashboard.</p>
+          <div class="bg-slate-850 p-4 rounded-xl border border-slate-800 text-xs">
+            <h4 class="font-bold text-white text-sm">Lineage & Verification Audit Timeline</h4>
+            <p class="text-slate-400 mt-1 text-[11px]">The record hash seals raw upload metadata, parent CSV hashes, validation snapshots, and underwriter attestations into a single immutable document.</p>
           </div>
         </div>
       </div>
 
       <div class="border-t border-slate-800 pt-4 text-xs font-mono text-slate-400">
-        Demo Action: Open the Auditor Workspace and click "Demo Tamper" to show judges live detection.
+        Verification Check: Rohan Mehta verified 1,198 sealed records successfully.
       </div>
     </div>
 
-    <!-- SLIDE 8: SUMMARY & CONCLUSION -->
-    <div id="slide-8" class="slide-page h-full hidden flex flex-col justify-between">
-      <div class="flex items-center justify-between">
-        <span class="text-xs font-mono text-slate-400 uppercase tracking-wider">Conclusion</span>
-        <span class="text-xs font-mono text-slate-400">08 / 08</span>
+    <!-- SLIDE 8: SUMMARY & CONCLUSION (Brand Lime Theme #CDE78C) -->
+    <div id="slide-8" class="slide-page h-full hidden flex flex-col justify-between bg-brand-lime text-[#1C3806]" style="background-color: #CDE78C; color: #1C3806;">
+      <div class="flex items-center justify-between border-b border-[#1C3806]/10 pb-4">
+        <span class="text-xs font-mono text-[#1C3806]/85 uppercase tracking-wider font-bold">07. Summary & Metrics</span>
+        <span class="text-xs font-mono text-[#1C3806]/60">08 / 08</span>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8 my-auto">
         <div class="space-y-4">
-          <h2 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
+          <h2 class="text-3xl md:text-4xl font-black tracking-tight leading-none uppercase font-mono">
             Submission Ready
           </h2>
-          <ul class="space-y-2.5 text-xs md:text-sm text-slate-300 font-sans list-disc list-inside">
-            <li>Ingestion engine tested up to 20,000 rows.</li>
-            <li>All 16 unit tests for validation rules passing.</li>
-            <li>All 9 E2E product QA check audits passing.</li>
-            <li>8.83MB verified JSON dataset and CSV audit logs generated in <code class="bg-slate-800 px-1 py-0.5 rounded text-[#CDE78C] font-mono">sample-output/</code>.</li>
-            <li>Full setup guides, mock personas, and credentials documented.</li>
+          <ul class="space-y-2 text-xs md:text-sm text-[#1C3806]/95 leading-relaxed font-medium list-disc list-inside">
+            <li>Completed all required full-stack modules.</li>
+            <li>Ingestion engine parses and computes lineage details.</li>
+            <li>16/16 pure functional validation tests passed.</li>
+            <li>9/9 integration E2E product QA checks passed.</li>
+            <li>8.83MB verified JSON dataset and CSV audit logs generated in <code class="bg-[#1C3806]/15 px-1 py-0.5 rounded font-mono font-bold">sample-output/</code>.</li>
+            <li>Detailed README, ARCHITECTURE, and AI logs completed.</li>
           </ul>
         </div>
 
-        <div class="bg-[#16433F]/20 border border-[#CDE78C]/20 p-6 rounded-xl flex flex-col justify-center text-center space-y-3">
-          <span class="text-sm font-mono uppercase text-[#CDE78C] tracking-widest font-bold">Project Status</span>
-          <span class="text-3xl font-bold text-white font-mono tracking-tight">100% COMPLETE</span>
-          <p class="text-xs text-slate-400 max-w-xs mx-auto">All required full-stack modules, validation engines, AI advisory workflows, cryptographic attestations, and docs are pushed and ready.</p>
+        <div class="bg-white/40 border border-[#1C3806]/20 p-5 rounded-2xl flex flex-col justify-center text-center space-y-2 shadow-sm">
+          <span class="text-xs font-mono uppercase tracking-widest font-bold text-[#1C3806]">Audited Status</span>
+          <span class="text-4xl font-extrabold font-mono tracking-tight text-white leading-none">100% COMPLETE</span>
+          <p class="text-[11px] text-[#1C3806]/85 max-w-xs mx-auto mt-2 leading-relaxed">The prototype satisfies all requirements, features extensive AI governance controls, and demonstrates complete traceability of loan datasets.</p>
         </div>
       </div>
 
-      <div class="border-t border-slate-800 pt-4 text-xs font-mono text-slate-400 flex items-center justify-between">
+      <div class="border-t border-[#1C3806]/10 pt-4 text-xs font-mono text-[#1C3806]/75 flex items-center justify-between">
         <span>Loan Data Verification Copilot &bull; 2026</span>
-        <span class="text-emerald-400 font-bold flex items-center space-x-1"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> <span>Ready to Submit</span></span>
+        <span class="font-bold flex items-center space-x-1"><i data-lucide="check" class="w-4 h-4"></i> <span>Ready for Review</span></span>
       </div>
     </div>
 
   </main>
 
   <!-- Interactive Slide Controller (Hidden during print) -->
-  <footer class="no-print w-full max-w-[1200px] flex items-center justify-between border-t border-slate-800 pt-4 mt-4 font-mono text-xs">
+  <footer class="no-print w-full max-w-[1100px] flex items-center justify-between border-t border-slate-800 pt-4 mt-4 font-mono text-xs">
     <div class="flex items-center space-x-3">
       <button onclick="prevSlide()" class="px-4 py-2 bg-slate-800 border border-slate-700 hover:bg-slate-700 text-white rounded-lg transition-all font-bold">
         &larr; Previous Slide
@@ -424,10 +456,8 @@
     const totalSlides = 8;
 
     function showSlide(slideIndex) {
-      // Bounds check
       if (slideIndex < 1 || slideIndex > totalSlides) return;
       
-      // Hide all slides
       for (let i = 1; i <= totalSlides; i++) {
         const slide = document.getElementById(`slide-${i}`);
         if (slide) {
@@ -436,7 +466,6 @@
         }
       }
 
-      // Show target slide
       const targetSlide = document.getElementById(`slide-${slideIndex}`);
       if (targetSlide) {
         targetSlide.classList.remove('hidden');
@@ -459,7 +488,6 @@
       }
     }
 
-    // Keyboard controls for presentations
     document.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
         nextSlide();

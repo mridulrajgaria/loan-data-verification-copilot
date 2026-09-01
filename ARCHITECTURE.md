@@ -4,6 +4,14 @@
 
 The system implements an end-to-end pipeline that transforms raw, unverified loan tapes into cryptographically locked, tamper-evident verified loan records with complete lineage and human-in-the-loop governance.
 
+### Production Cloud Deployment Topology
+The live system is deployed in a decoupled cloud architecture:
+* **Frontend Web Client (Vercel)**: `https://loan-data-verification-copilot-alpha.vercel.app/`
+  * Compiled via Vite 5, served globally with client-side RBAC persona switching.
+* **Backend REST API (Render)**: `https://loan-copilot-api.onrender.com/api/health`
+  * Node.js/Express service backed by Prisma ORM and SQLite.
+  * Pre-loaded with 2,000 normalized loans, 428 validation exceptions, and complete audit trail lineage.
+
 ```
 +-----------------------------------------------------------------------------------+
 | 1. RAW INGESTION & LINEAGE                                                        |

@@ -4,6 +4,20 @@
 
 ---
 
+## 🌐 Live Production Deployment
+
+The complete application is deployed and live for instant evaluation without local setup:
+
+| Component | Platform | Live URL | Status |
+| :--- | :--- | :--- | :--- |
+| **Frontend Web App** | **Vercel** | **[loan-data-verification-copilot-alpha.vercel.app](https://loan-data-verification-copilot-alpha.vercel.app/)** | 🟢 Production Live |
+| **Backend REST API** | **Render** | **[loan-copilot-api.onrender.com](https://loan-copilot-api.onrender.com/api/health)** | 🟢 Production Live |
+
+* **Pre-Loaded Portfolio**: Pre-seeded with 2,000 normalized loans, 428 open exceptions across 15 validation rules, and complete audit trail lineage.
+* **Instant Evaluation**: Reviewers can test all 3 personas (**Operator**, **Reviewer**, **Auditor**), execute AI diagnostics, record binding underwriting decisions, and run the live cryptographic tamper simulator directly in the browser!
+
+---
+
 ## 🌟 Highlights & Architecture
 
 - **End-to-End Lineage & Provenance**: Preserves verbatim raw CSV row strings in `RawLoanRecord` while coercing format-only into `NormalizedLoan`.
@@ -60,9 +74,9 @@ This system uses **header-based mock authentication** rather than username/passw
 
 | Persona Name | Header `x-user-id` | Header `x-user-role` | Accessible Views / Permissions |
 | :--- | :--- | :--- | :--- |
-| **Elena Rostova** | `usr-operator-01` | `OPERATOR` | **Operator (7a)**: Ingest CSV loan tapes (`POST /api/uploads`), inspect raw provenance & batch validation summary metrics. |
-| **David Chen** | `usr-reviewer-01` | `REVIEWER` | **Reviewer (7b)**: Adjudicate exceptions, trigger AI explanation / fix suggestions, record binding decisions (`POST /api/exceptions/:id/decision`), verify loans. |
-| **Sarah Vance** | `usr-auditor-01` | `AUDITOR` | **Consumer (7c)**: Inspect verified loan portfolio, independently recompute SHA-256 hashes (`GET /api/verified-loans/:id/verify-hash`), export data. *Adjudication & ingestion mutations return 403 Forbidden.* |
+| **Panya Kapoor** | `usr-operator-01` | `OPERATOR` | **Operator (7a)**: Ingest CSV loan tapes (`POST /api/uploads`), inspect raw provenance, batch validation metrics & AI rule generator. |
+| **Mridul Rajgaria** | `usr-reviewer-01` | `REVIEWER` | **Reviewer (7b)**: Adjudicate exceptions, trigger AI explanation / fix suggestions, add comments, record binding decisions (`POST /api/exceptions/:id/decision`), verify loans. |
+| **Rohan Mehta** | `usr-auditor-01` | `AUDITOR` | **Consumer (7c)**: Inspect verified loan portfolio, independently recompute SHA-256 hashes (`GET /api/verified-loans/:id/verify-hash`), run live tamper simulator, export data. *Adjudication & ingestion mutations return 403 Forbidden.* |
 | **Alex Mercer** | `usr-admin-01` | `ADMIN` | **Unrestricted Access**: Ingestion, reviewer adjudication, cryptographic tamper simulation (`POST /api/verified-loans/:id/simulate-tamper`), and verification. |
 
 ---
