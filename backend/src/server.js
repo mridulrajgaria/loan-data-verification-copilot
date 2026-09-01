@@ -14,8 +14,8 @@ const PORT = process.env.PORT || 4000;
 const allowedOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (e.g. mobile apps, curl, server-to-server) or matching frontend
-    if (!origin || origin === allowedOrigin || origin === 'http://localhost:5173') {
+    // Allow requests with no origin (e.g. mobile apps, curl, server-to-server) or wildcard or matching frontend
+    if (!origin || allowedOrigin === '*' || origin === allowedOrigin || origin === 'http://localhost:5173') {
       callback(null, true);
     } else {
       callback(new Error(`CORS blocked for origin: ${origin}`));
