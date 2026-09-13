@@ -1,6 +1,10 @@
 require('dotenv').config();
+const fs = require('fs');
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
+const prisma = require('./db');
+const { processLoanTapeUpload } = require('./services/ingestionService');
 const { authenticateUser } = require('./middleware/auth');
 const uploadRoutes = require('./routes/uploadRoutes');
 const exceptionRoutes = require('./routes/exceptionRoutes');
@@ -9,6 +13,40 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+
+// Automatic self-healing bootstrap: if database is empty on server startup (e.g. after Render free tier sleep/restart), auto-seed the initial tape
+async function autoSeedIfEmpty() {
+  try {
+    const loanCount = await prisma.normalizedLoan.count();
+    if (loanCount > 0) return;
+
+    console.log('🔄 [BOOTSTRAP] Fresh/empty database detected. Auto-seeding initial 2,000-loan tape...');
+    const candidatePaths = [
+      path.resolve(__dirname, '../data/loan_tape.csv'),
+      path.resolve(__dirname, '../../data/loan_tape.csv'),
+      path.resolve(process.cwd(), 'data/loan_tape.csv'),
+      path.resolve(process.cwd(), '../data/loan_tape.csv'),
+    ];
+
+    const tapePath = candidatePaths.find((p) => fs.existsSync(p));
+    if (!tapePath) {
+      console.warn('⚠️ [BOOTSTRAP] loan_tape.csv not found in candidate paths.');
+      return;
+    }
+
+    const fileBuffer = fs.readFileSync(tapePath);
+    const filename = path.basename(tapePath);
+
+    await processLoanTapeUpload({
+      fileBuffer,
+      filename,
+      userId: 'usr-operator-01',
+    });
+    console.log('✅ [BOOTSTRAP] Portfolio tape successfully auto-seeded on boot!');
+  } catch (err) {
+    console.error('❌ [BOOTSTRAP] Failed to auto-seed on boot:', err.message);
+  }
+}
 
 // Security & Parsing Middlewares
 const allowedOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
@@ -83,6 +121,7 @@ if (process.env.NODE_ENV !== 'test') {
     console.log(`🚀 Loan Data Verification Backend listening on port ${PORT}`);
     console.log(`📡 Health Check: http://localhost:${PORT}/api/health`);
     console.log(`🛡️  Security Shields: Zod Validation, RBAC Auth, Rate Limiter & Error Obfuscation Active`);
+    autoSeedIfEmpty();
   });
 }
 
