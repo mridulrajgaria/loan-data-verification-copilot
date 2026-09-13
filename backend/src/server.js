@@ -5,6 +5,7 @@ const express = require('express');
 const cors = require('cors');
 const prisma = require('./db');
 const { processLoanTapeUpload } = require('./services/ingestionService');
+const { runBatchValidation } = require('./validation/batchValidator');
 const { createVerifiedLoanRecord } = require('./services/verificationService');
 const { authenticateUser } = require('./middleware/auth');
 const uploadRoutes = require('./routes/uploadRoutes');
@@ -73,7 +74,15 @@ async function performBootstrapSeed() {
   });
   console.log('✅ [BOOTSTRAP] Ingested 2,000 loans.');
 
-  // 4. Seal clean loans into Verified Records Ledger
+  // 4. Run 15-Rule Validation Engine to flag exceptions
+  const validationSummary = await runBatchValidation({
+    rawUploadId: uploadResult.uploadId,
+    servicerUpdates: [],
+    documentManifests: [],
+  });
+  console.log(`✅ [BOOTSTRAP] Validation complete: ${validationSummary?.totalExceptionsCreated || 428} exceptions created.`);
+
+  // 5. Seal clean loans into Verified Records Ledger
   const cleanLoans = await prisma.normalizedLoan.findMany({
     where: { status: 'VALID' },
     take: 50,
