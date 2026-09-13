@@ -40,12 +40,30 @@ async function performBootstrapSeed() {
     }
   }
 
-  // 2. Check if loans already exist
+  // 2. Check if loans & exceptions already exist fully
   const existingCount = await prisma.normalizedLoan.count();
-  if (existingCount > 0) {
-    console.log(`ℹ️ [BOOTSTRAP] Database already populated with ${existingCount} loans.`);
+  const existingExceptions = await prisma.exception.count();
+  if (existingCount >= 2000 && existingExceptions >= 400) {
+    console.log(`ℹ️ [BOOTSTRAP] Database already fully populated with ${existingCount} loans and ${existingExceptions} exceptions.`);
     const verifiedCount = await prisma.verifiedLoan.count();
-    return { alreadySeeded: true, totalLoans: existingCount, verifiedLoans: verifiedCount };
+    return { alreadySeeded: true, totalLoans: existingCount, exceptions: existingExceptions, verifiedLoans: verifiedCount };
+  }
+
+  // If partial database state exists (e.g. from interrupted boot), clean it up cleanly
+  if (existingCount > 0) {
+    console.log(`🧹 [BOOTSTRAP] Partial database state detected (${existingCount} loans, ${existingExceptions} exceptions). Cleaning up for fresh seed...`);
+    try {
+      await prisma.auditLog.deleteMany({});
+      await prisma.reviewAction.deleteMany({});
+      await prisma.aIRecommendation.deleteMany({});
+      await prisma.exception.deleteMany({});
+      await prisma.verifiedLoan.deleteMany({});
+      await prisma.normalizedLoan.deleteMany({});
+      await prisma.rawLoanRecord.deleteMany({});
+      await prisma.rawUpload.deleteMany({});
+    } catch (e) {
+      console.warn('[BOOTSTRAP] Cleanup notice:', e.message);
+    }
   }
 
   // 3. Find loan_tape.csv

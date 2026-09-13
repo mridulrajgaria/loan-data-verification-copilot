@@ -173,34 +173,40 @@ async function processLoanTapeUpload({ fileBuffer, filename, fileSize, userId = 
     let successfullyNormalizedCount = 0;
 
     // Insert RawLoanRecords and NormalizedLoans in sequence
-    // We use batch chunks of 200 to stay well within SQLite variable limits
-    const CHUNK_SIZE = 200;
+    // We use batch chunks of 50 with extended timeout to prevent SQLite lock and transaction timeouts on shared cloud CPU
+    const CHUNK_SIZE = 50;
     for (let i = 0; i < rawRecordsToInsert.length; i += CHUNK_SIZE) {
       const chunk = rawRecordsToInsert.slice(i, i + CHUNK_SIZE);
 
-      await prisma.$transaction(async (tx) => {
-        for (const record of chunk) {
-          const createdRaw = await tx.rawLoanRecord.create({
-            data: {
-              rawUploadId: record.rawUploadId,
-              rowNumber: record.rowNumber,
-              rawContent: record.rawContent,
-            },
-          });
-
-          if (record.normalizedData) {
-            await tx.normalizedLoan.create({
+      await prisma.$transaction(
+        async (tx) => {
+          for (const record of chunk) {
+            const createdRaw = await tx.rawLoanRecord.create({
               data: {
-                rawLoanRecordId: createdRaw.id,
                 rawUploadId: record.rawUploadId,
-                status: 'VALID',
-                ...record.normalizedData,
+                rowNumber: record.rowNumber,
+                rawContent: record.rawContent,
               },
             });
-            successfullyNormalizedCount++;
+
+            if (record.normalizedData) {
+              await tx.normalizedLoan.create({
+                data: {
+                  rawLoanRecordId: createdRaw.id,
+                  rawUploadId: record.rawUploadId,
+                  status: 'VALID',
+                  ...record.normalizedData,
+                },
+              });
+              successfullyNormalizedCount++;
+            }
           }
+        },
+        {
+          timeout: 30000,
+          maxWait: 10000,
         }
-      });
+      );
     }
 
     // 6. Update RawUpload final status
