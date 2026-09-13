@@ -43,10 +43,37 @@ async function performBootstrapSeed() {
   // 2. Check if loans & exceptions already exist fully
   const existingCount = await prisma.normalizedLoan.count();
   const existingExceptions = await prisma.exception.count();
-  if (existingCount >= 2000 && existingExceptions >= 400) {
-    console.log(`ℹ️ [BOOTSTRAP] Database already fully populated with ${existingCount} loans and ${existingExceptions} exceptions.`);
-    const verifiedCount = await prisma.verifiedLoan.count();
-    return { alreadySeeded: true, totalLoans: existingCount, exceptions: existingExceptions, verifiedLoans: verifiedCount };
+  const existingVerified = await prisma.verifiedLoan.count();
+
+  if (existingCount >= 2000 && existingExceptions >= 400 && existingVerified >= 50) {
+    console.log(`ℹ️ [BOOTSTRAP] Database already fully populated with ${existingCount} loans, ${existingExceptions} exceptions, and ${existingVerified} sealed records.`);
+    return { alreadySeeded: true, totalLoans: existingCount, exceptions: existingExceptions, verifiedLoans: existingVerified };
+  }
+
+  // If loans exist but verified records are missing (e.g. after manual CSV upload), seal them directly
+  if (existingCount >= 2000 && existingVerified < 50) {
+    console.log(`🔒 [BOOTSTRAP] Loans exist (${existingCount}) but verified ledger has only ${existingVerified} records. Sealing clean loans...`);
+    const cleanLoans = await prisma.normalizedLoan.findMany({
+      where: { status: 'VALID' },
+      take: 50,
+    });
+
+    let sealedCount = 0;
+    for (const loan of cleanLoans) {
+      try {
+        await createVerifiedLoanRecord({
+          loanId: loan.id,
+          userId: 'usr-reviewer-01',
+          reviewerNote: 'Pre-issuance quality control verification completed. Cryptographic seal applied.',
+        });
+        sealedCount++;
+      } catch (e) {
+        // Record might already be verified
+      }
+    }
+    const finalVerified = await prisma.verifiedLoan.count();
+    console.log(`✅ [BOOTSTRAP] Sealed ${sealedCount} records. Total verified: ${finalVerified}`);
+    return { success: true, totalLoans: existingCount, exceptions: existingExceptions, verifiedLoans: finalVerified };
   }
 
   // If partial database state exists (e.g. from interrupted boot), clean it up cleanly
