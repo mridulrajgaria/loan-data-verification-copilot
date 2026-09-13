@@ -68,6 +68,7 @@ async function performBootstrapSeed() {
   const uploadResult = await processLoanTapeUpload({
     fileBuffer,
     filename,
+    fileSize: fileBuffer.length,
     userId: 'usr-operator-01',
   });
   console.log('✅ [BOOTSTRAP] Ingested 2,000 loans.');
