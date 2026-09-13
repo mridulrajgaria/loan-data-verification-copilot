@@ -5,6 +5,7 @@ const express = require('express');
 const cors = require('cors');
 const prisma = require('./db');
 const { processLoanTapeUpload } = require('./services/ingestionService');
+const { createVerifiedLoanRecord } = require('./services/verificationService');
 const { authenticateUser } = require('./middleware/auth');
 const uploadRoutes = require('./routes/uploadRoutes');
 const exceptionRoutes = require('./routes/exceptionRoutes');
@@ -43,6 +44,20 @@ async function autoSeedIfEmpty() {
       userId: 'usr-operator-01',
     });
     console.log('✅ [BOOTSTRAP] Portfolio tape successfully auto-seeded on boot!');
+
+    // Automatically seal 50 clean loans into the Verified Records Ledger
+    const cleanLoans = await prisma.normalizedLoan.findMany({
+      where: { status: 'VALID' },
+      take: 50,
+    });
+    for (const loan of cleanLoans) {
+      await createVerifiedLoanRecord({
+        loanId: loan.id,
+        userId: 'usr-reviewer-01',
+        reviewerNote: 'Pre-issuance quality control verification completed. Cryptographic seal applied.',
+      });
+    }
+    console.log(`✅ [BOOTSTRAP] Cryptographically sealed ${cleanLoans.length} loans into Verified Records Ledger!`);
   } catch (err) {
     console.error('❌ [BOOTSTRAP] Failed to auto-seed on boot:', err.message);
   }
