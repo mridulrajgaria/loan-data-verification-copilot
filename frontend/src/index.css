@@ -79,6 +79,12 @@
 
 /* High-Contrast Badges */
 .badge-critical {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
   background-color: #FEF3F2 !important;
   color: #B42318 !important;
   border: 1px solid #FECDCA !important;
@@ -87,9 +93,16 @@
   padding: 3px 8px !important;
   border-radius: 6px !important;
   font-size: 10.5px !important;
+  line-height: 1.2 !important;
 }
 
 .badge-warning {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
   background-color: #FFF4DF !important;
   color: #8C4A00 !important;
   border: 1px solid #FDE3B2 !important;
@@ -98,9 +111,16 @@
   padding: 3px 8px !important;
   border-radius: 6px !important;
   font-size: 10.5px !important;
+  line-height: 1.2 !important;
 }
 
 .badge-verified {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
   background-color: #EDFDF4 !important;
   color: #087443 !important;
   border: 1px solid #AAF0C4 !important;
@@ -109,9 +129,16 @@
   padding: 3px 8px !important;
   border-radius: 6px !important;
   font-size: 10.5px !important;
+  line-height: 1.2 !important;
 }
 
 .badge-lime {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
   background-color: #CDE78C !important;
   color: #1C3806 !important;
   border: 1px solid #B3D463 !important;
@@ -120,9 +147,16 @@
   padding: 3px 8px !important;
   border-radius: 6px !important;
   font-size: 10.5px !important;
+  line-height: 1.2 !important;
 }
 
 .badge-coral {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
   background-color: #FEECEB !important;
   color: #7A1D18 !important;
   border: 1px solid #F9C3BF !important;
@@ -131,9 +165,16 @@
   padding: 3px 8px !important;
   border-radius: 6px !important;
   font-size: 10.5px !important;
+  line-height: 1.2 !important;
 }
 
 .badge-teal {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
   background-color: #204E4C !important;
   color: #FFFFFF !important;
   border: 1px solid #163B39 !important;
@@ -142,9 +183,16 @@
   padding: 3px 8px !important;
   border-radius: 6px !important;
   font-size: 10.5px !important;
+  line-height: 1.2 !important;
 }
 
 .badge-periwinkle {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
   background-color: #EEF4FF !important;
   color: #0D2754 !important;
   border: 1px solid #9DC0FB !important;
@@ -153,6 +201,7 @@
   padding: 3px 8px !important;
   border-radius: 6px !important;
   font-size: 10.5px !important;
+  line-height: 1.2 !important;
 }
 
 /* Color Blocks */

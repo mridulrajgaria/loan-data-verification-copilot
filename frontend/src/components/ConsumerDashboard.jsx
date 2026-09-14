@@ -458,16 +458,16 @@ export default function ConsumerDashboard({ onOpenAudit, onSelectLoan, searchQue
                       </td>
 
                       {/* Live Cryptographic Proof Badge */}
-                      <td className="py-3">
+                      <td className="py-3 whitespace-nowrap">
                         {check ? (
                           check.isValid ? (
-                            <span className="badge-verified">
-                              <Check className="w-3 h-3" />
+                            <span className="badge-verified inline-flex items-center gap-1.5 whitespace-nowrap">
+                              <Check className="w-3.5 h-3.5 flex-shrink-0" />
                               <span>Exact Match</span>
                             </span>
                           ) : (
-                            <span className="badge-critical animate-pulse">
-                              <AlertTriangle className="w-3 h-3" />
+                            <span className="badge-critical animate-pulse inline-flex items-center gap-1.5 whitespace-nowrap">
+                              <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
                               <span>TAMPER DETECTED</span>
                             </span>
                           )
