@@ -137,11 +137,15 @@ async function processLoanTapeUpload({ fileBuffer, filename, fileSize, userId = 
     // 5. Transform and persist raw rows and normalized entities inside a database transaction
     const failedImportRows = [];
     const normalizedLoanInputs = [];
+    // Pre-generate IDs and prepare batch arrays for lightning-fast createMany
+    let successfullyNormalizedCount = 0;
     const rawRecordsToInsert = [];
+    const normalizedLoansToInsert = [];
 
     for (const item of parsedRows) {
       const { rowNumber, data: rawRow } = item;
       const rawContentStr = JSON.stringify(rawRow);
+      const rawRecordId = crypto.randomUUID();
 
       // Run structural normalization
       const normResult = normalizeLoanRecord(rawRow, rowNumber);
@@ -152,61 +156,40 @@ async function processLoanTapeUpload({ fileBuffer, filename, fileSize, userId = 
           rawData: rawRow,
           reason: normResult.error || 'Structural parsing error',
         });
-        // Still persist raw record for complete audit lineage
         rawRecordsToInsert.push({
+          id: rawRecordId,
           rawUploadId: rawUpload.id,
           rowNumber,
           rawContent: rawContentStr,
-          normalizedData: null,
         });
       } else {
         rawRecordsToInsert.push({
+          id: rawRecordId,
           rawUploadId: rawUpload.id,
           rowNumber,
           rawContent: rawContentStr,
-          normalizedData: normResult.data,
         });
+        normalizedLoansToInsert.push({
+          id: crypto.randomUUID(),
+          rawLoanRecordId: rawRecordId,
+          rawUploadId: rawUpload.id,
+          status: 'VALID',
+          ...normResult.data,
+        });
+        successfullyNormalizedCount++;
       }
     }
 
-    // Execute chunked atomic writes to SQLite to maintain speed and avoid transaction timeouts
-    let successfullyNormalizedCount = 0;
+    // Insert in efficient chunks of 500 using createMany (sub-second on SQLite)
+    const BATCH_SIZE = 500;
+    for (let i = 0; i < rawRecordsToInsert.length; i += BATCH_SIZE) {
+      const chunk = rawRecordsToInsert.slice(i, i + BATCH_SIZE);
+      await prisma.rawLoanRecord.createMany({ data: chunk });
+    }
 
-    // Insert RawLoanRecords and NormalizedLoans in sequence
-    // We use batch chunks of 50 with extended timeout to prevent SQLite lock and transaction timeouts on shared cloud CPU
-    const CHUNK_SIZE = 50;
-    for (let i = 0; i < rawRecordsToInsert.length; i += CHUNK_SIZE) {
-      const chunk = rawRecordsToInsert.slice(i, i + CHUNK_SIZE);
-
-      await prisma.$transaction(
-        async (tx) => {
-          for (const record of chunk) {
-            const createdRaw = await tx.rawLoanRecord.create({
-              data: {
-                rawUploadId: record.rawUploadId,
-                rowNumber: record.rowNumber,
-                rawContent: record.rawContent,
-              },
-            });
-
-            if (record.normalizedData) {
-              await tx.normalizedLoan.create({
-                data: {
-                  rawLoanRecordId: createdRaw.id,
-                  rawUploadId: record.rawUploadId,
-                  status: 'VALID',
-                  ...record.normalizedData,
-                },
-              });
-              successfullyNormalizedCount++;
-            }
-          }
-        },
-        {
-          timeout: 30000,
-          maxWait: 10000,
-        }
-      );
+    for (let i = 0; i < normalizedLoansToInsert.length; i += BATCH_SIZE) {
+      const chunk = normalizedLoansToInsert.slice(i, i + BATCH_SIZE);
+      await prisma.normalizedLoan.createMany({ data: chunk });
     }
 
     // 6. Update RawUpload final status

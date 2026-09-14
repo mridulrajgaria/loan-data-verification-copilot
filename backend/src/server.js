@@ -16,17 +16,28 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// Robust Self-Healing Bootstrap Function
-async function performBootstrapSeed() {
-  console.log('🔄 [BOOTSTRAP] Starting portfolio bootstrap check...');
+let isBootstrapping = false;
 
-  // 1. Seed System Users (required for non-nullable foreign keys)
-  const defaultUsers = [
-    { id: 'usr-operator-01', name: 'Panya Kapoor', email: 'panya.kapoor@loancopilot.local', role: 'OPERATOR', passwordHash: '$2b$10$defaultPasswordHash0001' },
-    { id: 'usr-reviewer-01', name: 'Mridul Rajgaria', email: 'mridul.rajgaria@loancopilot.local', role: 'REVIEWER', passwordHash: '$2b$10$defaultPasswordHash0002' },
-    { id: 'usr-auditor-01', name: 'Rohan Mehta', email: 'rohan.mehta@loancopilot.local', role: 'AUDITOR', passwordHash: '$2b$10$defaultPasswordHash0003' },
-    { id: 'usr-admin-01', name: 'Alex Mercer', email: 'alex.mercer@loancopilot.local', role: 'ADMIN', passwordHash: '$2b$10$defaultPasswordHash0004' }
-  ];
+// Robust Self-Healing Bootstrap Function with Concurrency Guard
+async function performBootstrapSeed() {
+  if (isBootstrapping) {
+    console.log('⚠️ [BOOTSTRAP] Bootstrap already in progress, skipping overlapping run.');
+    const count = await prisma.normalizedLoan.count().catch(() => 0);
+    const verified = await prisma.verifiedLoan.count().catch(() => 0);
+    return { inProgress: true, message: 'Bootstrap is currently running. Please refresh in a few seconds.', totalLoans: count, verifiedLoans: verified };
+  }
+
+  isBootstrapping = true;
+  try {
+    console.log('🔄 [BOOTSTRAP] Starting portfolio bootstrap check...');
+
+    // 1. Seed System Users (required for non-nullable foreign keys)
+    const defaultUsers = [
+      { id: 'usr-operator-01', name: 'Panya Kapoor', email: 'panya.kapoor@loancopilot.local', role: 'OPERATOR', passwordHash: '$2b$10$defaultPasswordHash0001' },
+      { id: 'usr-reviewer-01', name: 'Mridul Rajgaria', email: 'mridul.rajgaria@loancopilot.local', role: 'REVIEWER', passwordHash: '$2b$10$defaultPasswordHash0002' },
+      { id: 'usr-auditor-01', name: 'Rohan Mehta', email: 'rohan.mehta@loancopilot.local', role: 'AUDITOR', passwordHash: '$2b$10$defaultPasswordHash0003' },
+      { id: 'usr-admin-01', name: 'Alex Mercer', email: 'alex.mercer@loancopilot.local', role: 'ADMIN', passwordHash: '$2b$10$defaultPasswordHash0004' }
+    ];
 
   for (const u of defaultUsers) {
     try {
@@ -148,12 +159,15 @@ async function performBootstrapSeed() {
   }
   console.log(`✅ [BOOTSTRAP] Cryptographically sealed ${sealedCount} loans into Verified Records Ledger!`);
 
-  return {
-    success: true,
-    totalLoans: uploadResult.totalRows,
-    exceptions: uploadResult.validationSummary?.totalExceptionsCreated,
-    sealed: sealedCount,
-  };
+    return {
+      success: true,
+      totalLoans: uploadResult.totalRows,
+      exceptions: uploadResult.validationSummary?.totalExceptionsCreated,
+      sealed: sealedCount,
+    };
+  } finally {
+    isBootstrapping = false;
+  }
 }
 
 // Security & Parsing Middlewares
