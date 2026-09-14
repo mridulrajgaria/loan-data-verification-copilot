@@ -239,7 +239,9 @@ export default function App() {
             <div className="hidden sm:flex items-center space-x-2 text-xs text-[#64748B] font-mono">
               <span className="font-bold text-[#16433F]">Intain Copilot</span>
               <span>/</span>
-              <span className="capitalize font-sans font-semibold text-[#0F172A]">{activeTab}</span>
+              <span className="font-sans font-semibold text-[#0F172A]">
+                {activeTab === 'operator' ? 'Operator' : activeTab === 'reviewer' ? 'Reviewer' : 'Auditor'}
+              </span>
             </div>
           </div>
 
