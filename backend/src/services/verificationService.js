@@ -208,11 +208,13 @@ async function createVerifiedLoanRecord({
     throw new Error(`Cannot verify loan '${loan.loanIdentifier}': ${openCriticalExceptions.length} unresolved CRITICAL exception(s) remain open.`);
   }
 
-  // Guard against uncorrected critical failures unless explicitly covered by policy override
+  // Guard against uncorrected critical failures unless explicitly covered by authorized human review
   const criticalFailures = validationSnapshot.filter((r) => !r.passed && r.severity === 'CRITICAL');
   if (criticalFailures.length > 0) {
-    const hasOverride = (loan.reviewActions || []).some((ra) => ra.actionType === 'OVERRIDE_APPROVE');
-    if (!hasOverride) {
+    const hasHumanResolution = (loan.reviewActions || []).some((ra) =>
+      ['OVERRIDE_APPROVE', 'MANUAL_EDIT', 'ACCEPT_AI_FIX'].includes(ra.actionType)
+    );
+    if (!hasHumanResolution) {
       const failedMsg = criticalFailures.map((f) => `${f.name}: ${f.message}`).join(' | ');
       throw new Error(`Cannot verify defective loan '${loan.loanIdentifier}': uncorrected CRITICAL validation failure(s) detected [${failedMsg}].`);
     }
