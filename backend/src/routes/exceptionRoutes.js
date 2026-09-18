@@ -494,6 +494,10 @@ router.post(
           loan: updatedLoan,
           remainingOpenExceptions,
         };
+      },
+      {
+        timeout: 30000,
+        maxWait: 10000,
       });
 
       // If all exceptions on this loan are resolved and the loan is APPROVED, auto-seal it into Verified Records Ledger
