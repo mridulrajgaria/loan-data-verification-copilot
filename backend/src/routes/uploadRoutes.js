@@ -6,6 +6,7 @@ const csvParser = require('csv-parser');
 const prisma = require('../db');
 const { processLoanTapeUpload, IngestionError } = require('../services/ingestionService');
 const { runBatchValidation } = require('../validation/batchValidator');
+const { createVerifiedLoanRecord } = require('../services/verificationService');
 const { authenticateUser, requireRole } = require('../middleware/auth');
 const { validateRequest } = require('../middleware/validate');
 const { paginationQuerySchema } = require('../schemas/validationSchemas');
@@ -142,6 +143,27 @@ router.post(
           documentManifests,
           actor: String(userId),
         });
+
+        // Auto-seal clean loans (0 rule violations) from this uploaded batch directly into Verified Records Ledger
+        const cleanLoans = await prisma.normalizedLoan.findMany({
+          where: { rawUploadId: result.uploadId, status: 'VALID' },
+          take: 100,
+        });
+
+        let autoSealedCount = 0;
+        for (const cleanLoan of cleanLoans) {
+          try {
+            await createVerifiedLoanRecord({
+              loanId: cleanLoan.id,
+              userId: String(userId || 'usr-reviewer-01'),
+              reviewerNote: 'Automated cryptographic attestation on ingestion: 0 rule violations detected.',
+            });
+            autoSealedCount++;
+          } catch (e) {
+            // Ignore if already verified
+          }
+        }
+        console.log(`🔒 [UPLOAD_AUTO_SEAL] Automatically cryptographically sealed ${autoSealedCount} clean loans from uploaded batch.`);
       } catch (validationError) {
         console.error('[POST_INGESTION_VALIDATION_ERROR]', validationError);
         validationErrorMessage = validationError.message || 'Validation failed to run against the ingested batch.';

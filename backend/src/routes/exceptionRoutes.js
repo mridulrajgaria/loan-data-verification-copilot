@@ -1,6 +1,7 @@
 const express = require('express');
 const prisma = require('../db');
 const { logAudit } = require('../services/auditService');
+const { createVerifiedLoanRecord } = require('../services/verificationService');
 const { aiRateLimiter } = require('../middleware/rateLimiter');
 const { authenticateUser, requireRole } = require('../middleware/auth');
 const { validateRequest } = require('../middleware/validate');
@@ -494,6 +495,23 @@ router.post(
           remainingOpenExceptions,
         };
       });
+
+      // If all exceptions on this loan are resolved and the loan is APPROVED, auto-seal it into Verified Records Ledger
+      if (result.loan?.status === 'APPROVED' && result.remainingOpenExceptions === 0) {
+        try {
+          const verifiedResult = await createVerifiedLoanRecord({
+            loanId: loan.id,
+            userId,
+            reviewerNote: notes || 'Underwriting adjudication complete: all exceptions resolved and verified.',
+            aiRecommendationId: acceptedAiRecommendationId,
+          });
+          result.verifiedLoan = verifiedResult.verifiedLoan;
+          result.recordHash = verifiedResult.recordHash;
+          console.log(`🔒 [AUTO_SEAL] Loan ${loan.loanIdentifier} automatically sealed into Verified Records Ledger.`);
+        } catch (sealErr) {
+          console.warn('[AUTO_SEAL_NOTICE]', sealErr.message);
+        }
+      }
 
       return res.status(200).json({
         success: true,
