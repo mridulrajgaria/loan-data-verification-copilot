@@ -18,7 +18,44 @@ const PORT = process.env.PORT || 4000;
 
 let isBootstrapping = false;
 
-// Robust Self-Healing Bootstrap Function with Concurrency Guard
+// Ensure Default System Users exist
+async function ensureSeedUsers() {
+  const defaultUsers = [
+    { id: 'usr-operator-01', name: 'Panya Kapoor', email: 'panya.kapoor@loancopilot.local', role: 'OPERATOR', passwordHash: '$2b$10$defaultPasswordHash0001' },
+    { id: 'usr-reviewer-01', name: 'Mridul Rajgaria', email: 'mridul.rajgaria@loancopilot.local', role: 'REVIEWER', passwordHash: '$2b$10$defaultPasswordHash0002' },
+    { id: 'usr-auditor-01', name: 'Rohan Mehta', email: 'rohan.mehta@loancopilot.local', role: 'AUDITOR', passwordHash: '$2b$10$defaultPasswordHash0003' },
+    { id: 'usr-admin-01', name: 'Alex Mercer', email: 'alex.mercer@loancopilot.local', role: 'ADMIN', passwordHash: '$2b$10$defaultPasswordHash0004' }
+  ];
+
+  for (const u of defaultUsers) {
+    try {
+      await prisma.user.upsert({
+        where: { id: u.id },
+        update: { name: u.name, email: u.email, role: u.role },
+        create: u
+      });
+    } catch (e) {
+      // Ignore unique email collisions during race conditions
+    }
+  }
+}
+
+// Reset Database to clean state
+async function resetDatabase() {
+  await ensureSeedUsers();
+  await prisma.auditLog.deleteMany({});
+  await prisma.reviewAction.deleteMany({});
+  await prisma.aIRecommendation.deleteMany({});
+  await prisma.exception.deleteMany({});
+  await prisma.verifiedLoan.deleteMany({});
+  await prisma.normalizedLoan.deleteMany({});
+  await prisma.rawLoanRecord.deleteMany({});
+  await prisma.rawUpload.deleteMany({});
+  console.log('🧹 [DATABASE_RESET] All loan records and audit logs cleared. Clean slate ready.');
+  return { success: true, message: 'All loan records, exceptions, and verified records successfully cleared.' };
+}
+
+// Robust Bootstrap Function (on-demand only)
 async function performBootstrapSeed() {
   if (isBootstrapping) {
     console.log('⚠️ [BOOTSTRAP] Bootstrap already in progress, skipping overlapping run.');
@@ -32,32 +69,15 @@ async function performBootstrapSeed() {
     console.log('🔄 [BOOTSTRAP] Starting portfolio bootstrap check...');
 
     // 1. Seed System Users (required for non-nullable foreign keys)
-    const defaultUsers = [
-      { id: 'usr-operator-01', name: 'Panya Kapoor', email: 'panya.kapoor@loancopilot.local', role: 'OPERATOR', passwordHash: '$2b$10$defaultPasswordHash0001' },
-      { id: 'usr-reviewer-01', name: 'Mridul Rajgaria', email: 'mridul.rajgaria@loancopilot.local', role: 'REVIEWER', passwordHash: '$2b$10$defaultPasswordHash0002' },
-      { id: 'usr-auditor-01', name: 'Rohan Mehta', email: 'rohan.mehta@loancopilot.local', role: 'AUDITOR', passwordHash: '$2b$10$defaultPasswordHash0003' },
-      { id: 'usr-admin-01', name: 'Alex Mercer', email: 'alex.mercer@loancopilot.local', role: 'ADMIN', passwordHash: '$2b$10$defaultPasswordHash0004' }
-    ];
+    await ensureSeedUsers();
 
-  for (const u of defaultUsers) {
-    try {
-      await prisma.user.upsert({
-        where: { id: u.id },
-        update: { name: u.name, email: u.email, role: u.role },
-        create: u
-      });
-    } catch (e) {
-      // Ignore unique email collisions during race conditions
-    }
-  }
+    // 2. Check if loans & exceptions already exist fully
+    const existingCount = await prisma.normalizedLoan.count();
+    const existingExceptions = await prisma.exception.count();
+    const existingVerified = await prisma.verifiedLoan.count();
 
-  // 2. Check if loans & exceptions already exist fully
-  const existingCount = await prisma.normalizedLoan.count();
-  const existingExceptions = await prisma.exception.count();
-  const existingVerified = await prisma.verifiedLoan.count();
-
-  if (existingCount >= 2000 && existingExceptions >= 400 && existingVerified >= 50) {
-    console.log(`ℹ️ [BOOTSTRAP] Database already fully populated with ${existingCount} loans, ${existingExceptions} exceptions, and ${existingVerified} sealed records.`);
+    if (existingCount >= 2000 && existingExceptions >= 400 && existingVerified >= 50) {
+      console.log(`ℹ️ [BOOTSTRAP] Database already fully populated with ${existingCount} loans, ${existingExceptions} exceptions, and ${existingVerified} sealed records.`);
     return { alreadySeeded: true, totalLoans: existingCount, exceptions: existingExceptions, verifiedLoans: existingVerified };
   }
 
@@ -200,13 +220,24 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Self-Healing Bootstrap Seeding Endpoint
+// Self-Healing Bootstrap Seeding Endpoint (On-demand only)
 app.all('/api/bootstrap-seed', async (req, res) => {
   try {
     const result = await performBootstrapSeed();
     return res.status(200).json({ success: true, data: result });
   } catch (err) {
     console.error('[BOOTSTRAP_ERROR]', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Clean Slate Database Reset Endpoint
+app.all('/api/reset-data', async (req, res) => {
+  try {
+    const result = await resetDatabase();
+    return res.status(200).json({ success: true, data: result });
+  } catch (err) {
+    console.error('[RESET_ERROR]', err);
     return res.status(500).json({ success: false, error: err.message });
   }
 });
@@ -254,8 +285,8 @@ if (process.env.NODE_ENV !== 'test') {
     console.log(`🚀 Loan Data Verification Backend listening on port ${PORT}`);
     console.log(`📡 Health Check: http://localhost:${PORT}/api/health`);
     console.log(`🛡️  Security Shields: Zod Validation, RBAC Auth, Rate Limiter & Error Obfuscation Active`);
-    performBootstrapSeed().catch((err) => {
-      console.error('❌ [BOOTSTRAP_STARTUP_ERROR]', err.message);
+    ensureSeedUsers().catch((err) => {
+      console.error('❌ [SEED_USERS_STARTUP_ERROR]', err.message);
     });
   });
 }

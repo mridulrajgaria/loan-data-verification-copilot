@@ -126,6 +126,7 @@ export const api = {
   exportVerified: (format = 'json', target = 'verified') =>
     request(`/export?format=${format}&target=${target}`),
 
-  // Bootstrap Self-Healing Trigger
+  // Bootstrap / Reset Triggers
   bootstrapSeed: () => request('/bootstrap-seed', { method: 'POST' }),
+  resetData: () => request('/reset-data', { method: 'POST' }),
 };

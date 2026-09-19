@@ -53,35 +53,10 @@ export default function App() {
   };
 
   const currentPersona = personas[activeTab] || personas.reviewer;
-  const [isBootstrapping, setIsBootstrapping] = useState(false);
 
   useEffect(() => {
     api.setAuthUser(currentPersona.userId, currentPersona.role);
   }, [currentPersona.userId, currentPersona.role]);
-
-  // Self-Healing Bootstrap: If backend database is fresh/empty, trigger bootstrap and reload automatically
-  useEffect(() => {
-    let isMounted = true;
-    const autoHealIfEmpty = async () => {
-      try {
-        const summary = await api.getSummary();
-        if (isMounted && summary?.data && summary.data.totalLoans === 0) {
-          console.log('[AUTO-HEAL] Empty portfolio detected on live backend. Seeding portfolio...');
-          setIsBootstrapping(true);
-          await api.bootstrapSeed();
-          window.location.reload();
-        }
-      } catch (err) {
-        console.warn('[AUTO-HEAL] Check skipped:', err.message);
-      } finally {
-        if (isMounted) setIsBootstrapping(false);
-      }
-    };
-    autoHealIfEmpty();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const handleTabChange = (tabId) => {
     setActiveTab(tabId);
@@ -349,21 +324,11 @@ export default function App() {
           </div>
 
           <div className="flex items-center space-x-2 text-xs font-mono text-[#64748B]">
-            <span className="badge-lime">Tape: Active</span>
+            <span className="badge-lime">System: Online</span>
             <span>•</span>
-            <span className="font-bold text-[#0F172A]">2,000 Records</span>
+            <span className="font-bold text-[#0F172A]">Workspace Ready</span>
           </div>
         </div>
-
-        {isBootstrapping && (
-          <div className="bg-[#204E4C] text-[#CDE78C] px-6 py-3 text-xs font-mono flex items-center justify-between shadow-inner animate-pulse">
-            <div className="flex items-center space-x-2">
-              <span className="w-2 h-2 rounded-full bg-[#CDE78C] animate-ping"></span>
-              <span className="font-bold">INITIALIZING DEMO PORTFOLIO: Ingesting 2,000 loans & sealing cryptographic ledger...</span>
-            </div>
-            <span className="text-[11px] opacity-80 font-sans">Self-healing active • auto-refreshing in seconds</span>
-          </div>
-        )}
 
         {/* Main Workspace Dynamic Content Area */}
         <main className="flex-1 overflow-y-auto p-6 max-w-[1600px] w-full mx-auto">

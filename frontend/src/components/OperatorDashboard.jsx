@@ -142,6 +142,20 @@ export default function OperatorDashboard({ onSelectLoan, searchQuery = '' }) {
   const [generatingRule, setGeneratingRule] = useState(false);
   const [generatedRule, setGeneratedRule] = useState(null);
   const [generationError, setGenerationError] = useState(null);
+  const [resetting, setResetting] = useState(false);
+
+  const handleResetData = async () => {
+    if (!window.confirm('Are you sure you want to reset all data and clear the portfolio for a clean slate?')) return;
+    setResetting(true);
+    try {
+      await api.resetData();
+      refreshAll();
+    } catch (err) {
+      alert(`Reset failed: ${err.message}`);
+    } finally {
+      setResetting(false);
+    }
+  };
 
   const fetchSummary = useCallback(async () => {
     setLoadingSummary(true);
@@ -366,9 +380,20 @@ export default function OperatorDashboard({ onSelectLoan, searchQuery = '' }) {
               File Intake & Lineage Operation
             </h3>
           </div>
-          <span className="text-[10px] font-mono font-bold text-ref-periwinkle-text bg-white px-2 py-0.5 rounded-xs border border-ref-periwinkle-border">
-            RFC-4180 Streaming Engine • Max: 10MB
-          </span>
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={handleResetData}
+              disabled={resetting}
+              className="text-[10px] font-mono font-bold text-[#B42318] bg-white hover:bg-[#FEF3F2] px-2.5 py-0.5 rounded-xs border border-[#FECDCA] transition-colors shadow-xs"
+              title="Wipe database to 0 records for fresh manual testing"
+            >
+              {resetting ? 'Resetting DB...' : 'Reset Database'}
+            </button>
+            <span className="text-[10px] font-mono font-bold text-ref-periwinkle-text bg-white px-2 py-0.5 rounded-xs border border-ref-periwinkle-border">
+              RFC-4180 Streaming Engine • Max: 10MB
+            </span>
+          </div>
         </div>
 
         <div
